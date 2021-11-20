@@ -2,7 +2,10 @@ TAG ?= local
 PORT ?= 8080
 
 format:
-	go fmt ./...
+	sh .format.sh
+
+unit-test:
+	go test ./...
 
 run-source:
 	go run main.go
@@ -17,7 +20,10 @@ docker-build:
 	docker build . --no-cache --tag aljorhythm/yumseng:$(TAG)
 
 docker-run:
-	docker run -e PORT=$(PORT) aljorhythm/yumseng:$(TAG)
+	docker run -d -e PORT=$(PORT) aljorhythm/yumseng:$(TAG)
+
+docker-stop:
+	docker ps -q --filter ancestor="aljorhythm/yumseng:$(TAG)" | xargs -r docker stop
 
 all: format docker-build docker-run
 	echo all done

@@ -1,4 +1,4 @@
-name: Deploy
+name: main
 
 on:
   push:
@@ -6,8 +6,33 @@ on:
       - main
 
 jobs:
-  build:
+  source-checks:
+    needs: source checks
+    runs-on: golang:1.16
+    steps:
+      - uses: actions/checkout@v2
+      - name: format
+        run: make format
+      - name: unit test
+        run: make unit-test
+
+  binary-checks:
+    env:
+      TAG: ${{ github.sha }}
+    needs: source-checks
+    runs-on: golang:1.16
+    steps:
+      - uses: actions/checkout@v2
+      - name: build docker image
+        run: make docker-build
+      - name: run docker container
+        run: make docker-run
+      - name: stop docker container
+        run: make docker-stop
+
+  deploy:
     runs-on: ubuntu-latest
+    needs: binary-checks
     steps:
       - uses: actions/checkout@v2
       - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
