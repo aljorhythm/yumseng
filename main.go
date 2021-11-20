@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-// content holds our static web server content.
+// web ui static assets
 //go:embed webui/*
 var webuiFs embed.FS
 
