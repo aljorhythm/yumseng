@@ -1,4 +1,5 @@
 TAG ?= local
+PORT ?= 8080
 
 format:
 	go fmt ./...
@@ -16,4 +17,7 @@ docker-build:
 	docker build . --no-cache --tag aljorhythm/yumseng:$(TAG)
 
 docker-run:
-	docker run aljorhythm/yumseng:$(TAG)
+	docker run -e PORT=$(PORT) aljorhythm/yumseng:$(TAG)
+
+all: format docker-build docker-run
+	echo all done

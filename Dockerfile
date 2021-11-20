@@ -13,6 +13,4 @@ COPY makefile ./
 
 RUN make build
 
-EXPOSE 8080
-
-CMD [ "make", "run-binary" ]
+CMD [ "make", "run-binary", "${PATH}" ]
