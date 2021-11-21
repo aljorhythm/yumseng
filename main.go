@@ -90,6 +90,13 @@ func getVersionTag() string {
 	return value
 }
 
+func setJsonResponseHeader(handler func(writer http.ResponseWriter, request *http.Request)) func(writer http.ResponseWriter, request *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Set("Content-Type", "application/json")
+		handler(writer, request)
+	}
+}
+
 func main() {
 	webuiHandler, err := generateUiHandler()
 
@@ -100,7 +107,7 @@ func main() {
 	http.Handle("/", webuiHandler)
 
 	cheersService := cheers.NewService()
-	http.HandleFunc("/cheers", generateCheersHandler(cheersService))
+	http.HandleFunc("/cheers", setJsonResponseHeader(generateCheersHandler(cheersService)))
 
 	tag := getVersionTag()
 	http.HandleFunc("/ping", generatePingHandler(tag))

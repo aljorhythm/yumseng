@@ -1,10 +1,66 @@
 <html>
 
 <head>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script>
+        var isSleeping = false
+        async function main() {
+            async function retrieveAndDisplayCheers() {
+                if(isSleeping) {
+                    return
+                }
+                const response = await fetch('/cheers')
+                const cheers = await response.json()
+                var cheersListHtml = cheers.map((cheer) => {
+                    return `<div>${cheer.val}</div>`
+                })
+                $('#cheers-list').empty().append(cheersListHtml);
+                $('#cheers-list').empty().append(cheers.length);
+            }
+
+            function registerButtons() {
+                console.log("register buttons")
+                $("#yum").click(() => {
+                    console.log("clicked")
+                    const response = fetch('/cheers', {
+                        method: 'POST',
+                        body: JSON.stringify({value: 'yum'})
+                    }).then(console.log)
+                })
+            }
+
+            registerButtons()
+            setInterval(retrieveAndDisplayCheers, 100)
+        }
+
+        $(document).ready(main)
+    </script>
 </head>
 
 <body>
-Hello World
+Hello World!
+
+<div id="cheers">
+    <div id="cheers-list">
+    </div>
+    <div id="cheers-count">
+    </div>
+    <button id="yum">
+        YUMMMMM
+    </button>
+    <button id="seng">
+        SENG
+    </button>
+</div>
+
 </body>
 
 </html>
