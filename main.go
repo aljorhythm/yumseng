@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"fmt"
+	"github.com/aljorhythm/yumseng/cheers"
 	"github.com/aljorhythm/yumseng/ping"
 	"github.com/aljorhythm/yumseng/utils"
 	"io/fs"
@@ -27,9 +28,17 @@ func generateUiHandler() (http.Handler, error) {
 	return http.FileServer(http.FS(uiFileSystem)), nil
 }
 
-func cheersHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		fmt.Fprintf(w, "Cheers!")
+func generateCheersHandler(service cheers.Servicer) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			cheers := service.GetCheers()
+			message, err := utils.ToJson(cheers)
+
+			if err != nil {
+				panic(err)
+			}
+			fmt.Fprintf(w, string(message))
+		}
 	}
 }
 
@@ -66,7 +75,10 @@ func main() {
 	}
 
 	http.Handle("/", webuiHandler)
-	http.HandleFunc("/cheers", cheersHandler)
+
+	cheersService := cheers.NewService()
+	http.HandleFunc("/cheers", generateCheersHandler(cheersService))
+
 	http.HandleFunc("/ping", generatePingHandler(tag))
 
 	port := getPort()

@@ -26,7 +26,7 @@ func HttpResponseToStruct(resp *http.Response, v interface{}) error {
 
 	err := json.NewDecoder(resp.Body).Decode(v)
 
-	if err == nil {
+	if err != nil {
 		return err
 	}
 

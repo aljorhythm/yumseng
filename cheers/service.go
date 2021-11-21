@@ -7,14 +7,25 @@ type Cheer struct {
 	DateTime time.Time
 }
 
-type Service struct {
+type Servicer interface {
+	GetCheers() []*Cheer
+	AddCheer(cheer *Cheer)
+}
+
+type service struct {
 	cheers []*Cheer
 }
 
-func (s *Service) getCheers() []*Cheer {
+func (s *service) GetCheers() []*Cheer {
 	return s.cheers
 }
 
-func (s *Service) addCheer(cheer *Cheer) {
+func (s *service) AddCheer(cheer *Cheer) {
 	s.cheers = append(s.cheers, cheer)
+}
+
+func NewService() Servicer {
+	service := &service{}
+	service.cheers = []*Cheer{}
+	return service
 }

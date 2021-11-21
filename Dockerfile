@@ -11,6 +11,7 @@ COPY webui webui
 COPY .tag ./
 COPY *.go ./
 COPY utils utils
+COPY cheers cheers
 COPY ping ping
 
 # remote go packages

@@ -44,13 +44,13 @@ func httpRequest(options HttpRequestOptions, t *testing.T) *http.Response {
 
 	client := testHttpClient()
 
-	t.Logf("[testingHttpRequest] request method: %s | url: %s", req.Method, req.URL)
+	t.Logf("request method: %s | url: %s", req.Method, req.URL)
 	resp, err := client.Do(req)
 
 	if err != nil {
 		t.Fatalf("error doing request %#v %#v", err.Error(), resp)
 	} else {
-		t.Logf("[testingHttpRequest] response status: %d | content length: %d", resp.StatusCode, resp.ContentLength)
+		t.Logf("response status: %d | content length: %d", resp.StatusCode, resp.ContentLength)
 	}
 
 	return resp

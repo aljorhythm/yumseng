@@ -22,8 +22,7 @@ func IntegrationTestScheme() string {
 func IntegrationTestHost() string {
 	value := os.Getenv("HOST")
 	if value == "" {
-		panic("[main_test_utils.go] Unable to retrieve host")
-		return ""
+		return "localhost:8080"
 	} else {
 		return value
 	}
