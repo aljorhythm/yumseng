@@ -48,3 +48,5 @@ jobs:
           heroku_app_name: "yumseng" #Must be unique in Heroku
           heroku_email: "103879u@gmail.com"
           usedocker: true
+          docker_build_args:
+            TAG: ${{ github.sha }}

@@ -16,10 +16,6 @@ import (
 //go:embed webui/*
 var webuiFs embed.FS
 
-// tag for version / deployment control
-//go:embed .tag
-var tag string
-
 func generateUiHandler() (http.Handler, error) {
 	uiFileSystem, err := fs.Sub(webuiFs, "webui")
 	if err != nil {
@@ -61,8 +57,17 @@ func generatePingHandler(tag string) func(writer http.ResponseWriter, request *h
 func getPort() string {
 	value := os.Getenv("PORT")
 	if value == "" {
-		log.Printf("Resorting to default port 80")
+		log.Printf("Defaulting to default port 80")
 		return "80"
+	}
+	return value
+}
+
+func getVersionTag() string {
+	value := os.Getenv("TAG")
+	if value == "" {
+		log.Printf("Defaulting tag value to 'unknown-tag'")
+		return "unknown-tag"
 	}
 	return value
 }
@@ -79,6 +84,7 @@ func main() {
 	cheersService := cheers.NewService()
 	http.HandleFunc("/cheers", generateCheersHandler(cheersService))
 
+	tag := getVersionTag()
 	http.HandleFunc("/ping", generatePingHandler(tag))
 
 	port := getPort()

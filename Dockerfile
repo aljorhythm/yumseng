@@ -4,11 +4,14 @@ FROM golang:1.16
 
 WORKDIR /go/src/github.com/aljorhythm/yumseng
 
+# tag
+ARG TAG
+ENV TAG=$TAG
+
 # static assets
 COPY webui webui
 
 # local go files and packages
-COPY .tag ./
 COPY *.go ./
 COPY utils utils
 COPY cheers cheers

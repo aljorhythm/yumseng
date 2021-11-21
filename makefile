@@ -6,9 +6,6 @@ setup:
 	# githooks
 	git config core.hooksPath .githooks
 
-	# write tag to file for use
-	echo $(TAG) > .tag
-
 format: setup
 	sh .format.sh
 
@@ -25,7 +22,7 @@ run-binary:
 	./yumseng
 
 docker-build: setup
-	docker build . --no-cache --tag aljorhythm/yumseng:$(TAG)
+	docker build . --build-arg TAG=$(TAG) --no-cache --tag aljorhythm/yumseng:$(TAG)
 
 docker-run:
 	docker run -d -p $(PORT):$(PORT) -e PORT=$(PORT) aljorhythm/yumseng:$(TAG)
