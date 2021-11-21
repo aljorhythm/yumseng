@@ -1,7 +1,11 @@
 TAG ?= local
 PORT ?= 8080
 
-format:
+setup:
+	# githooks
+	git config core.hooksPath .githooks
+
+format: setup
 	sh .format.sh
 
 unit-test:
