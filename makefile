@@ -6,6 +6,9 @@ setup:
 	# githooks
 	git config core.hooksPath .githooks
 
+	# write tag to file for use
+	echo $(TAG) > .tag
+
 format: setup
 	sh .format.sh
 
@@ -16,7 +19,6 @@ run-source:
 	go run main.go
 
 build:
-	echo $(TAG) > .tag
 	go build -o ./yumseng
 
 run-binary:

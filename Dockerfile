@@ -8,6 +8,7 @@ WORKDIR /go/src/github.com/aljorhythm/yumseng
 COPY webui webui
 
 # local go files and packages
+COPY .tag ./
 COPY *.go ./
 COPY utils utils
 COPY ping ping
