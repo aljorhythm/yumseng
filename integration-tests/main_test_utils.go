@@ -2,13 +2,27 @@ package integration_tests
 
 import (
 	"os"
-	"testing"
 )
 
-func IntegrationTestHost(t *testing.T) string {
+var (
+	// host for testing
+	host   = IntegrationTestHost()
+	scheme = IntegrationTestScheme()
+)
+
+func IntegrationTestScheme() string {
+	value := os.Getenv("SCHEME")
+	if value == "" {
+		return "http"
+	} else {
+		return value
+	}
+}
+
+func IntegrationTestHost() string {
 	value := os.Getenv("HOST")
 	if value == "" {
-		t.Fatal("[main_test_utils.go] Unable to retrieve host")
+		panic("[main_test_utils.go] Unable to retrieve host")
 		return ""
 	} else {
 		return value

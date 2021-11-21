@@ -1,6 +1,6 @@
 TAG ?= local
 PORT ?= 8080
-HOSTNAME ?= http://localhost
+HOSTNAME ?= localhost
 
 setup:
 	# githooks
@@ -25,10 +25,10 @@ docker-build:
 	docker build . --no-cache --tag aljorhythm/yumseng:$(TAG)
 
 docker-run:
-	docker run -d -e PORT=$(PORT) aljorhythm/yumseng:$(TAG)
+	docker run -d -p $(PORT):$(PORT) -e PORT=$(PORT) aljorhythm/yumseng:$(TAG)
 
 integration-test:
-	HOST=$(HOSTNAME):$(PORT) go test $$(go list ./... | grep integration-tests)
+	HOST=$(HOSTNAME):$(PORT) go test -v $$(go list ./... | grep integration-tests)
 
 docker-run-undetached:
 	docker run --expose=$(PORT) -p $(PORT):$(PORT) -e PORT=$(PORT) aljorhythm/yumseng:$(TAG)
