@@ -80,12 +80,14 @@
 
             if (cheersLength != -1 && cheers.length != cheersLength) {
                 for (var i = 0; i < cheers.length - cheersLength; i++) {
-                    var mug = $("#bearmug").clone()
-                    mug.attr('id', 'bearmug' + Date.now())
-                    $("#beer-container").append(mug)
-                    mug.fadeIn(600, () => {
-                        mug.fadeOut(600)
-                    });
+                    setTimeout(() => {
+                        var mug = $("#bearmug").clone()
+                        mug.attr('id', 'bearmug' + Date.now())
+                        $("#beer-container").append(mug)
+                        mug.fadeIn(600, () => {
+                            mug.fadeOut(600)
+                        });
+                    }, i * 100)
                 }
             }
 
