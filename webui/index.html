@@ -7,7 +7,6 @@
 
     <title>Cheers To Life</title>
 
-
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -31,18 +30,21 @@
         </div>
         <div id="cheers-count">
         </div>
-        <button id="yum">
+
+        <button type="button" class="btn btn-primary" id="yum">
             YUMMMMM
         </button>
-        <button id="seng">
+
+        <button type="button" class="btn btn-primary" id="seng">
             SENG
         </button>
 
-        <div id="beer-container">
-
+        <div class="row" id="beer-container">
         </div>
 
-        <img id='bearmug' src="beermug.png" hidden/>
+        <div style="display:none;float:left" id='bearmug'>
+            <img class="img-fluid" src="beermug.png"/>
+        </div>
     </div>
 
     <footer class="footer">
@@ -63,7 +65,7 @@
     var isSleeping = false
 
     async function main() {
-        var cheersLength = 0
+        var cheersLength = -1
 
         async function retrieveAndDisplayCheers() {
             if (isSleeping) {
@@ -76,9 +78,10 @@
             })
             $('#cheers-list').empty().append(cheersListHtml);
 
-            if (cheers.length != cheersLength) {
+            if (cheersLength != -1 && cheers.length != cheersLength) {
                 for (var i = 0; i < cheers.length - cheersLength; i++) {
                     var mug = $("#bearmug").clone()
+                    mug.attr('id', 'bearmug' + Date.now())
                     $("#beer-container").append(mug)
                     mug.fadeIn(600, () => {
                         mug.fadeOut(600)
