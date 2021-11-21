@@ -45,6 +45,7 @@ func main() {
 	http.HandleFunc("/cheers", cheersHandler)
 
 	port := getPort()
-	log.Printf("Running server PORT=%s", port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
+	portArg := fmt.Sprintf(":%s", port)
+	log.Printf("Running server PORT=%s", portArg)
+	log.Fatal(http.ListenAndServe(portArg, nil))
 }

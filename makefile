@@ -22,8 +22,11 @@ docker-build:
 docker-run:
 	docker run -d -e PORT=$(PORT) aljorhythm/yumseng:$(TAG)
 
+docker-run-undetached:
+	docker run --expose=$(PORT) -p $(PORT):$(PORT) -e PORT=$(PORT) aljorhythm/yumseng:$(TAG)
+
 docker-stop:
 	docker ps -q --filter ancestor="aljorhythm/yumseng:$(TAG)" | xargs -r docker stop
 
-all: format docker-build docker-run
+all: docker-stop format docker-build docker-run
 	echo all done

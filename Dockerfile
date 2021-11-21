@@ -4,6 +4,8 @@ FROM golang:1.16
 
 WORKDIR /app
 
+COPY webui webui
+
 COPY go.mod ./
 RUN go mod download
 
@@ -13,4 +15,4 @@ COPY makefile ./
 
 RUN make build
 
-CMD [ "make", "run-binary", "${PATH}" ]
+CMD [ "make", "run-binary" ]
