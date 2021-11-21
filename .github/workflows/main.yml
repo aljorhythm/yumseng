@@ -32,6 +32,8 @@ jobs:
         run: make docker-build
       - name: run docker container
         run: make docker-run
+      - name: run integration tests
+        run: make integration-test
       - name: stop docker container
         run: make docker-stop
 
