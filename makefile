@@ -24,7 +24,7 @@ build:
 run-binary:
 	./yumseng
 
-docker-build:
+docker-build: setup
 	docker build . --no-cache --tag aljorhythm/yumseng:$(TAG)
 
 docker-run:
