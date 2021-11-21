@@ -20,7 +20,7 @@ func TestCheer(t *testing.T) {
 		wanted := "Cheers!"
 
 		if got != wanted {
-			t.Errorf("got: %s wanted: %s", got, wanted)
+			t.Errorf("got: %s | wanted: %s", got, wanted)
 		} else {
 			t.Logf("nice cheers!")
 		}
