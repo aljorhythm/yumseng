@@ -21,16 +21,32 @@ func HttpResponseToString(resp *http.Response) (string, error) {
 	return bodyString, nil
 }
 
-func HttpResponseToStruct(resp *http.Response, v interface{}) error {
+func HttpResponseBodyToStruct(resp *http.Response, v interface{}) error {
 	defer resp.Body.Close()
 
-	err := json.NewDecoder(resp.Body).Decode(v)
+	err := DecodeJson(resp.Body, v)
 
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func HttpRequestBodyToStruct(resp *http.Request, v interface{}) error {
+	defer resp.Body.Close()
+
+	err := DecodeJson(resp.Body, v)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DecodeJson(r io.Reader, v interface{}) error {
+	return json.NewDecoder(r).Decode(v)
 }
 
 func ToJson(object interface{}) ([]byte, error) {

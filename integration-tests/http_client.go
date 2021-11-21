@@ -31,6 +31,7 @@ func httpRequest(options HttpRequestOptions, t *testing.T) *http.Response {
 		Host:   host,
 		Path:   options.path,
 	}
+
 	req, err := http.NewRequest(options.getMethod(), url.String(), options.body)
 
 	if err != nil {

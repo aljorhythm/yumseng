@@ -22,7 +22,7 @@ func TestPing(t *testing.T) {
 	}, t)
 
 	got := &ping.PingResponse{}
-	utils.HttpResponseToStruct(response, got)
+	utils.HttpResponseBodyToStruct(response, got)
 
 	if got.Tag == "" {
 		t.Errorf("tag is empty")

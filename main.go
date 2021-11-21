@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"errors"
 	"fmt"
 	"github.com/aljorhythm/yumseng/cheers"
 	"github.com/aljorhythm/yumseng/ping"
@@ -15,6 +16,11 @@ import (
 // web ui static assets
 //go:embed webui/*
 var webuiFs embed.FS
+
+// http errors
+var (
+	ERROR_UNHANDLED_HTTP_METHOD = errors.New("unhandled http method")
+)
 
 func generateUiHandler() (http.Handler, error) {
 	uiFileSystem, err := fs.Sub(webuiFs, "webui")
@@ -34,6 +40,18 @@ func generateCheersHandler(service cheers.Servicer) func(w http.ResponseWriter, 
 				panic(err)
 			}
 			fmt.Fprintf(w, string(message))
+		} else if r.Method == http.MethodPost {
+			cheer := &cheers.Cheer{}
+			err := utils.HttpRequestBodyToStruct(r, cheer)
+
+			if err != nil {
+				panic(err)
+			}
+
+			service.AddCheer(cheer)
+			fmt.Fprintf(w, "{}")
+		} else {
+			panic(ERROR_UNHANDLED_HTTP_METHOD)
 		}
 	}
 }
