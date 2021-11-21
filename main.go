@@ -22,7 +22,9 @@ func generateUiHandler() (http.Handler, error) {
 }
 
 func cheersHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Cheers!")
+	if r.Method == http.MethodGet {
+		fmt.Fprintf(w, "Cheers!")
+	}
 }
 
 func getPort() string {
