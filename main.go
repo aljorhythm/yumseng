@@ -3,6 +3,8 @@ package main
 import (
 	"embed"
 	"fmt"
+	"github.com/aljorhythm/yumseng/ping"
+	"github.com/aljorhythm/yumseng/utils"
 	"io/fs"
 	"log"
 	"net/http"
@@ -12,6 +14,10 @@ import (
 // web ui static assets
 //go:embed webui/*
 var webuiFs embed.FS
+
+// tag for version / deployment control
+//go:embed .tag
+var tag string
 
 func generateUiHandler() (http.Handler, error) {
 	uiFileSystem, err := fs.Sub(webuiFs, "webui")
@@ -24,6 +30,22 @@ func generateUiHandler() (http.Handler, error) {
 func cheersHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		fmt.Fprintf(w, "Cheers!")
+	}
+}
+
+func generatePingHandler(tag string) func(writer http.ResponseWriter, request *http.Request) {
+	response := &ping.PingResponse{
+		Tag: tag,
+	}
+	bytes, error := utils.ToJson(response)
+
+	if error != nil {
+		panic(error)
+	}
+
+	message := string(bytes)
+	return func(writer http.ResponseWriter, request *http.Request) {
+		fmt.Fprintf(writer, message)
 	}
 }
 
@@ -45,6 +67,7 @@ func main() {
 
 	http.Handle("/", webuiHandler)
 	http.HandleFunc("/cheers", cheersHandler)
+	http.HandleFunc("/ping", generatePingHandler(tag))
 
 	port := getPort()
 	portArg := fmt.Sprintf(":%s", port)

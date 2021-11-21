@@ -16,6 +16,7 @@ run-source:
 	go run main.go
 
 build:
+	echo $(TAG) > .tag
 	go build -o ./yumseng
 
 run-binary:

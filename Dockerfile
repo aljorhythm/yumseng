@@ -2,15 +2,21 @@
 
 FROM golang:1.16
 
-WORKDIR /app
+WORKDIR /go/src/github.com/aljorhythm/yumseng
 
+# static assets
 COPY webui webui
 
+# local go files and packages
+COPY *.go ./
+COPY utils utils
+COPY ping ping
+
+# remote go packages
 COPY go.mod ./
 RUN go mod download
 
-COPY *.go ./
-
+# utils
 COPY makefile ./
 
 RUN make build
