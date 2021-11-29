@@ -130,12 +130,12 @@ func (roomEvents *RoomEvents) SubscribeCheerAdded(room *Room, cliendId string, c
 
 func (roomEvents *RoomEvents) PublishCheerAdded(room *Room, cheer cheers.Cheer) {
 	topic := EVENT_CHEER_ADDED.topicName(room)
-	log.Printf("publishing event callback to %s", topic)
+	log.Printf("publishing event room %s | topic %s", room.Name, topic)
 	roomEvents.eventBus.Publish(topic, cheer)
 }
 
 func (roomEvents *RoomEvents) UnsubscribeCheerAdded(room *Room, clientId string) {
 	topic := EVENT_CHEER_ADDED.topicName(room)
-	log.Printf("unsubcribing to %s", topic)
+	log.Printf("unsubcribing room %s to %s", room.Name, topic)
 	roomEvents.eventsCallbacksManager.removeEventCallback(topic, clientId)
 }
