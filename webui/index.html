@@ -124,7 +124,8 @@
     const yumButton = document.getElementById('yum-button')
 
     if (window['WebSocket']) {
-        const conn = new WebSocket('ws://' + document.location.host + '/rooms/events')
+        websocketScheme = window.location.protocol == "http:" ? 'ws://' : 'ws://'
+        const conn = new WebSocket( + document.location.host + '/rooms/events')
 
         yumButton.onclick = event => {
             jsonMessage = JSON.stringify({
