@@ -125,7 +125,7 @@
 
     if (window['WebSocket']) {
         websocketScheme = window.location.protocol == "http:" ? 'ws://' : 'ws://'
-        const conn = new WebSocket( + document.location.host + '/rooms/events')
+        const conn = new WebSocket(websocketScheme + document.location.host + '/rooms/events')
 
         yumButton.onclick = event => {
             jsonMessage = JSON.stringify({
