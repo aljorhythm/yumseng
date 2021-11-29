@@ -22,6 +22,9 @@ var (
 	EVENT_CHEER_ADDED = EventType{
 		"EVENT_CHEER_ADDED",
 	}
+	EVENT_LAST_SECONDS_COUNT = EventType{
+		"EVENT_LAST_SECONDS_COUNT",
+	}
 )
 
 func (eventType *EventType) topicName(room *Room) string {

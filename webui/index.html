@@ -50,6 +50,9 @@
 
         <div id="cheers-list">
         </div>
+
+        <div id="cheers-speed">
+        </div>
     </div>
 
     <footer class="footer">
@@ -130,7 +133,7 @@
         yumButton.onclick = event => {
             jsonMessage = JSON.stringify({
                 "value": "yum",
-                "client_created_at": Date.now()
+                "client_created_at": (new Date()).toJSON()
             })
             console.log("send jsonMessage", jsonMessage)
             conn.send(jsonMessage)
@@ -142,12 +145,20 @@
 
         conn.onmessage = evt => {
             console.log("onmessage event data", evt.data)
-            var mug = $("#bearmug").clone()
-            mug.attr('id', 'bearmug' + Date.now())
-            $("#beer-container").append(mug)
-            mug.fadeIn(600, () => {
-                mug.fadeOut(600)
-            });
+            const event = JSON.parse(evt.data)
+            const eventName = event["event_name"]
+
+            if (eventName == "EVENT_LAST_SECONDS_COUNT") {
+                var cheersSpeedHtml = `<div>speed: ${event["count"]}</div>`
+                $('#cheers-speed').empty().append(cheersSpeedHtml);
+            } else if (eventName == "EVENT_CHEER_ADDED") {
+                var mug = $("#bearmug").clone()
+                mug.attr('id', 'bearmug' + Date.now())
+                $("#beer-container").append(mug)
+                mug.fadeIn(600, () => {
+                    mug.fadeOut(600)
+                });
+            }
         }
 
         conn.onopen = function () {

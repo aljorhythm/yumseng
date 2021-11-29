@@ -29,12 +29,12 @@ func TestRoomServer(t *testing.T) {
 		}
 		defer ws.Close()
 
-		wanted := cheers.Cheer{
+		cheer := cheers.Cheer{
 			Value:           "this is a cheer",
 			ClientCreatedAt: time.Now().UTC(),
 		}
 
-		message := utils.MustEncodeJson(wanted)
+		message := utils.MustEncodeJson(cheer)
 		if err := ws.WriteMessage(websocket.TextMessage, message); err != nil {
 			t.Fatalf("could not send message over ws connection %v", err)
 		}
@@ -44,8 +44,10 @@ func TestRoomServer(t *testing.T) {
 			t.Fatalf("error reading cheer %#v", err)
 		}
 
-		got := cheers.Cheer{}
+		got := CheerAddedMessage{}
 		utils.DecodeJson(bytes.NewReader(rawMessage), &got)
+
+		wanted := CheerAddedMessage{cheer, string(EVENT_CHEER_ADDED.name)}
 
 		assert.Equal(t, wanted, got)
 	})
