@@ -141,7 +141,6 @@ func (roomsServer *RoomsServer) eventsWs(w http.ResponseWriter, r *http.Request)
 			case <-quit:
 				log.Printf("quit channel emitted stopping speed ticker %s", clientId)
 				ticker.Stop()
-				close(calculatorCheersChan)
 				return
 			}
 		}
