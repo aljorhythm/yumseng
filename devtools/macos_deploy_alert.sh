@@ -1,7 +1,7 @@
 #!/bin/bash
 
 while true; do
-  data=$(curl localhost/ping)
+  data=$(curl yumseng.herokuapp.com/ping)
 
   echo "$data"
 
