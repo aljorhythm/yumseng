@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"github.com/aljorhythm/yumseng/cheers"
 	"github.com/aljorhythm/yumseng/ping"
+	"github.com/aljorhythm/yumseng/rooms"
 	"github.com/aljorhythm/yumseng/utils"
+	"github.com/gorilla/mux"
 	"io/fs"
 	"log"
 	"net/http"
@@ -98,22 +100,27 @@ func setJsonResponseHeader(handler func(writer http.ResponseWriter, request *htt
 }
 
 func main() {
+	router := mux.NewRouter()
+
+	cheersService := cheers.NewService()
+	router.HandleFunc("/cheers", setJsonResponseHeader(generateCheersHandler(cheersService)))
+
+	roomsSubrouter := router.PathPrefix("/rooms").Subrouter()
+	rooms.NewRoomsServer(roomsSubrouter)
+
+	tag := getVersionTag()
+	router.HandleFunc("/ping", generatePingHandler(tag))
+
 	webuiHandler, err := generateUiHandler()
 
 	if err != nil {
 		log.Panicf("[main.go#main] Error generateUiHandler %s", err)
 	}
 
-	http.Handle("/", webuiHandler)
-
-	cheersService := cheers.NewService()
-	http.HandleFunc("/cheers", setJsonResponseHeader(generateCheersHandler(cheersService)))
-
-	tag := getVersionTag()
-	http.HandleFunc("/ping", generatePingHandler(tag))
+	router.PathPrefix("/").Handler(webuiHandler)
 
 	port := getPort()
 	portArg := fmt.Sprintf(":%s", port)
-	log.Printf("Running server PORT=%s", portArg)
-	log.Fatal(http.ListenAndServe(portArg, nil))
+	log.Printf("Running router PORT=%s", portArg)
+	log.Fatal(http.ListenAndServe(portArg, router))
 }

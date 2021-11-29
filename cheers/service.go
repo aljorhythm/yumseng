@@ -3,8 +3,8 @@ package cheers
 import "time"
 
 type Cheer struct {
-	Value    string
-	DateTime time.Time
+	Value           string    `json:"value"`
+	ClientCreatedAt time.Time `json:"client_created_at"`
 }
 
 type Servicer interface {

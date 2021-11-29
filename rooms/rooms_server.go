@@ -1,11 +1,13 @@
-package room
+package rooms
 
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/aljorhythm/yumseng/cheers"
 	"github.com/aljorhythm/yumseng/utils"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -17,7 +19,7 @@ type RoomsServer struct {
 }
 
 func getRoomFromRequest(r *http.Request) *Room {
-	roomName := r.Header.Get("room-name")
+	roomName := r.Header.Get("rooms-name")
 
 	if roomName == "" {
 		return NewRoom("default")
@@ -39,12 +41,17 @@ func (roomsServer *RoomsServer) eventsWs(w http.ResponseWriter, r *http.Request)
 
 	clientId := uuid.New().String()
 	room := getRoomFromRequest(r)
-	log.Printf("joined room %s | clientId : %s", room.Name, clientId)
+	log.Printf("joined rooms %s | clientId : %s", room.Name, clientId)
 
 	go func() {
-		log.Printf("client %s listening for room %s cheers", clientId, room.Name)
+		log.Printf("client %s listening for rooms %s cheers", clientId, room.Name)
 		for {
-			_, msg, _ := conn.ReadMessage()
+			_, msg, err := conn.ReadMessage()
+
+			if err != nil {
+				log.Printf("error in connection room: %s client: %s err: %#v", room.Name, clientId, err)
+				return
+			}
 			reader := bytes.NewReader(msg)
 			newCheer := cheers.Cheer{}
 			utils.DecodeJson(reader, &newCheer)
@@ -94,12 +101,16 @@ func writeWs(conn *websocket.Conn, msg []byte) (int, error) {
 	return len(msg), nil
 }
 
-func NewRoomsServer() http.Handler {
+func NewRoomsServer(router *mux.Router) http.Handler {
 	roomsServer := &RoomsServer{
 		RoomServicer: NewRoomsService(),
 	}
-	router := http.NewServeMux()
-	router.Handle("/events-socket", http.HandlerFunc(roomsServer.eventsWs))
+
+	router.Handle("/rooms", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		fmt.Fprintf(writer, "you are at rooms")
+	}))
+
+	router.Handle("/events", http.HandlerFunc(roomsServer.eventsWs))
 
 	roomsServer.Handler = router
 	return roomsServer

@@ -1,4 +1,4 @@
-package room
+package rooms
 
 import (
 	"github.com/aljorhythm/yumseng/cheers"
@@ -10,7 +10,7 @@ import (
 func TestRoomEvents(t *testing.T) {
 	t.Run("Should listen, send and receive a cheer", func(t *testing.T) {
 		roomEvents := NewRoomEvents()
-		room := NewRoom("room-1")
+		room := NewRoom("rooms-1")
 		clientId := "client-1"
 
 		var got cheers.Cheer
@@ -32,7 +32,7 @@ func TestRoomEvents(t *testing.T) {
 	t.Run("Should listen, send and receive a cheer on different rooms", func(t *testing.T) {
 		roomEvents := NewRoomEvents()
 
-		room := NewRoom("room-1")
+		room := NewRoom("rooms-1")
 
 		clientOneId := "client-1"
 		clientTwoId := "client-2"

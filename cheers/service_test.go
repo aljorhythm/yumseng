@@ -13,8 +13,8 @@ func TestService(t *testing.T) {
 		previousCount := len(service.cheers)
 
 		service.AddCheer(&Cheer{
-			Value:    "hello1",
-			DateTime: time.Now(),
+			Value:           "hello1",
+			ClientCreatedAt: time.Now(),
 		})
 
 		wanted := previousCount + 1

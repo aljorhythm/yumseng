@@ -1,9 +1,10 @@
-package room
+package rooms
 
 import (
 	"bytes"
 	"github.com/aljorhythm/yumseng/cheers"
 	"github.com/aljorhythm/yumseng/utils"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -15,13 +16,13 @@ import (
 
 func TestRoomServer(t *testing.T) {
 	t.Run("when we send a cheer it must be broadcasted", func(t *testing.T) {
-		roomsServer := NewRoomsServer()
+		roomsServer := NewRoomsServer(mux.NewRouter())
 		server := httptest.NewServer(roomsServer)
 		defer server.Close()
 
-		wsURL := "ws" + strings.TrimPrefix(server.URL, "http") + "/events-socket"
+		wsURL := "ws" + strings.TrimPrefix(server.URL, "http") + "/events"
 		header := http.Header{}
-		header.Add("room-name", "test-room")
+		header.Add("rooms-name", "test-rooms")
 		ws, _, err := websocket.DefaultDialer.Dial(wsURL, header)
 		if err != nil {
 			t.Fatalf("could not open a ws connection on %s %v", wsURL, err)
@@ -29,8 +30,8 @@ func TestRoomServer(t *testing.T) {
 		defer ws.Close()
 
 		wanted := cheers.Cheer{
-			Value:    "this is a cheer",
-			DateTime: time.Now().UTC(),
+			Value:           "this is a cheer",
+			ClientCreatedAt: time.Now().UTC(),
 		}
 
 		message := utils.MustEncodeJson(wanted)

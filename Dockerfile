@@ -15,10 +15,12 @@ COPY webui webui
 COPY *.go ./
 COPY utils utils
 COPY cheers cheers
+COPY rooms rooms
 COPY ping ping
 
 # remote go packages
 COPY go.mod ./
+COPY go.sum ./
 RUN go mod download
 
 # utils

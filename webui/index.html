@@ -26,10 +26,12 @@
     </div>
 
     <div class="row" id="cheers">
-        <div id="cheers-list">
-        </div>
         <div id="cheers-count">
         </div>
+
+        <button type="button" class="btn btn-primary" id="yum-button">
+            YUMMMMM EVENT
+        </button>
 
         <button type="button" class="btn btn-primary" id="yum">
             YUMMMMM
@@ -44,6 +46,9 @@
 
         <div style="display:none;float:left" id='bearmug'>
             <img class="img-fluid" src="beermug.png"/>
+        </div>
+
+        <div id="cheers-list">
         </div>
     </div>
 
@@ -108,11 +113,46 @@
         }
 
         registerButtons()
-        setInterval(retrieveAndDisplayCheers, 100)
+        // setInterval(retrieveAndDisplayCheers, 100)
     }
 
     $(document).ready(main)
 </script>
 </body>
+
+<script type="application/javascript">
+    const yumButton = document.getElementById('yum-button')
+
+    if (window['WebSocket']) {
+        const conn = new WebSocket('ws://' + document.location.host + '/rooms/events')
+
+        yumButton.onclick = event => {
+            jsonMessage = JSON.stringify({
+                "value": "yum",
+                "client_created_at": Date.now()
+            })
+            console.log("send jsonMessage", jsonMessage)
+            conn.send(jsonMessage)
+        }
+
+        conn.onclose = evt => {
+            console.log("connection closed")
+        }
+
+        conn.onmessage = evt => {
+            console.log("onmessage event data", evt.data)
+            var mug = $("#bearmug").clone()
+            mug.attr('id', 'bearmug' + Date.now())
+            $("#beer-container").append(mug)
+            mug.fadeIn(600, () => {
+                mug.fadeOut(600)
+            });
+        }
+
+        conn.onopen = function () {
+            console.log("connection opened")
+        }
+    }
+</script>
 
 </html>
