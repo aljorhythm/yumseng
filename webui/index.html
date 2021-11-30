@@ -44,15 +44,27 @@
         <div class="row" id="beer-container">
         </div>
 
-        <div style="display:none;float:left" id='bearmug'>
-            <img class="img-fluid" src="beermug.png"/>
+        <div style="float:left;display: none" id='bearmug' class="yumseng-img">
+            <!--            <img class="img-fluid" src="beermug.png"/>-->
+            <img class="img-fluid" src="face_1.jpg"/>
         </div>
+        <style>
+            .yumseng-img img {
+                width: 100px;
+                margin: 10px;
+            }
+        </style>
 
         <div id="cheers-list">
         </div>
 
         <div id="cheers-speed">
         </div>
+
+        <audio loop volume="0" controls autoplay id="yumseng-audio">
+            <source src="yumseng-full.mp3" type="audio/mp3">
+            Your browser does not support the audio tag.
+        </audio>
     </div>
 
     <footer class="footer">
@@ -149,8 +161,12 @@
             const eventName = event["event_name"]
 
             if (eventName == "EVENT_LAST_SECONDS_COUNT") {
-                var cheersSpeedHtml = `<div>speed: ${event["count"]}</div>`
+                const count = event["count"]
+                var cheersSpeedHtml = `<div>speed: ${count}</div>`
                 $('#cheers-speed').empty().append(cheersSpeedHtml);
+                const yumAudio = document.getElementById("yumseng-audio");
+                yumAudio.play();
+                yumAudio.volume = count / 7;
             } else if (eventName == "EVENT_CHEER_ADDED") {
                 var mug = $("#bearmug").clone()
                 mug.attr('id', 'bearmug' + Date.now())
