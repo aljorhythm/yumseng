@@ -44,10 +44,6 @@ func (calculator *calculator) AddItem(item Item) {
 	calculator.items = append(calculator.items, item)
 }
 
-type Nower interface {
-	Now() time.Time
-}
-
 func NewCalculator(nower Nower) MovingAverageCalculator {
 	cal := &calculator{[]Item{}, nower}
 	return cal
