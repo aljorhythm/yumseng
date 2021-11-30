@@ -41,7 +41,7 @@
         </div>
         <style>
             #beer-img-container {
-                position:relative;
+                position: relative;
                 width: 80%;
                 height: 50vh;
                 background: rgb(238, 238, 238);
@@ -74,8 +74,11 @@
     <footer class="footer">
         <p>2021 aljorhythm</p>
     </footer>
-
 </div>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8929628296364257"
+        crossorigin="anonymous"></script>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <!-- Latest compiled and minified JavaScript -->
@@ -129,17 +132,22 @@
                 const $container = $('#beer-img-container')
 
                 $container.append($mug)
-                const randomLeft = randomInteger(1, $container.width())
-                const randomTop = randomInteger(1, $container.height())
-
                 $mug.css({
                     position: 'absolute',
+                })
+                const randomLeft = randomInteger(1, $container.width() - $mug.width())
+                const randomTop = randomInteger(1, $container.height() - $mug.height())
+
+                console.log("random", randomTop, randomLeft, $container.width(), $mug.get(0).width)
+                $mug.css({
                     top: `${randomTop}px`,
                     left: `${randomLeft}px`,
                 })
 
                 $mug.fadeIn(600, () => {
-                    $mug.fadeOut(600)
+                    $mug.fadeOut(600, () => {
+                        $mug.remove()
+                    })
                 });
             }
         }
