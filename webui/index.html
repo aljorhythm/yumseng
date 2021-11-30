@@ -30,10 +30,6 @@
         </div>
 
         <button type="button" class="btn btn-primary" id="yum-button">
-            YUMMMMM EVENT
-        </button>
-
-        <button type="button" class="btn btn-primary" id="yum">
             YUMMMMM
         </button>
 
@@ -41,8 +37,16 @@
             SENG
         </button>
 
-        <div class="row" id="beer-container">
+        <div class="row" id="beer-img-container">
         </div>
+        <style>
+            #beer-img-container {
+                position:relative;
+                width: 80%;
+                height: 50vh;
+                background: rgb(238, 238, 238);
+            }
+        </style>
 
         <div style="float:left;display: none" id='bearmug' class="yumseng-img">
             <!--            <img class="img-fluid" src="beermug.png"/>-->
@@ -72,70 +76,19 @@
     </footer>
 
 </div>
-
-
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
         integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
-
-<script>
-    var isSleeping = false
-
-    async function main() {
-        var cheersLength = -1
-
-        async function retrieveAndDisplayCheers() {
-            if (isSleeping) {
-                return
-            }
-            const response = await fetch('/cheers')
-            const cheers = await response.json()
-            var cheersListHtml = cheers.map((cheer) => {
-                return `<div>${cheer.val}</div>`
-            })
-            $('#cheers-list').empty().append(cheersListHtml);
-
-            if (cheersLength != -1 && cheers.length != cheersLength) {
-                for (var i = 0; i < cheers.length - cheersLength; i++) {
-                    setTimeout(() => {
-                        var mug = $("#bearmug").clone()
-                        mug.attr('id', 'bearmug' + Date.now())
-                        $("#beer-container").append(mug)
-                        mug.fadeIn(600, () => {
-                            mug.fadeOut(600)
-                        });
-                    }, i * 100)
-                }
-            }
-
-            cheersLength = cheers.length;
-            $('#cheers-list').empty().append(cheersLength);
-        }
-
-        function registerButtons() {
-            console.log("register buttons")
-            $("#yum").click(() => {
-                console.log("clicked yum")
-
-                fetch('/cheers', {
-                    method: 'POST',
-                    body: JSON.stringify({value: 'yum'})
-                }).then(console.log)
-            })
-        }
-
-        registerButtons()
-        // setInterval(retrieveAndDisplayCheers, 100)
-    }
-
-    $(document).ready(main)
-</script>
 </body>
 
 <script type="application/javascript">
+    function randomInteger(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
     const yumButton = document.getElementById('yum-button')
 
     if (window['WebSocket']) {
@@ -168,11 +121,25 @@
                 yumAudio.play();
                 yumAudio.volume = count / 7;
             } else if (eventName == "EVENT_CHEER_ADDED") {
-                var mug = $("#bearmug").clone()
-                mug.attr('id', 'bearmug' + Date.now())
-                $("#beer-container").append(mug)
-                mug.fadeIn(600, () => {
-                    mug.fadeOut(600)
+                const $mug = $(`<div class="yumseng-img">
+                                    <img class="img-fluid" src="face_1.jpg"/>
+                              </div>`)
+                $mug.attr('id', 'bearmug' + Date.now())
+
+                const $container = $('#beer-img-container')
+
+                $container.append($mug)
+                const randomLeft = randomInteger(1, $container.width())
+                const randomTop = randomInteger(1, $container.height())
+
+                $mug.css({
+                    position: 'absolute',
+                    top: `${randomTop}px`,
+                    left: `${randomLeft}px`,
+                })
+
+                $mug.fadeIn(600, () => {
+                    $mug.fadeOut(600)
                 });
             }
         }
