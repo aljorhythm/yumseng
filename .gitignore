@@ -91,3 +91,4 @@ fabric.properties
 .idea
 
 yumseng
+*.config.yml
