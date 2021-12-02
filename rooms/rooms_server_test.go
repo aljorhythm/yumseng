@@ -1,9 +1,8 @@
 package rooms
 
 import (
-	"bytes"
 	"github.com/aljorhythm/yumseng/cheers"
-	"github.com/aljorhythm/yumseng/utils"
+	"github.com/aljorhythm/yumseng/objectstorage"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
@@ -14,41 +13,78 @@ import (
 	"time"
 )
 
+type MockUser struct {
+	id string
+}
+
+func (m MockUser) GetId() string {
+	return m.id
+}
+
+type MockUserService struct {
+}
+
+func (m MockUserService) GetUser(id string) (User, error) {
+	return MockUser{id: id}, nil
+}
+
 func TestRoomServer(t *testing.T) {
+	roomsServer := NewRoomsServer(mux.NewRouter(), MockUserService{}, objectstorage.NewInmemoryStore())
+
 	t.Run("when we send a cheer it must be broadcasted", func(t *testing.T) {
-		roomsServer := NewRoomsServer(mux.NewRouter())
 		server := httptest.NewServer(roomsServer)
 		defer server.Close()
 
 		wsURL := "ws" + strings.TrimPrefix(server.URL, "http") + "/events"
+
+		roomName := "test-room"
+		userId := "test-user"
+
 		header := http.Header{}
-		header.Add("rooms-name", "test-rooms")
+
 		ws, _, err := websocket.DefaultDialer.Dial(wsURL, header)
 		if err != nil {
 			t.Fatalf("could not open a ws connection on %s %v", wsURL, err)
 		}
 		defer ws.Close()
 
+		joinRoomRequest := JoinRoomRequest{
+			RoomName: roomName,
+			UserId:   userId,
+		}
+
+		err = ws.WriteJSON(joinRoomRequest)
+		assert.NoError(t, err)
+
+		gotConnected := RoomConnectedMessage{}
+		err = ws.ReadJSON(&gotConnected)
+		assert.NoError(t, err)
+
+		wantedConnected := RoomConnectedMessage{
+			EventName: "EVENT_ROOM_CONNECTED",
+			UserId:    userId,
+			RoomName:  roomName,
+		}
+
+		assert.Equal(t, wantedConnected, gotConnected)
+		t.Logf("room connected message %#v", gotConnected)
+
 		cheer := cheers.Cheer{
 			Value:           "this is a cheer",
 			ClientCreatedAt: time.Now().UTC(),
 		}
 
-		message := utils.MustEncodeJson(cheer)
-		if err := ws.WriteMessage(websocket.TextMessage, message); err != nil {
+		if err := ws.WriteJSON(cheer); err != nil {
 			t.Fatalf("could not send message over ws connection %v", err)
 		}
 
-		_, rawMessage, err := ws.ReadMessage()
-		if err != nil {
-			t.Fatalf("error reading cheer %#v", err)
-		}
+		gotCheer := CheerAddedMessage{}
+		err = ws.ReadJSON(&gotCheer)
+		assert.NoError(t, err)
 
-		got := CheerAddedMessage{}
-		utils.DecodeJson(bytes.NewReader(rawMessage), &got)
+		cheer.UserId = userId
+		wantedCheer := CheerAddedMessage{cheer, EVENT_CHEER_ADDED.name}
 
-		wanted := CheerAddedMessage{cheer, string(EVENT_CHEER_ADDED.name)}
-
-		assert.Equal(t, wanted, got)
+		assert.Equal(t, wantedCheer, gotCheer)
 	})
 }

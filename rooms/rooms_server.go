@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/aljorhythm/yumseng/cheers"
+	"github.com/aljorhythm/yumseng/objectstorage"
 	"github.com/aljorhythm/yumseng/utils"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -16,16 +17,12 @@ import (
 type RoomsServer struct {
 	http.Handler
 	RoomServicer
+	UserService UserServicer
 }
 
-func getRoomFromRequest(r *http.Request, service RoomServicer) *Room {
-	roomName := r.Header.Get("rooms-name")
-
-	if roomName == "" {
-		return service.GetRoom("default")
-	} else {
-		return service.GetRoom(roomName)
-	}
+type JoinRoomRequest struct {
+	UserId   string `json:"user_id"`
+	RoomName string `json:"room_name"`
 }
 
 func (roomsServer *RoomsServer) eventsWs(w http.ResponseWriter, r *http.Request) {
@@ -39,31 +36,44 @@ func (roomsServer *RoomsServer) eventsWs(w http.ResponseWriter, r *http.Request)
 		log.Panicf("webSocket upgrade error %#v", err)
 	}
 
-	clientId := uuid.New().String()
-	room := getRoomFromRequest(r, roomsServer.RoomServicer)
-	log.Printf("joined rooms %s | clientId : %s", room.Name, clientId)
+	_, msg, err := conn.ReadMessage()
+	joinRoomRequest := JoinRoomRequest{}
+	err = utils.DecodeJsonFromBytes(msg, &joinRoomRequest)
+	if err != nil {
+		log.Panicf("unable to join room %s", string(msg))
+	}
+
+	roomName := joinRoomRequest.RoomName
+	user, _ := roomsServer.UserService.GetUser(joinRoomRequest.UserId)
+	room := roomsServer.RoomServicer.GetOrCreateRoom(roomName)
+
+	clientId := fmt.Sprintf("user=%s uuid=%s", user.GetId(), uuid.New().String())
+
+	if err != nil {
+		log.Panicf("error emitting room connected %s %#v", clientId, err)
+	}
 
 	go func() {
-		log.Printf("client %s listening for rooms %s cheers", clientId, room.Name)
+		log.Printf("client %s listening for room %s cheers", clientId, room.Name)
 		for {
 			_, msg, err := conn.ReadMessage()
 
 			if err != nil {
-				log.Printf("error in connection room: %s client: %s err: %#v", room.Name, clientId, err)
+				log.Printf("error in reading socket message room: %s client: %s err: %#v", room.Name, clientId, err)
 				return
 			}
 			reader := bytes.NewReader(msg)
 			newCheer := cheers.Cheer{}
 			utils.DecodeJson(reader, &newCheer)
 			log.Printf("adding cheer from client %#v", newCheer)
-			roomsServer.RoomServicer.AddCheer(room, &newCheer)
+			roomsServer.RoomServicer.AddCheer(room, &newCheer, user)
 		}
 	}()
 
 	addedCheersChannel := make(chan cheers.Cheer)
 
-	log.Printf("client %s listening to room %s cheers", clientId, room.Name)
-	roomsServer.ListenCheer(room, clientId, func(args ...interface{}) {
+	log.Printf("subscribing user %s client %s to room %s cheers", user.GetId(), clientId, room.Name)
+	err = roomsServer.ListenCheer(room, user, clientId, func(args ...interface{}) {
 		rawCheer := args[0]
 		cheer, ok := rawCheer.(cheers.Cheer)
 		if ok {
@@ -75,14 +85,22 @@ func (roomsServer *RoomsServer) eventsWs(w http.ResponseWriter, r *http.Request)
 		}
 	})
 
+	if err != nil {
+		log.Panicf("unable to subscribe user %s to room %s error %#v", user.GetId(), room.Name, err)
+	}
+
+	log.Printf("joined room %s | clientId : %s | userId : %s", room.Name, clientId, user.GetId())
+	roomConnectedMessage, _ := NewRoomConnectedMessage(room, user)
+	err = conn.WriteJSON(roomConnectedMessage)
+
 	log.Printf("client %s listening to room %s cheer speed", clientId, room.Name)
 	ticker := time.NewTicker(250 * time.Millisecond)
-	quit := make(chan struct{})
+	quitIntensityListener := make(chan struct{})
 
 	conn.SetCloseHandler(func(code int, text string) error {
 		log.Printf("exiting listening client %s code %d text %s", clientId, code, text)
 		roomsServer.StopListeningCheers(room, clientId)
-		close(quit)
+		close(quitIntensityListener)
 		return nil
 	})
 
@@ -90,17 +108,9 @@ func (roomsServer *RoomsServer) eventsWs(w http.ResponseWriter, r *http.Request)
 		select {
 		case cheer, more := <-addedCheersChannel:
 			if more {
-
-				messageBytes, err := NewCheerAddedMessage(cheer)
+				cheerAddedMessage, err := NewCheerAddedMessage(cheer)
 				log.Printf("%s writing to socket %#v", clientId, cheer)
-
-				if err != nil {
-					log.Panicf("client %s webSocket erroring decoding cheer %#v string: %s", clientId, err, string(messageBytes))
-					return
-				}
-
-				_, err = writeWs(conn, messageBytes)
-
+				err = conn.WriteJSON(cheerAddedMessage)
 				if err != nil {
 					log.Panicf("client %s webSocket erroring write message %#v", clientId, err)
 				}
@@ -109,23 +119,14 @@ func (roomsServer *RoomsServer) eventsWs(w http.ResponseWriter, r *http.Request)
 			}
 		case <-ticker.C:
 			count := room.CountFrom((time.Duration(1) * time.Second))
-			message, err := NewRoomLastSecondsCheerCountMessage(count)
-
-			if err != nil {
-				log.Printf("err generating last seconds cheer count message %s %#v", clientId, err)
-				continue
-			} else {
-				log.Printf("last seconds cheer count %s %d", clientId, count)
-			}
-
-			_, err = writeWs(conn, message)
+			message, _ := NewRoomLastSecondsCheerCountMessage(count)
+			err = conn.WriteJSON(message)
 			if err != nil {
 				log.Printf("err writing to socket %#v closing quit channel %s", err, clientId)
-				close(quit)
 			} else {
 				log.Printf("wrote to socket last seconds cheer count %s %d", clientId, count)
 			}
-		case <-quit:
+		case <-quitIntensityListener:
 			log.Printf("quit channel emitted stopping speed ticker %s", clientId)
 			ticker.Stop()
 			return
@@ -133,19 +134,10 @@ func (roomsServer *RoomsServer) eventsWs(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-func writeWs(conn *websocket.Conn, msg []byte) (int, error) {
-	err := conn.WriteMessage(websocket.TextMessage, msg)
-
-	if err != nil {
-		return 0, err
-	}
-
-	return len(msg), nil
-}
-
-func NewRoomsServer(router *mux.Router) http.Handler {
+func NewRoomsServer(router *mux.Router, userService UserServicer, storage objectstorage.Storage) http.Handler {
 	roomsServer := &RoomsServer{
-		RoomServicer: NewRoomsService(),
+		RoomServicer: NewRoomsService(storage),
+		UserService:  userService,
 	}
 
 	router.Handle("/rooms", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {

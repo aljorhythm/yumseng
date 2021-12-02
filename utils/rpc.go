@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -46,6 +47,11 @@ func HttpRequestBodyToStruct(resp *http.Request, v interface{}) error {
 }
 
 func DecodeJson(r io.Reader, v interface{}) error {
+	return json.NewDecoder(r).Decode(v)
+}
+
+func DecodeJsonFromBytes(data []byte, v interface{}) error {
+	r := bytes.NewReader(data)
 	return json.NewDecoder(r).Decode(v)
 }
 

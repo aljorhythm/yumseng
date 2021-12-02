@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/aljorhythm/yumseng/cheers"
+	"github.com/aljorhythm/yumseng/objectstorage"
 	"github.com/aljorhythm/yumseng/ping"
 	"github.com/aljorhythm/yumseng/rooms"
 	"github.com/aljorhythm/yumseng/utils"
@@ -99,14 +100,33 @@ func setJsonResponseHeader(handler func(writer http.ResponseWriter, request *htt
 	}
 }
 
+type DummyUserService struct {
+}
+
+type DummyUser struct {
+	id string
+}
+
+func (d DummyUser) GetId() string {
+	return d.id
+}
+
+func (d DummyUserService) GetUser(id string) (rooms.User, error) {
+	return DummyUser{id: id}, nil
+}
+
 func main() {
 	router := mux.NewRouter()
+
+	objectStorage := objectstorage.NewInmemoryStore()
 
 	cheersService := cheers.NewService()
 	router.HandleFunc("/cheers", setJsonResponseHeader(generateCheersHandler(cheersService)))
 
 	roomsSubrouter := router.PathPrefix("/rooms").Subrouter()
-	rooms.NewRoomsServer(roomsSubrouter)
+
+	userService := DummyUserService{}
+	rooms.NewRoomsServer(roomsSubrouter, userService, objectStorage)
 
 	tag := getVersionTag()
 	router.HandleFunc("/ping", generatePingHandler(tag))

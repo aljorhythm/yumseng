@@ -12,15 +12,16 @@ type RoomEvents struct {
 	eventsCallbacksManager *EventsCallbacksManager
 }
 
-type EventName string
-
 type EventType struct {
-	name EventName
+	name string
 }
 
 var (
 	EVENT_CHEER_ADDED = EventType{
 		"EVENT_CHEER_ADDED",
+	}
+	EVENT_ROOM_CONNECTED = EventType{
+		"EVENT_ROOM_CONNECTED",
 	}
 	EVENT_LAST_SECONDS_COUNT = EventType{
 		"EVENT_LAST_SECONDS_COUNT",

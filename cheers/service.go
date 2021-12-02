@@ -5,6 +5,7 @@ import "time"
 type Cheer struct {
 	Value           string    `json:"value"`
 	ClientCreatedAt time.Time `json:"client_created_at"`
+	UserId          string    `json:"user_id"`
 }
 
 type Servicer interface {

@@ -16,6 +16,7 @@ COPY *.go ./
 COPY utils utils
 COPY cheers cheers
 COPY rooms rooms
+COPY objectstorage objectstorage
 COPY ping ping
 
 # remote go packages
