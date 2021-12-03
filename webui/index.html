@@ -107,31 +107,29 @@
 
     const yumButton = document.getElementById('yum-button')
 
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    const params = Object.fromEntries(urlSearchParams.entries());
-    const userId = params["user_id"] || "default-user"
-    const roomName = params["room_name"] || ""
+    const dummyUserId = "default-user"
+    const dummyRoomName = "123456"
 
     if (window['WebSocket']) {
         websocketScheme = window.location.protocol == "http:" ? 'ws://' : 'wss://'
         const conn = new WebSocket(websocketScheme + document.location.host + '/rooms/events')
 
-        yumButton.onclick = event => {
-            jsonMessage = JSON.stringify({
+        yumButton.onclick = _ => {
+            const cheersMessage = JSON.stringify({
                 "value": "yum",
                 "client_created_at": (new Date()).toJSON()
             })
-            console.log("send jsonMessage", jsonMessage)
-            conn.send(jsonMessage)
+            console.log("send jsonMessage", cheersMessage)
+            conn.send(cheersMessage)
         }
 
-        conn.onclose = evt => {
+        conn.onclose = _ => {
             console.log("connection closed")
         }
 
-        conn.onmessage = evt => {
-            console.log("onmessage event data", evt.data)
-            const event = JSON.parse(evt.data)
+        conn.onmessage = ({data}) => {
+            console.log("onmessage event data", data)
+            const event = JSON.parse(data)
             const eventName = event["event_name"]
 
             if (eventName == "EVENT_LAST_SECONDS_COUNT") {
@@ -173,14 +171,14 @@
             }
         }
 
-        conn.onopen = function () {
+        conn.onopen = _ => {
             console.log("connection opened")
-            jsonMessage = JSON.stringify({
-                "room_name": roomName,
-                "user_id": userId
+            const userDetails = JSON.stringify({
+                "room_name": dummyRoomName,
+                "user_id": dummyUserId
             })
-            console.log("send jsonMessage", jsonMessage)
-            conn.send(jsonMessage)
+            console.log("send first message (user info)", userDetails)
+            conn.send(userDetails)
         }
     }
 </script>
