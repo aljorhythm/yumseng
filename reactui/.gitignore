@@ -1,0 +1,6 @@
+# node reproducibles
+package-lock.json
+node_modules
+
+# bundled webpage
+./dist
