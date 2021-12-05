@@ -14,6 +14,14 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/rs/cors"
+
+	socketio "github.com/googollee/go-socket.io"
+	"github.com/googollee/go-socket.io/engineio"
+	"github.com/googollee/go-socket.io/engineio/transport"
+	"github.com/googollee/go-socket.io/engineio/transport/polling"
+	"github.com/googollee/go-socket.io/engineio/transport/websocket"
 )
 
 // web ui static assets
@@ -115,9 +123,18 @@ func (d DummyUserService) GetUser(id string) (rooms.User, error) {
 	return DummyUser{id: id}, nil
 }
 
+var allowOriginFunc = func(r *http.Request) bool {
+	log.Printf("There's a request! ")
+	return true
+}
+
 func main() {
 	router := mux.NewRouter()
-
+	reactTsPort := 3000
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{fmt.Sprintf("http://localhost:%d", reactTsPort)},
+		AllowCredentials: true,
+	})
 	objectStorage := objectstorage.NewInmemoryStore()
 
 	cheersService := cheers.NewService()
@@ -137,10 +154,40 @@ func main() {
 		log.Panicf("[main.go#main] Error generateUiHandler %s", err)
 	}
 
+	// serve root html
 	router.PathPrefix("/").Handler(webuiHandler)
+
+	/* SocketIO */
+
+	sioServer := socketio.NewServer(&engineio.Options{
+		Transports: []transport.Transport{
+			&polling.Transport{
+				CheckOrigin: allowOriginFunc,
+			},
+			&websocket.Transport{
+				CheckOrigin: allowOriginFunc,
+			},
+		},
+	})
+
+	sioServer.OnConnect("/", func(s socketio.Conn) error {
+		s.SetContext("")
+		log.Println("connected:", s.ID())
+		return nil
+	})
+
+	go func() {
+		fmt.Println("socketio attempting to serve")
+		if err := sioServer.Serve(); err != nil {
+			log.Fatalf("socketio listen error: %s\n", err)
+		}
+	}()
+	defer sioServer.Close()
+
+	http.Handle("/socket.io/", sioServer)
 
 	port := getPort()
 	portArg := fmt.Sprintf(":%s", port)
 	log.Printf("Running router PORT=%s", portArg)
-	log.Fatal(http.ListenAndServe(portArg, router))
+	log.Fatal(http.ListenAndServe(portArg, c.Handler(router)))
 }
