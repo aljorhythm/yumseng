@@ -11,7 +11,6 @@ package-lock.json
 
 # production
 !build/.gitignore
-/build
 
 # misc
 .DS_Store
