@@ -15,7 +15,10 @@ unit-test:
 run-source:
 	go run main.go
 
-build:
+build-ui:
+    $(cd react-ts-ui && make build)
+
+build: build-ui
 	go build -o ./yumseng
 
 run-binary:

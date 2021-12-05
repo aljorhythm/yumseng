@@ -28,6 +28,9 @@ import (
 //go:embed webui/*
 var webuiFs embed.FS
 
+//go:embed react-ts-ui/build/*
+var reactUiFs embed.FS
+
 // http errors
 var (
 	ERROR_UNHANDLED_HTTP_METHOD = errors.New("unhandled http method")
@@ -35,6 +38,14 @@ var (
 
 func generateUiHandler() (http.Handler, error) {
 	uiFileSystem, err := fs.Sub(webuiFs, "webui")
+	if err != nil {
+		return nil, err
+	}
+	return http.FileServer(http.FS(uiFileSystem)), nil
+}
+
+func generateReactUiHandler() (http.Handler, error) {
+	uiFileSystem, err := fs.Sub(reactUiFs, "react-ts-ui/build")
 	if err != nil {
 		return nil, err
 	}
@@ -128,6 +139,12 @@ var allowOriginFunc = func(r *http.Request) bool {
 	return true
 }
 
+type ReactUiHandler struct{}
+
+func (r ReactUiHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	writer.Write([]byte("hell"))
+}
+
 func main() {
 	router := mux.NewRouter()
 	reactTsPort := 3000
@@ -149,13 +166,16 @@ func main() {
 	router.HandleFunc("/ping", generatePingHandler(tag))
 
 	webuiHandler, err := generateUiHandler()
-
 	if err != nil {
 		log.Panicf("[main.go#main] Error generateUiHandler %s", err)
 	}
+	router.PathPrefix("/archiveui").Handler(http.StripPrefix("/archiveui", webuiHandler))
 
-	// serve root html
-	router.PathPrefix("/").Handler(webuiHandler)
+	reactUiHandler, err := generateReactUiHandler()
+	if err != nil {
+		log.Panicf("[main.go#main] Error generateReactUiHandler %s", err)
+	}
+	router.PathPrefix("/").Handler(reactUiHandler)
 
 	/* SocketIO */
 

@@ -10,6 +10,7 @@ ENV TAG=$TAG
 
 # static assets
 COPY webui webui
+COPY react-ts-ui/build react-ts-ui/build
 
 # local go files and packages
 COPY *.go ./
