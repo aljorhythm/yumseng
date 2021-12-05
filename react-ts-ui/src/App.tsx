@@ -1,5 +1,4 @@
 import React from "react";
-import "./App.css";
 import Room from "./components/Room";
 
 const getDummyRoom = (): string => {
