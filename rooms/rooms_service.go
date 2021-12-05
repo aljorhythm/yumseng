@@ -82,14 +82,14 @@ func (r *roomsService) ListenCheer(room *Room, user User, clientId string, callb
 		log.Printf("service listen to cheer %s %s %s, user created %t", room.Name, user.GetId(), clientId, created)
 	}
 
-	r.SubscribeCheerAdded(room, clientId, callback)
+	r.RoomEvents.SubscribeCheerAdded(room, clientId, callback)
 	return nil
 }
 
 func (r *roomsService) AddCheer(room *Room, cheer *cheers.Cheer, user User) {
 	cheer.UserId = user.GetId()
 	room.AddCheer(cheer)
-	r.PublishCheerAdded(room, *cheer)
+	r.RoomEvents.PublishCheerAdded(room, *cheer)
 }
 
 func NewRoomsService(storage objectstorage.Storage) RoomServicer {

@@ -4,6 +4,10 @@ import (
 	"github.com/aljorhythm/yumseng/cheers"
 )
 
+/**
+Message definitions with client
+*/
+
 type RoomConnectedMessage struct {
 	EventName string `json:"event_name"`
 	UserId    string `json:"user_id"`

@@ -73,17 +73,17 @@ func (roomsServer *RoomsServer) eventsWs(w http.ResponseWriter, r *http.Request)
 	addedCheersChannel := make(chan cheers.Cheer)
 
 	log.Printf("subscribing user %s client %s to room %s cheers", user.GetId(), clientId, room.Name)
-	err = roomsServer.ListenCheer(room, user, clientId, func(args ...interface{}) {
+	cb := func(args ...interface{}) {
 		rawCheer := args[0]
 		cheer, ok := rawCheer.(cheers.Cheer)
 		if ok {
 			log.Printf("cheer listened %#v", cheer)
 			addedCheersChannel <- cheer
-
 		} else {
 			log.Panicf("cannot convert cheer %#v", args)
 		}
-	})
+	}
+	err = roomsServer.ListenCheer(room, user, clientId, cb)
 
 	if err != nil {
 		log.Panicf("unable to subscribe user %s to room %s error %#v", user.GetId(), room.Name, err)
