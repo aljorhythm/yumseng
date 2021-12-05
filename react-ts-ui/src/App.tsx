@@ -1,6 +1,6 @@
 import React from "react";
 import Room from "./components/Room";
-
+import { connectionSIO } from "./connections/sio";
 const getDummyRoom = (): string => {
   return "dummyRoom12345";
 };
@@ -9,6 +9,7 @@ const App = () => {
     user: "dummyUser",
     sessionId: "uniqueDummySession",
   });
+  const conn = connectionSIO();
   const [roomId, setRoomId] = React.useState<string | null>(null);
   React.useEffect(() => {
     const roomId = getDummyRoom();
