@@ -6,7 +6,7 @@ const getDummyRoom = (): string => {
   return "dummyRoom12345";
 };
 const App = () => {
-  const [profile, setProfile] = React.useState({
+  const [profile, setProfile] = React.useState<Object | null>({
     user: "dummyUser",
     sessionId: "uniqueDummySession",
   });
@@ -16,17 +16,42 @@ const App = () => {
     setRoomId(roomId);
   }, []);
   return (
-    <div
-      className="vp-cheers-tgt"
-      style={{
-        height: "inherit",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Room key={roomId} name={roomId}></Room>
-    </div>
+    <>
+      <div>
+        <div
+          style={{
+            display: "flex",
+            height: "200px",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            verticalAlign: "middle",
+          }}
+        >
+          <header
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "inherit",
+              textAlign: "center",
+            }}
+          >
+            TODO: YUMSENG HEADER: NAV / LOGO
+          </header>
+        </div>
+      </div>
+      <div
+        style={{
+          height: "inherit",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Room key={roomId} name={roomId}></Room>
+      </div>
+    </>
   );
 };
 
