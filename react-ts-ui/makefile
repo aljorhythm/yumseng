@@ -1,5 +1,8 @@
 .PHONY: build
 
+run:
+	npm run start
+
 build:
-	npm i
+	npm ci
 	npm run build
