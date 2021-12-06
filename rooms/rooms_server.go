@@ -29,6 +29,11 @@ func (roomsServer *RoomsServer) eventsWs(w http.ResponseWriter, r *http.Request)
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
+		//todo security debt
+		CheckOrigin: func(r *http.Request) bool {
+
+			return true
+		},
 	}
 	conn, err := upgrader.Upgrade(w, r, nil)
 

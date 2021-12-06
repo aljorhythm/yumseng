@@ -1,19 +1,35 @@
 import React from "react";
 import Room from "./components/Room";
-import { connectionSIO } from "./connections/sio";
+import { connectionWS } from "./connections/websocket";
+
 const getDummyRoom = (): string => {
   return "dummyRoom12345";
 };
+
+const getDummyUser = (): string => "dummyUser"
+
+
 const App = () => {
-  const [profile, setProfile] = React.useState<Object | null>({
-    user: "dummyUser",
-    sessionId: "uniqueDummySession",
-  });
-  const conn = connectionSIO();
-  const [roomId, setRoomId] = React.useState<string | null>(null);
+  const [userId, setUserId] = React.useState<string | null>(null);
+    const [roomId, setRoomId] = React.useState<string | null>(null);
+    const conn = connectionWS();
+
+    conn.onopen = (_) => {
+        console.log("connection opened");
+        const userDetails = JSON.stringify({
+            room_name: roomId,
+            user_id: userId,
+        });
+        console.log("send first message (user info)", userDetails);
+        conn.send(userDetails);
+    };
+
+
   React.useEffect(() => {
     const roomId = getDummyRoom();
     setRoomId(roomId);
+    const userId = getDummyUser();
+    setUserId(userId);
   }, []);
   return (
     <>
