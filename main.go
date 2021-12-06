@@ -16,12 +16,6 @@ import (
 	"os"
 
 	"github.com/rs/cors"
-
-	socketio "github.com/googollee/go-socket.io"
-	"github.com/googollee/go-socket.io/engineio"
-	"github.com/googollee/go-socket.io/engineio/transport"
-	"github.com/googollee/go-socket.io/engineio/transport/polling"
-	"github.com/googollee/go-socket.io/engineio/transport/websocket"
 )
 
 // web ui static assets
@@ -176,35 +170,6 @@ func main() {
 		log.Panicf("[main.go#main] Error generateReactUiHandler %s", err)
 	}
 	router.PathPrefix("/").Handler(reactUiHandler)
-
-	/* SocketIO */
-
-	sioServer := socketio.NewServer(&engineio.Options{
-		Transports: []transport.Transport{
-			&polling.Transport{
-				CheckOrigin: allowOriginFunc,
-			},
-			&websocket.Transport{
-				CheckOrigin: allowOriginFunc,
-			},
-		},
-	})
-
-	sioServer.OnConnect("/", func(s socketio.Conn) error {
-		s.SetContext("")
-		log.Println("connected:", s.ID())
-		return nil
-	})
-
-	go func() {
-		fmt.Println("socketio attempting to serve")
-		if err := sioServer.Serve(); err != nil {
-			log.Fatalf("socketio listen error: %s\n", err)
-		}
-	}()
-	defer sioServer.Close()
-
-	http.Handle("/socket.io/", sioServer)
 
 	port := getPort()
 	portArg := fmt.Sprintf(":%s", port)
