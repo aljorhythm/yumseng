@@ -1,3 +1,5 @@
+.PHONY: build
 
 build:
-    npm run build
+	npm i
+	npm run build
