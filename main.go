@@ -2,9 +2,7 @@ package main
 
 import (
 	"embed"
-	"errors"
 	"fmt"
-	"github.com/aljorhythm/yumseng/cheers"
 	"github.com/aljorhythm/yumseng/objectstorage"
 	"github.com/aljorhythm/yumseng/ping"
 	"github.com/aljorhythm/yumseng/rooms"
@@ -25,11 +23,6 @@ var webuiFs embed.FS
 //go:embed react-ts-ui/build/*
 var reactUiFs embed.FS
 
-// http errors
-var (
-	ERROR_UNHANDLED_HTTP_METHOD = errors.New("unhandled http method")
-)
-
 func generateUiHandler() (http.Handler, error) {
 	uiFileSystem, err := fs.Sub(webuiFs, "webui")
 	if err != nil {
@@ -46,45 +39,21 @@ func generateReactUiHandler() (http.Handler, error) {
 	return http.FileServer(http.FS(uiFileSystem)), nil
 }
 
-func generateCheersHandler(service cheers.Servicer) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
-			cheers := service.GetCheers()
-			message, err := utils.ToJson(cheers)
-
-			if err != nil {
-				panic(err)
-			}
-			fmt.Fprintf(w, string(message))
-		} else if r.Method == http.MethodPost {
-			cheer := &cheers.Cheer{}
-			err := utils.HttpRequestBodyToStruct(r, cheer)
-
-			if err != nil {
-				panic(err)
-			}
-
-			service.AddCheer(cheer)
-			fmt.Fprintf(w, "{}")
-		} else {
-			panic(ERROR_UNHANDLED_HTTP_METHOD)
-		}
-	}
-}
-
 func generatePingHandler(tag string) func(writer http.ResponseWriter, request *http.Request) {
 	response := &ping.PingResponse{
 		Tag: tag,
 	}
-	bytes, error := utils.ToJson(response)
+	bytes, err := utils.ToJson(response)
 
-	if error != nil {
-		panic(error)
+	if err != nil {
+		panic(err)
 	}
 
 	message := string(bytes)
 	return func(writer http.ResponseWriter, request *http.Request) {
-		fmt.Fprintf(writer, message)
+		_, err := fmt.Fprintf(writer, message)
+		if err != nil {
+		}
 	}
 }
 
@@ -106,13 +75,6 @@ func getVersionTag() string {
 	return value
 }
 
-func setJsonResponseHeader(handler func(writer http.ResponseWriter, request *http.Request)) func(writer http.ResponseWriter, request *http.Request) {
-	return func(writer http.ResponseWriter, request *http.Request) {
-		writer.Header().Set("Content-Type", "application/json")
-		handler(writer, request)
-	}
-}
-
 type DummyUserService struct {
 }
 
@@ -128,28 +90,10 @@ func (d DummyUserService) GetUser(id string) (rooms.User, error) {
 	return DummyUser{id: id}, nil
 }
 
-var allowOriginFunc = func(r *http.Request) bool {
-	log.Printf("There's a request! ")
-	return true
-}
-
-type ReactUiHandler struct{}
-
-func (r ReactUiHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	writer.Write([]byte("hell"))
-}
-
 func main() {
 	router := mux.NewRouter()
-	reactTsPort := 3000
-	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{fmt.Sprintf("http://localhost:%d", reactTsPort)},
-		AllowCredentials: true,
-	})
-	objectStorage := objectstorage.NewInmemoryStore()
 
-	cheersService := cheers.NewService()
-	router.HandleFunc("/cheers", setJsonResponseHeader(generateCheersHandler(cheersService)))
+	objectStorage := objectstorage.NewInmemoryStore()
 
 	roomsSubrouter := router.PathPrefix("/rooms").Subrouter()
 
@@ -174,5 +118,11 @@ func main() {
 	port := getPort()
 	portArg := fmt.Sprintf(":%s", port)
 	log.Printf("Running router PORT=%s", portArg)
-	log.Fatal(http.ListenAndServe(portArg, c.Handler(router)))
+
+	reactTsPort := 3000
+	httpCorsConfig := cors.New(cors.Options{
+		AllowedOrigins:   []string{fmt.Sprintf("http://localhost:%d", reactTsPort)},
+		AllowCredentials: true,
+	})
+	log.Fatal(http.ListenAndServe(portArg, httpCorsConfig.Handler(router)))
 }
