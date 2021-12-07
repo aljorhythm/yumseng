@@ -76,14 +76,12 @@ func (manager *EventsCallbacksManager) getEventCallbacks(topic string) *EventCal
 }
 
 func (manager *EventsCallbacksManager) addEventCallback(topic string, callbackId string, callback Callback) *EventCallbacks {
-	eventCallbacks, ok := manager.eventCallbacksList[topic]
-
-	if !ok {
+	if _, found := manager.eventCallbacksList[topic]; !found {
 		log.Printf("manager creating event callbacks topic: %s", topic)
 		manager.eventCallbacksList[topic] = newEventCallbacks(topic)
 	}
 
-	eventCallbacks, ok = manager.eventCallbacksList[topic]
+	eventCallbacks, ok := manager.eventCallbacksList[topic]
 
 	if !ok {
 		log.Panicf("wanted to create callbacks but failed topic: %s callbackId: %s", topic, callbackId)
@@ -120,16 +118,19 @@ func newEventCallbacks(topic string) *EventCallbacks {
 	return callbacks
 }
 
-func (roomEvents *RoomEvents) SubscribeCheerAdded(room *Room, cliendId string, cb Callback) {
+func (roomEvents *RoomEvents) SubscribeCheerAdded(room *Room, clientId string, cb Callback) {
 	topic := EVENT_CHEER_ADDED.topicName(room)
-	eventCallbacks := roomEvents.eventsCallbacksManager.addEventCallback(topic, cliendId, cb)
+	eventCallbacks := roomEvents.eventsCallbacksManager.addEventCallback(topic, clientId, cb)
 
 	if !roomEvents.eventBus.HasCallback(topic) {
 		log.Printf("subcribing event callbacks to topic %s", topic)
-		roomEvents.eventBus.Subscribe(topic, eventCallbacks.callbackAll)
+		err := roomEvents.eventBus.Subscribe(topic, eventCallbacks.callbackAll)
+		if err != nil {
+			log.Panicf("something wrong when subscribing")
+		}
 	}
 
-	log.Printf("subscribed event callback %s to topic %s", cliendId, topic)
+	log.Printf("subscribed event callback %s to topic %s", clientId, topic)
 }
 
 func (roomEvents *RoomEvents) PublishCheerAdded(room *Room, cheer cheers.Cheer) {
