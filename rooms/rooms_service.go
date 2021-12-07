@@ -79,10 +79,17 @@ func (r *roomsService) ListenCheer(room *Room, user User, clientId string, callb
 	if created, err := room.CreateUserIfNotExist(user); err != nil {
 		return err
 	} else {
-		log.Printf("service listen to cheer %s %s %s, user created %t", room.Name, user.GetId(), clientId, created)
+		userId := user.GetId()
+		var userQueryStatus string
+		if created == true {
+			userQueryStatus = fmt.Sprintf("user %s added to room", userId)
+		} else {
+			userQueryStatus = fmt.Sprintf("user %s found in room", userId)
+		}
+		log.Printf("room: %s , user id: %s, clientId: %s , %s ", room.Name, user.GetId(), clientId, userQueryStatus)
 	}
-
 	r.RoomEvents.SubscribeCheerAdded(room, clientId, callback)
+	log.Printf("joined room %s | clientId : %s | userId : %s and subsribed to cheers", room.Name, clientId, user.GetId())
 	return nil
 }
 
