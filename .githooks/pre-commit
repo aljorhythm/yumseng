@@ -1,3 +1,5 @@
 #!/bin/sh
 
-make all
+make format
+make unit-test
+make source-integration-tests

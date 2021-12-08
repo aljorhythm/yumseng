@@ -5,6 +5,7 @@ HOSTNAME ?= localhost
 setup:
 	# githooks
 	git config core.hooksPath .githooks
+	go mod tidy
 
 format: setup
 	sh .format.sh
@@ -38,6 +39,9 @@ docker-stop:
 
 docker-deploy-run: docker-stop docker-build docker-run-undetached
 	echo built and run and exited server
+
+source-integration-tests:
+	sh .source-integration-tests.sh
 
 all: docker-stop format unit-test docker-build docker-run integration-test docker-stop
 	echo all done

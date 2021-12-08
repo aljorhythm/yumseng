@@ -25,6 +25,8 @@ type JoinRoomRequest struct {
 	RoomName string `json:"room_name"`
 }
 
+// todo this should be decoupled with routine
+// scope is only add cheer, not publish
 func getCheerCaptureAndPublishRoutine(conn *websocket.Conn, user User, clientId string, room *Room, roomsServer *RoomsServer) func() {
 	return func() {
 
@@ -46,6 +48,7 @@ func getCheerCaptureAndPublishRoutine(conn *websocket.Conn, user User, clientId 
 	}
 }
 func allowOriginFunc(_ *http.Request) bool {
+	//todo better log
 	log.Printf("There's a request! ")
 	return true
 }
@@ -86,6 +89,8 @@ func processFirstMessage(roomsServer *RoomsServer, conn *websocket.Conn) (User, 
 	return user, room, clientId
 }
 
+// todo rename to mainRoomEventsLogic
+// maybe refactor into a struct
 func broadcastCheer(addedCheersChannel chan cheers.Cheer, room *Room, clientId string, conn *websocket.Conn, interruptSignal <-chan struct{}) {
 	ticker := time.NewTicker(250 * time.Millisecond)
 	var err error

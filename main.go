@@ -119,6 +119,7 @@ func main() {
 	portArg := fmt.Sprintf(":%s", port)
 	log.Printf("Running router PORT=%s", portArg)
 
+	// todo make environment configurable
 	reactTsPort := 3000
 	httpCorsConfig := cors.New(cors.Options{
 		AllowedOrigins:   []string{fmt.Sprintf("http://localhost:%d", reactTsPort)},

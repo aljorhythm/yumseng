@@ -17,11 +17,12 @@ jobs:
         run: make format
       - name: unit test
         run: make unit-test
+      - name: unit test
+          run: make source-integration-tests
 
   binary-checks:
     env:
       TAG: ${{ github.sha }}
-    needs: source-checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

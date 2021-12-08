@@ -1,3 +1,5 @@
 - [ ] Deploy and serve typescript react app in production
 
-- [ ] Refactor events websocket to 
+- [ ] Refactor rooms/events websocket to generic events rather than only cheers
+
+- [ ] Persistent storage for room details

@@ -126,6 +126,7 @@ func (roomEvents *RoomEvents) SubscribeCheerAdded(room *Room, clientId string, c
 		log.Printf("subcribing event callbacks to topic %s", topic)
 		err := roomEvents.eventBus.Subscribe(topic, eventCallbacks.callbackAll)
 		if err != nil {
+			//todo more info
 			log.Panicf("something wrong when subscribing")
 		}
 	}
