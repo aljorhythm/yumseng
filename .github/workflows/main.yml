@@ -20,6 +20,22 @@ jobs:
       - name: unit test
         run: make source-integration-tests
 
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [source-checks, binary-checks]
+    env:
+      TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "yumseng" #Must be unique in Heroku
+          heroku_email: "103879u@gmail.com"
+          usedocker: true
+          docker_build_args: |
+            TAG
+
   binary-checks:
     env:
       TAG: ${{ github.sha }}
@@ -37,19 +53,3 @@ jobs:
         run: make integration-test
       - name: stop docker container
         run: make docker-stop
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: binary-checks
-    env:
-      TAG: ${{ github.sha }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "yumseng" #Must be unique in Heroku
-          heroku_email: "103879u@gmail.com"
-          usedocker: true
-          docker_build_args: |
-            TAG

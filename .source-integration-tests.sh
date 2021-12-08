@@ -1,6 +1,6 @@
 #!/bin/bash
 
-port=80
+port=8080
 
 echo kill process using port $port
 kill $(lsof -t -i:$port)
