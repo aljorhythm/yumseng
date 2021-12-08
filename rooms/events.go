@@ -32,6 +32,10 @@ func (eventType *EventType) topicName(room *Room) string {
 	return fmt.Sprintf("%s:%s", room.Name, eventType.name)
 }
 
+func (eventType *EventType) GetName() string {
+	return eventType.name
+}
+
 func NewRoomEvents() *RoomEvents {
 	bus := EventBus.New()
 	eventCallbacksManager := newEventsCallbackManager()
