@@ -69,7 +69,7 @@ func (s *eventsSocket) listenToClientMessages() {
 
 func (socket *eventsSocket) listenToRoomCheers() {
 	log.Printf("subscribing user %s client %s to room %s cheers", socket.user.GetId(), socket.clientId, socket.room.Name)
-	funnel := func(args ...interface{}) {
+	callback := func(args ...interface{}) {
 		rawCheer := args[0]
 		cheer, ok := rawCheer.(cheers.Cheer)
 		if ok {
@@ -81,7 +81,7 @@ func (socket *eventsSocket) listenToRoomCheers() {
 	}
 
 	var err error
-	err = socket.roomsServer.ListenCheer(socket.room, socket.user, socket.clientId, funnel)
+	err = socket.roomsServer.AddCheerAddedListener(socket.room, socket.user, socket.clientId, callback)
 
 	if err != nil {
 		log.Panicf("unable to subscribe user %s to room %s error %#v", socket.user.GetId(), socket.room.Name, err)

@@ -18,8 +18,7 @@ type RoomServicer interface {
 	GetCheerImages(ctx context.Context, room *Room, user User) ([]*CheerImage, error)
 	UserJoinsRoom(ctx context.Context, room *Room, user User) error
 	AddCheer(room *Room, cheer *cheers.Cheer, user User)
-	// todo rename to AddCheerAddedListener
-	ListenCheer(room *Room, user User, clientId string, callback Callback) error
+	AddCheerAddedListener(room *Room, user User, clientId string, callback Callback) error
 	StopListeningCheers(room *Room, clientId string)
 	GetOrCreateRoom(name string) *Room
 }
@@ -76,7 +75,7 @@ func (r *roomsService) StopListeningCheers(room *Room, clientId string) {
 	r.UnsubscribeCheerAdded(room, clientId)
 }
 
-func (r *roomsService) ListenCheer(room *Room, user User, clientId string, callback Callback) error {
+func (r *roomsService) AddCheerAddedListener(room *Room, user User, clientId string, callback Callback) error {
 	if created, err := room.CreateUserIfNotExist(user); err != nil {
 		return err
 	} else {
