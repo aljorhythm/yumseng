@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { connectionWS } from "../connections/websocket";
 
 import ButtonSendCheer from "./ButtonSendCheer";
 import CheerVolumeBar from "./CheerVolumeBar";
+
+import imgSrc from "../assets/face_1.jpg";
 
 interface RoomProp {
   name: string | null;
@@ -14,10 +16,26 @@ interface RoomProp {
 
 const thisConn = connectionWS();
 
+const randomOffset = (parentLength: number, elementLength: number): number => {
+  const posOffsetBetweenBoundary =
+    Math.random() * (parentLength - elementLength);
+  console.log(posOffsetBetweenBoundary);
+  return posOffsetBetweenBoundary;
+};
+interface PositionOffset {
+  x: number;
+  y: number;
+}
+
+const imgWidth = 100;
+const imgHeight = 120;
 const Room = (props: RoomProp) => {
   const { cheersSent, setCheersSent, redSymbol, setRedSymbol } = props;
 
   const [intensity, setIntensity] = useState<number>(0);
+
+  const [imgPos, setImgPos] = useState<PositionOffset>({ x: 0, y: 0 });
+  const stageCanvasRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (thisConn) {
       thisConn.onmessage = (msgEvent) => {
@@ -31,6 +49,17 @@ const Room = (props: RoomProp) => {
             return (prev + 20) % 255;
           });
           setCheersSent((prev) => prev + 1);
+          setImgPos((prevPos) => {
+            if (stageCanvasRef.current) {
+              const height = stageCanvasRef.current.offsetHeight;
+              const width = stageCanvasRef.current.offsetWidth;
+              return {
+                x: randomOffset(width, imgWidth),
+                y: randomOffset(height, imgHeight),
+              };
+            }
+            return { ...prevPos };
+          });
         } else if (eventName == "EVENT_LAST_SECONDS_COUNT") {
           const { count } = event;
           setIntensity(count);
@@ -41,17 +70,31 @@ const Room = (props: RoomProp) => {
   return (
     <>
       <div
+        className="room"
+        ref={stageCanvasRef}
         style={{
           display: "grid",
           border: "solid",
           height: "100%",
-          width: "100%",
+          width: "60%",
           alignItems: "center",
           flexFlow: "column wrap",
           justifyContent: "center",
           textAlign: "center",
+          position: "relative",
         }}
       >
+        <img
+          src={imgSrc}
+          style={{
+            position: "absolute",
+            width: `${imgWidth}px`,
+            height: `${imgHeight}px`,
+            top: `${imgPos.y}px`,
+            left: `${imgPos.x}px`,
+          }}
+        ></img>
+
         <div
           style={{
             display: "inherit",
