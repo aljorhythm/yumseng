@@ -13,19 +13,18 @@ type RoomsServer struct {
 	http.Handler
 	RoomServicer
 	UserService UserServicer
+	RoomsServerOpts
 }
 
-func allowOriginFunc(_ *http.Request) bool {
-	//todo better log
-	log.Printf("There's a request! ")
-	return true
+type RoomsServerOpts struct {
+	AllowOriginFunc func(r *http.Request) bool
 }
-func upgradeHttpToWs(w http.ResponseWriter, r *http.Request) *websocket.Conn {
+
+func (roomsServer *RoomsServer) upgradeHttpToWs(w http.ResponseWriter, r *http.Request) *websocket.Conn {
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
-		//todo security debt
-		CheckOrigin: allowOriginFunc,
+		CheckOrigin:     roomsServer.AllowOriginFunc,
 	}
 	conn, err := upgrader.Upgrade(w, r, nil)
 
@@ -36,14 +35,15 @@ func upgradeHttpToWs(w http.ResponseWriter, r *http.Request) *websocket.Conn {
 }
 
 func (roomsServer *RoomsServer) eventsWs(w http.ResponseWriter, r *http.Request) {
-	conn := upgradeHttpToWs(w, r)
+	conn := roomsServer.upgradeHttpToWs(w, r)
 	InitEventsSocket(conn, roomsServer)
 }
 
-func NewRoomsServer(router *mux.Router, userService UserServicer, storage objectstorage.Storage) http.Handler {
+func NewRoomsServer(router *mux.Router, userService UserServicer, storage objectstorage.Storage, opts RoomsServerOpts) http.Handler {
 	roomsServer := &RoomsServer{
-		RoomServicer: NewRoomsService(storage),
-		UserService:  userService,
+		RoomServicer:    NewRoomsService(storage),
+		UserService:     userService,
+		RoomsServerOpts: opts,
 	}
 
 	router.Handle("/rooms", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {

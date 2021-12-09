@@ -11,7 +11,7 @@ format: setup
 	sh .format.sh
 
 unit-test:
-	go test $$(go list ./... | grep -v integration-tests)
+	go test -v $$(go list ./... | grep -v integration-tests)
 
 run-source:
 	go run .

@@ -90,6 +90,12 @@ func (d DummyUserService) GetUser(id string) (rooms.User, error) {
 	return DummyUser{id: id}, nil
 }
 
+func allowSameOriginOrInList(list []string) func(*http.Request) bool {
+	return func(r *http.Request) bool {
+		return checkSameOrigin(r) || requestOriginIsInList(list, r)
+	}
+}
+
 func main() {
 	router := mux.NewRouter()
 
@@ -98,7 +104,9 @@ func main() {
 	roomsSubrouter := router.PathPrefix("/rooms").Subrouter()
 
 	userService := DummyUserService{}
-	rooms.NewRoomsServer(roomsSubrouter, userService, objectStorage)
+
+	opts := rooms.RoomsServerOpts{AllowOriginFunc: allowSameOriginOrInList(getAllowedOrigins())}
+	rooms.NewRoomsServer(roomsSubrouter, userService, objectStorage, opts)
 
 	tag := getVersionTag()
 	router.HandleFunc("/ping", generatePingHandler(tag))

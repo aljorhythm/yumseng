@@ -29,7 +29,7 @@ func (m MockUserService) GetUser(id string) (User, error) {
 }
 
 func TestRoomServer(t *testing.T) {
-	roomsServer := NewRoomsServer(mux.NewRouter(), MockUserService{}, objectstorage.NewInmemoryStore())
+	roomsServer := NewRoomsServer(mux.NewRouter(), MockUserService{}, objectstorage.NewInmemoryStore(), RoomsServerOpts{})
 
 	t.Run("when we send a cheer it must be broadcasted", func(t *testing.T) {
 		server := httptest.NewServer(roomsServer)
