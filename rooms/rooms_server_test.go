@@ -96,5 +96,9 @@ func TestRoomServer(t *testing.T) {
 		wantedCheer := CheerAddedMessage{cheer, EVENT_CHEER_ADDED.name}
 
 		assert.Equal(t, wantedCheer, gotCheer)
+
+		t.Run("Recurring intensity messages interleaved with cheer event", func(t *testing.T) {
+			//todo
+		})
 	})
 }
