@@ -139,23 +139,6 @@ func (s *eventsSocket) setCloseHandler() {
 	})
 }
 
-func NewRoomConnectedMessage(room *Room, user User) (*RoomConnectedMessage, error) {
-	eventType := EVENT_ROOM_CONNECTED
-	message := RoomConnectedMessage{RoomName: room.Name, UserId: user.GetId(), EventName: eventType.GetName()}
-	return &message, nil
-}
-
-func NewCheerAddedMessage(cheer cheers.Cheer) (*CheerAddedMessage, error) {
-	eventType := EVENT_CHEER_ADDED
-	message := CheerAddedMessage{Cheer: cheer, EventName: eventType.GetName()}
-	return &message, nil
-}
-func NewRoomLastSecondsCheerCountMessage(count int) (*RoomLastSecondsCheerCountMessage, error) {
-	eventType := EVENT_LAST_SECONDS_COUNT
-	message := RoomLastSecondsCheerCountMessage{Count: count, EventName: eventType.GetName()}
-	return &message, nil
-}
-
 func InitEventsSocket(conn *websocket.Conn, roomsServer *RoomsServer) {
 	socket := eventsSocket{conn: conn, roomsServer: roomsServer,
 		quitIntensityListener: make(chan struct{}),

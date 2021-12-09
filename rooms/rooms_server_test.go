@@ -69,6 +69,16 @@ func TestRoomServer(t *testing.T) {
 		assert.Equal(t, wantedConnected, gotConnected)
 		t.Logf("room connected message %#v", gotConnected)
 
+		gotIntensity := RoomLastSecondsCheerCountMessage{}
+		wantedIntensity := RoomLastSecondsCheerCountMessage{
+			EventName: "EVENT_LAST_SECONDS_COUNT",
+			Count:     0,
+		}
+		err = ws.ReadJSON(&gotIntensity)
+
+		assert.NoError(t, err)
+		assert.Equal(t, wantedIntensity, gotIntensity)
+
 		cheer := cheers.Cheer{
 			Value:           "this is a cheer",
 			ClientCreatedAt: time.Now().UTC(),
