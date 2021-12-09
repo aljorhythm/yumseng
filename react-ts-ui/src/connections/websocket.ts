@@ -3,12 +3,14 @@ import { SERVER_PORT } from "../config/environment";
 const websocketScheme =
   window.location.protocol === "http:" ? "ws://" : "wss://";
 
+const insecureScheme = "ws://";
 const serverAddr = document.location.hostname + `:${SERVER_PORT}`;
 const connectionWS = (() => {
   console.log("establishing ws");
   console.log("server address: " + serverAddr);
+  // TODO security debt. see rfc6455#section-10.6. Currently wss is not supported on the server
   const conn: WebSocket = new WebSocket(
-    websocketScheme + serverAddr + "/rooms/events"
+    insecureScheme + serverAddr + "/rooms/events"
   );
   console.log("initialised ws", conn);
   return () => conn;
