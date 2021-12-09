@@ -3,13 +3,14 @@ package main
 import (
 	"fmt"
 	"github.com/aljorhythm/yumseng/utils"
+	"log"
 	"net/http"
 	"net/url"
 )
 
 func getAllowedOrigins() []string {
 	reactTsPort := 3000
-	localUiDev := fmt.Sprintf("http://localhost:%d", reactTsPort)
+	localUiDev := fmt.Sprintf("localhost:%d", reactTsPort)
 	return []string{localUiDev}
 }
 
@@ -42,5 +43,7 @@ func requestOriginIsInList(list []string, request *http.Request) bool {
 			return true
 		}
 	}
+
+	log.Printf("%s not in origin allowed list %v", key, list)
 	return false
 }
