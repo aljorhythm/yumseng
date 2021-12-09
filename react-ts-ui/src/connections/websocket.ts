@@ -12,4 +12,24 @@ const connectionWS = (() => {
   return () => conn;
 })();
 
-export { connectionWS };
+const verboseWsReadyState = (state: number): string => {
+  switch (state) {
+    case 0:
+      return "CONNECTING";
+    case 1:
+      return "OPEN";
+    case 2:
+      return "CLOSING";
+    case 3:
+      return "CLOSED";
+  }
+  return "UNKNOWN";
+};
+const isWebSocketAlive = () => {
+  console.log(
+    "websocket ready state: " + verboseWsReadyState(connectionWS().readyState)
+  );
+  return connectionWS().readyState === WebSocket.OPEN;
+};
+
+export { connectionWS, isWebSocketAlive };

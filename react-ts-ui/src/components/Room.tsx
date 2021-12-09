@@ -8,10 +8,8 @@ import imgSrc from "../assets/face_1.jpg";
 
 interface RoomProp {
   name: string | null;
-  cheersSent: number;
   redSymbol: number;
   setRedSymbol: React.Dispatch<((n: number) => number) | number>;
-  setCheersSent: React.Dispatch<((n: number) => number) | number>;
 }
 
 const thisConn = connectionWS();
@@ -30,12 +28,13 @@ interface PositionOffset {
 const imgWidth = 100;
 const imgHeight = 120;
 const Room = (props: RoomProp) => {
-  const { cheersSent, setCheersSent, redSymbol, setRedSymbol } = props;
+  const { redSymbol, setRedSymbol } = props;
 
   const [intensity, setIntensity] = useState<number>(0);
 
   const [imgPos, setImgPos] = useState<PositionOffset>({ x: 0, y: 0 });
   const stageCanvasRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (thisConn) {
       thisConn.onmessage = (msgEvent) => {
@@ -48,7 +47,6 @@ const Room = (props: RoomProp) => {
           setRedSymbol((prev) => {
             return (prev + 20) % 255;
           });
-          setCheersSent((prev) => prev + 1);
           setImgPos((prevPos) => {
             if (stageCanvasRef.current) {
               const height = stageCanvasRef.current.offsetHeight;
@@ -117,7 +115,7 @@ const Room = (props: RoomProp) => {
             verticalAlign: "middle",
           }}
         >
-          <ButtonSendCheer cheersSent={cheersSent}></ButtonSendCheer>
+          <ButtonSendCheer></ButtonSendCheer>
         </div>
       </div>
     </>

@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Room from "./components/Room";
-import { connectionWS } from "./connections/websocket";
+import { connectionWS, isWebSocketAlive } from "./connections/websocket";
 
 const getDummyRoom = (): string => {
   return "dummyRoom12345";
@@ -13,12 +13,16 @@ const thisConn = connectionWS();
 const App = () => {
   const userId = getDummyUser();
   const roomId = getDummyRoom();
-  const [cheersSent, setCheersSent] = useState<number>(0);
   const [redSymbol, setRedSymbol] = useState<number>(0);
+  const [isConnAlive, setIsConnAlive] = useState<boolean>(false);
 
   const wsSocketsAndEvents = () => {
+    thisConn.onerror = (event) => {
+      console.log("Error " + event);
+    };
     thisConn.onopen = (_) => {
       console.log("connection opened");
+      setIsConnAlive(isWebSocketAlive());
       const userDetails = JSON.stringify({
         room_name: roomId,
         user_id: userId,
@@ -27,9 +31,9 @@ const App = () => {
       thisConn.send(userDetails);
     };
   };
-  React.useEffect(wsSocketsAndEvents, [roomId, userId]);
+  useEffect(wsSocketsAndEvents, [roomId, userId]);
 
-  return (
+  return isConnAlive ? (
     <>
       <div>
         <div
@@ -65,14 +69,23 @@ const App = () => {
       >
         <Room
           key={roomId}
-          setCheersSent={setCheersSent}
-          cheersSent={cheersSent}
           setRedSymbol={setRedSymbol}
           redSymbol={redSymbol}
           name={roomId}
         ></Room>
       </div>
     </>
+  ) : (
+    <div
+      style={{
+        height: "inherit",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      No connection to server
+    </div>
   );
 };
 
