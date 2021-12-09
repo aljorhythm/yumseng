@@ -1,10 +1,12 @@
+import { SERVER_PORT } from "../config/environment";
+
 const websocketScheme =
   window.location.protocol === "http:" ? "ws://" : "wss://";
 
-const serverAddr = document.location.hostname + ":80";
+const serverAddr = document.location.hostname + `:${SERVER_PORT}`;
 const connectionWS = (() => {
   console.log("establishing ws");
-  console.log(serverAddr);
+  console.log("server address: " + serverAddr);
   const conn: WebSocket = new WebSocket(
     websocketScheme + serverAddr + "/rooms/events"
   );
