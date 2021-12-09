@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Room from "./components/Room";
 import { connectionWS } from "./connections/websocket";
 
@@ -6,25 +6,32 @@ const getDummyRoom = (): string => {
   return "dummyRoom12345";
 };
 
-const getDummyUser = (): string => "dummyUser"
+const getDummyUser = (): string => "dummyUser";
+
 
 
 const App = () => {
   const [userId, setUserId] = React.useState<string | null>(null);
-    const [roomId, setRoomId] = React.useState<string | null>(null);
-    const conn = connectionWS();
+  const [roomId, setRoomId] = React.useState<string | null>(null);
+  const [conn, setConn] = useState<WebSocket | null>(null);
+  const [cheersSent, setCheersSent] = useState<number>(0);
+  const [redSymbol, setRedSymbol] = useState<number>(0);
 
-    conn.onopen = (_) => {
-        console.log("connection opened");
-        const userDetails = JSON.stringify({
-            room_name: roomId,
-            user_id: userId,
-        });
-        console.log("send first message (user info)", userDetails);
-        conn.send(userDetails);
+  const wsSocketsAndEvents = () => {
+    const thisConn = connectionWS();
+    setConn(thisConn);
+
+    thisConn.onopen = (_) => {
+      console.log("connection opened");
+      const userDetails = JSON.stringify({
+        room_name: roomId,
+        user_id: userId,
+      });
+      console.log("send first message (user and room info)", userDetails);
+      thisConn.send(userDetails);
     };
-
-
+  };
+  React.useEffect(wsSocketsAndEvents, []);
   React.useEffect(() => {
     const roomId = getDummyRoom();
     setRoomId(roomId);
@@ -65,7 +72,15 @@ const App = () => {
           justifyContent: "center",
         }}
       >
-        <Room key={roomId} name={roomId}></Room>
+        <Room
+          key={roomId}
+          setCheersSent={setCheersSent}
+          cheersSent={cheersSent}
+          setRedSymbol={setRedSymbol}
+          redSymbol={redSymbol}
+          name={roomId}
+          conn={conn}
+        ></Room>
       </div>
     </>
   );
