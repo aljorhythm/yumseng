@@ -1,6 +1,9 @@
-import ButtonSendCheer from "./ButtonSendCheer";
 import { useEffect, useState } from "react";
 import { connectionWS } from "../connections/websocket";
+
+import ButtonSendCheer from "./ButtonSendCheer";
+import CheerVolumeBar from "./CheerVolumeBar";
+
 interface RoomProp {
   name: string | null;
   cheersSent: number;
@@ -11,13 +14,6 @@ interface RoomProp {
 
 const thisConn = connectionWS();
 
-const generateBar = (strength: number): string => {
-  let result = "";
-  while (strength--) {
-    result += "-";
-  }
-  return result;
-};
 const Room = (props: RoomProp) => {
   const { cheersSent, setCheersSent, redSymbol, setRedSymbol } = props;
 
@@ -41,7 +37,7 @@ const Room = (props: RoomProp) => {
         }
       };
     }
-  }, [redSymbol]);
+  }, []);
   return (
     <>
       <div
@@ -69,8 +65,7 @@ const Room = (props: RoomProp) => {
         >
           {props.name}
         </div>
-        intensityInTenCities
-        <div className={"cheer-intensity-bar"}>{generateBar(intensity)}</div>
+        <CheerVolumeBar intensity={intensity}></CheerVolumeBar>
         <div
           style={{
             display: "inherit",
