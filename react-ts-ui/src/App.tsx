@@ -8,19 +8,15 @@ const getDummyRoom = (): string => {
 
 const getDummyUser = (): string => "dummyUser";
 
-
+const thisConn = connectionWS();
 
 const App = () => {
-  const [userId, setUserId] = React.useState<string | null>(null);
-  const [roomId, setRoomId] = React.useState<string | null>(null);
-  const [conn, setConn] = useState<WebSocket | null>(null);
+  const [userId, setUserId] = React.useState<string | null>(getDummyUser());
+  const [roomId, setRoomId] = React.useState<string | null>(getDummyRoom());
   const [cheersSent, setCheersSent] = useState<number>(0);
   const [redSymbol, setRedSymbol] = useState<number>(0);
 
   const wsSocketsAndEvents = () => {
-    const thisConn = connectionWS();
-    setConn(thisConn);
-
     thisConn.onopen = (_) => {
       console.log("connection opened");
       const userDetails = JSON.stringify({
@@ -79,7 +75,6 @@ const App = () => {
           setRedSymbol={setRedSymbol}
           redSymbol={redSymbol}
           name={roomId}
-          conn={conn}
         ></Room>
       </div>
     </>

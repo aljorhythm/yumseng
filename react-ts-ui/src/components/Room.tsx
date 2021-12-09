@@ -1,18 +1,28 @@
 import ButtonSendCheer from "./ButtonSendCheer";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { connectionWS } from "../connections/websocket";
 interface RoomProp {
   name: string | null;
-  conn: WebSocket | null;
   cheersSent: number;
   redSymbol: number;
   setRedSymbol: React.Dispatch<((n: number) => number) | number>;
   setCheersSent: React.Dispatch<((n: number) => number) | number>;
 }
 
+const thisConn = connectionWS();
+
+const generateBar = (strength: number): string => {
+  let result = "";
+  while (strength--) {
+    result += "-";
+  }
+  return result;
+};
 const Room = (props: RoomProp) => {
   const { cheersSent, setCheersSent, redSymbol, setRedSymbol } = props;
+
+  const [intensity, setIntensity] = useState<number>(0);
   useEffect(() => {
-    const { conn: thisConn } = props;
     if (thisConn) {
       thisConn.onmessage = (msgEvent) => {
         const { data } = msgEvent;
@@ -21,12 +31,13 @@ const Room = (props: RoomProp) => {
         const eventName = event["event_name"];
         if (eventName == "EVENT_CHEER_ADDED") {
           console.log("CHEER ADDED");
-          console.log("redSymbol", redSymbol);
           setRedSymbol((prev) => {
-            console.log("prev", prev);
             return (prev + 20) % 255;
           });
           setCheersSent((prev) => prev + 1);
+        } else if (eventName == "EVENT_LAST_SECONDS_COUNT") {
+          const { count } = event;
+          setIntensity(count);
         }
       };
     }
@@ -58,7 +69,8 @@ const Room = (props: RoomProp) => {
         >
           {props.name}
         </div>
-
+        intensityInTenCities
+        <div className={"cheer-intensity-bar"}>{generateBar(intensity)}</div>
         <div
           style={{
             display: "inherit",
@@ -66,10 +78,7 @@ const Room = (props: RoomProp) => {
             verticalAlign: "middle",
           }}
         >
-          <ButtonSendCheer
-            cheersSent={cheersSent}
-            conn={props.conn}
-          ></ButtonSendCheer>
+          <ButtonSendCheer cheersSent={cheersSent}></ButtonSendCheer>
         </div>
       </div>
     </>

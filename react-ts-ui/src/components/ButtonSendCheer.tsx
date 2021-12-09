@@ -1,11 +1,13 @@
 import React from "react";
 
 import Button from "react-bootstrap/Button";
+import { connectionWS } from "../connections/websocket";
 
 interface CheerButtonProp {
-  conn: WebSocket | null;
   cheersSent: number;
 }
+const thisConn = connectionWS();
+
 const ButtonSendCheer = (props: CheerButtonProp) => {
   const { cheersSent } = props;
   return (
@@ -16,8 +18,8 @@ const ButtonSendCheer = (props: CheerButtonProp) => {
           value: "yum",
           client_created_at: new Date().toJSON(),
         });
-        console.log("sending message via connection", props.conn);
-        props.conn?.send(cheersMessage);
+
+        thisConn.send(cheersMessage);
       }}
     >
       click {cheersSent}
