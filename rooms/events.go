@@ -23,6 +23,7 @@ var (
 	EVENT_ROOM_CONNECTED = EventType{
 		"EVENT_ROOM_CONNECTED",
 	}
+	// todo rename to intensity
 	EVENT_LAST_SECONDS_COUNT = EventType{
 		"EVENT_LAST_SECONDS_COUNT",
 	}
