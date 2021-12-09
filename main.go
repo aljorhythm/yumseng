@@ -119,7 +119,6 @@ func main() {
 	portArg := fmt.Sprintf(":%s", port)
 	log.Printf("Running router PORT=%s", portArg)
 
-
 	httpCorsConfig := cors.New(cors.Options{
 		AllowedOrigins:   getAllowedOrigins(),
 		AllowCredentials: true,

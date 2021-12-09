@@ -1,5 +1,8 @@
 #!/bin/sh
 
 make format
+[ $? -eq 0 ] || exit 1
 make unit-test
+[ $? -eq 0 ] || exit 1
 make source-integration-tests
+[ $? -eq 0 ] || exit 1

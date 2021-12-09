@@ -14,7 +14,7 @@ unit-test:
 	go test $$(go list ./... | grep -v integration-tests)
 
 run-source:
-	go run main.go
+	go run .
 
 build:
 	go build -o ./yumseng
