@@ -34,4 +34,8 @@ const isWebSocketAlive = () => {
   return connectionWS().readyState === WebSocket.OPEN;
 };
 
-export { connectionWS, isWebSocketAlive };
+const checkSocketReadyStateInterval = () => {
+  setInterval(isWebSocketAlive, 1500);
+};
+
+export { connectionWS, isWebSocketAlive, checkSocketReadyStateInterval };

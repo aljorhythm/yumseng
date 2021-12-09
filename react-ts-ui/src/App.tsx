@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Room from "./components/Room";
-import { connectionWS, isWebSocketAlive } from "./connections/websocket";
+import {
+  connectionWS,
+  isWebSocketAlive,
+  checkSocketReadyStateInterval,
+} from "./connections/websocket";
 
 const getDummyRoom = (): string => {
   return "dummyRoom12345";
@@ -9,7 +13,7 @@ const getDummyRoom = (): string => {
 const getDummyUser = (): string => "dummyUser";
 
 const thisConn = connectionWS();
-
+checkSocketReadyStateInterval();
 const App = () => {
   const userId = getDummyUser();
   const roomId = getDummyRoom();
