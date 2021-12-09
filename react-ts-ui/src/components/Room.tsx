@@ -43,7 +43,7 @@ const Room = (props: RoomProp) => {
         console.log("onmessage event data", data);
         const event = JSON.parse(data);
         const eventName = event["event_name"];
-        if (eventName == "EVENT_CHEER_ADDED") {
+        if (eventName === "EVENT_CHEER_ADDED") {
           console.log("CHEER ADDED");
           setRedSymbol((prev) => {
             return (prev + 20) % 255;
@@ -60,7 +60,7 @@ const Room = (props: RoomProp) => {
             }
             return { ...prevPos };
           });
-        } else if (eventName == "EVENT_LAST_SECONDS_COUNT") {
+        } else if (eventName === "EVENT_LAST_SECONDS_COUNT") {
           const { count } = event;
           setIntensity(count);
         }
@@ -86,6 +86,7 @@ const Room = (props: RoomProp) => {
       >
         <img
           src={imgSrc}
+          alt=""
           style={{
             position: "absolute",
             width: `${imgWidth}px`,

@@ -11,8 +11,8 @@ const getDummyUser = (): string => "dummyUser";
 const thisConn = connectionWS();
 
 const App = () => {
-  const [userId, setUserId] = React.useState<string | null>(getDummyUser());
-  const [roomId, setRoomId] = React.useState<string | null>(getDummyRoom());
+  const userId = getDummyUser();
+  const roomId = getDummyRoom();
   const [cheersSent, setCheersSent] = useState<number>(0);
   const [redSymbol, setRedSymbol] = useState<number>(0);
 
@@ -27,13 +27,8 @@ const App = () => {
       thisConn.send(userDetails);
     };
   };
-  React.useEffect(wsSocketsAndEvents, []);
-  React.useEffect(() => {
-    const roomId = getDummyRoom();
-    setRoomId(roomId);
-    const userId = getDummyUser();
-    setUserId(userId);
-  }, []);
+  React.useEffect(wsSocketsAndEvents, [roomId, userId]);
+
   return (
     <>
       <div>
