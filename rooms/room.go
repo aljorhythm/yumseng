@@ -26,7 +26,7 @@ func (room *Room) AddCheer(cheer *cheers.Cheer) {
 	room.MovingAverageCalculator.AddItem(CheerItem{*cheer})
 }
 
-func (room *Room) CreateUserIfNotExist(user User) (bool, error) {
+func (room *Room) AddUserIfNotPresent(user User) (bool, error) {
 	id := user.GetId()
 
 	if _, ok := room.Users[id]; !ok {

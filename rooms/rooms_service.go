@@ -30,7 +30,7 @@ type roomsService struct {
 }
 
 func (r *roomsService) UserJoinsRoom(ctx context.Context, room *Room, user User) error {
-	_, err := room.CreateUserIfNotExist(user)
+	_, err := room.AddUserIfNotPresent(user)
 	return err
 }
 
@@ -76,20 +76,20 @@ func (r *roomsService) StopListeningCheers(room *Room, clientId string) {
 }
 
 func (r *roomsService) AddCheerAddedListener(room *Room, user User, clientId string, callback Callback) error {
-	if created, err := room.CreateUserIfNotExist(user); err != nil {
+	if created, err := room.AddUserIfNotPresent(user); err != nil {
 		return err
 	} else {
 		userId := user.GetId()
 		var userQueryStatus string
 		if created == true {
-			userQueryStatus = fmt.Sprintf("user %s added to room", userId)
+			userQueryStatus = fmt.Sprintf("User %s added to room", userId)
 		} else {
-			userQueryStatus = fmt.Sprintf("user %s found in room", userId)
+			userQueryStatus = fmt.Sprintf("User %s found in room", userId)
 		}
-		log.Printf("room: %s , user id: %s, clientId: %s , %s ", room.Name, user.GetId(), clientId, userQueryStatus)
+		log.Printf("EventsSocketId: [%s] room: %s , user id: %s, , %s ", clientId, room.Name, user.GetId(), userQueryStatus)
 	}
 	r.RoomEvents.SubscribeCheerAdded(room, clientId, callback)
-	log.Printf("joined room %s | clientId : %s | userId : %s and subsribed to cheers", room.Name, clientId, user.GetId())
+	log.Printf("EventsSocketId: [%s] userId : %s in room %s (Subscribed to cheers)", room.Name, clientId, user.GetId())
 	return nil
 }
 

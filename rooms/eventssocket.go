@@ -31,7 +31,7 @@ func (s *eventsSocket) processFirstMessage() {
 	joinRoomRequest := JoinRoomRequest{}
 	err = utils.DecodeJsonFromBytes(msg, &joinRoomRequest)
 	if err != nil {
-		log.Panicf("unable to join room %s", string(msg))
+		log.Panicf("Room Registration Failed: Unrecognised Request: %s", string(msg))
 	}
 
 	roomName := joinRoomRequest.RoomName
@@ -41,7 +41,7 @@ func (s *eventsSocket) processFirstMessage() {
 	s.room = room
 	clientId := fmt.Sprintf("user=%s uuid=%s", user.GetId(), uuid.New().String())
 	s.clientId = clientId
-
+	log.Printf("Room Registered: User %s in Room %v", s.user, s.room)
 	if err != nil {
 		log.Panicf("error emitting room connected %s %#v", clientId, err)
 	}
@@ -50,38 +50,37 @@ func (s *eventsSocket) processFirstMessage() {
 func (s *eventsSocket) listenToClientMessages() {
 	go func() {
 
-		log.Printf("client %s listening for room %s cheers", s.clientId, s.room.Name)
+		log.Printf("EventsSocketId[%s] Listening for cheers", s.clientId)
 		for {
 			_, msg, err := s.conn.ReadMessage()
 
 			if err != nil {
-				log.Printf("error in reading socket message room: %s client: %s err: %#v", s.room.Name, s.clientId, err)
+				log.Printf("EventsSocketId[%s] Error in reading socket message. Error: %#v", s.clientId, err)
 				return
 			}
 			reader := bytes.NewReader(msg)
 			newCheer := cheers.Cheer{}
 			utils.DecodeJson(reader, &newCheer)
-			log.Printf("adding cheer from client %#v", newCheer)
+			log.Printf("EventsSocketId[%s] Adding cheer %#v to %v", s.clientId, newCheer, s.room)
 			s.roomsServer.RoomServicer.AddCheer(s.room, &newCheer, s.user)
 		}
 	}()
 }
 
 func (socket *eventsSocket) listenToRoomCheers() {
-	log.Printf("subscribing user %s client %s to room %s cheers", socket.user.GetId(), socket.clientId, socket.room.Name)
+	log.Printf("EventsSocketId[%s] Subscribing user %s to cheers in room %s ", socket.clientId, socket.user.GetId(), socket.room.Name)
 	callback := func(args ...interface{}) {
 		rawCheer := args[0]
 		cheer, ok := rawCheer.(cheers.Cheer)
 		if ok {
-			log.Printf("cheer listened %#v", cheer)
+			log.Printf("EventsSocketId[%s] Cheer Received %#v", socket.clientId, cheer)
 			socket.addedCheersChannel <- cheer
 		} else {
-			log.Panicf("cannot convert cheer %#v", args)
+			log.Panicf("EventsSocketId[%s] Cheer Not Recognised %#v", socket.clientId, args)
 		}
 	}
 
-	var err error
-	err = socket.roomsServer.AddCheerAddedListener(socket.room, socket.user, socket.clientId, callback)
+	err := socket.roomsServer.AddCheerAddedListener(socket.room, socket.user, socket.clientId, callback)
 
 	if err != nil {
 		log.Panicf("unable to subscribe user %s to room %s error %#v", socket.user.GetId(), socket.room.Name, err)

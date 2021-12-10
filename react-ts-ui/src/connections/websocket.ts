@@ -22,5 +22,9 @@ const verboseWsReadyState = (ws: WebSocket): string => {
   return "UNKNOWN";
 };
 
-const newWebSocket = () => new WebSocket(sockerRegEndpoint);
+const newWebSocket = () => {
+  const conn = new WebSocket(sockerRegEndpoint);
+  console.log("Websocket connection initialized: " + verboseWsReadyState(conn));
+  return conn;
+};
 export { newWebSocket, verboseWsReadyState };
