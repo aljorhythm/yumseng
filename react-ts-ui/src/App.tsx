@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Room from "./components/Room";
-import {
-  connectionWS,
-  isWebSocketAlive,
-  checkSocketReadyStateInterval,
-} from "./connections/websocket";
+import { newWebSocket } from "./connections/websocket";
 
 const getDummyRoom = (): string => {
   return "dummyRoom12345";
@@ -12,30 +8,32 @@ const getDummyRoom = (): string => {
 
 const getDummyUser = (): string => "dummyUser";
 
-const thisConn = connectionWS();
-checkSocketReadyStateInterval();
 const App = () => {
   const userId = getDummyUser();
   const roomId = getDummyRoom();
   const [redSymbol, setRedSymbol] = useState<number>(0);
   const [isConnAlive, setIsConnAlive] = useState<boolean>(false);
-
-  const wsSocketsAndEvents = () => {
+  const [conn, setConn] = useState<WebSocket>(newWebSocket());
+  const wsSocketsAndEvents = (thisConn: WebSocket) => {
     thisConn.onerror = (event) => {
       console.log("Error " + event);
+      setIsConnAlive(false);
+      setConn(newWebSocket());
     };
     thisConn.onopen = (_) => {
       console.log("connection opened");
-      setIsConnAlive(isWebSocketAlive());
+      setIsConnAlive(true);
       const userDetails = JSON.stringify({
         room_name: roomId,
-        user_id: userId,
+        user_id: userId + Number(Math.random().toFixed(3)) * 100,
       });
       console.log("send first message (user and room info)", userDetails);
       thisConn.send(userDetails);
     };
   };
-  useEffect(wsSocketsAndEvents, [roomId, userId]);
+  useEffect(() => {
+    wsSocketsAndEvents(conn);
+  }, [conn]);
 
   return isConnAlive ? (
     <>
@@ -72,6 +70,7 @@ const App = () => {
         }}
       >
         <Room
+          conn={conn}
           key={roomId}
           setRedSymbol={setRedSymbol}
           redSymbol={redSymbol}

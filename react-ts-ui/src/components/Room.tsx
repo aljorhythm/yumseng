@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { connectionWS } from "../connections/websocket";
 
 import ButtonSendCheer from "./ButtonSendCheer";
 import CheerVolumeBar from "./CheerVolumeBar";
@@ -10,9 +9,8 @@ interface RoomProp {
   name: string | null;
   redSymbol: number;
   setRedSymbol: React.Dispatch<((n: number) => number) | number>;
+  conn: WebSocket;
 }
-
-const thisConn = connectionWS();
 
 const randomOffset = (parentLength: number, elementLength: number): number => {
   const posOffsetBetweenBoundary =
@@ -35,36 +33,39 @@ const Room = (props: RoomProp) => {
   const [imgPos, setImgPos] = useState<PositionOffset>({ x: 0, y: 0 });
   const stageCanvasRef = useRef<HTMLDivElement>(null);
 
+  const { conn } = props;
+
+  const onMessageEvents = (thisConn: WebSocket) => {
+    thisConn.onmessage = (msgEvent) => {
+      const { data } = msgEvent;
+      console.log("onmessage event data", data);
+      const event = JSON.parse(data);
+      const eventName = event["event_name"];
+      if (eventName === "EVENT_CHEER_ADDED") {
+        console.log("CHEER ADDED");
+        setRedSymbol((prev) => {
+          return (prev + 20) % 255;
+        });
+        setImgPos((prevPos) => {
+          if (stageCanvasRef.current) {
+            const height = stageCanvasRef.current.offsetHeight;
+            const width = stageCanvasRef.current.offsetWidth;
+            return {
+              x: randomOffset(width, imgWidth),
+              y: randomOffset(height, imgHeight),
+            };
+          }
+          return { ...prevPos };
+        });
+      } else if (eventName === "EVENT_LAST_SECONDS_COUNT") {
+        const { count } = event;
+        setIntensity(count);
+      }
+    };
+  };
   useEffect(() => {
-    if (thisConn) {
-      thisConn.onmessage = (msgEvent) => {
-        const { data } = msgEvent;
-        console.log("onmessage event data", data);
-        const event = JSON.parse(data);
-        const eventName = event["event_name"];
-        if (eventName === "EVENT_CHEER_ADDED") {
-          console.log("CHEER ADDED");
-          setRedSymbol((prev) => {
-            return (prev + 20) % 255;
-          });
-          setImgPos((prevPos) => {
-            if (stageCanvasRef.current) {
-              const height = stageCanvasRef.current.offsetHeight;
-              const width = stageCanvasRef.current.offsetWidth;
-              return {
-                x: randomOffset(width, imgWidth),
-                y: randomOffset(height, imgHeight),
-              };
-            }
-            return { ...prevPos };
-          });
-        } else if (eventName === "EVENT_LAST_SECONDS_COUNT") {
-          const { count } = event;
-          setIntensity(count);
-        }
-      };
-    }
-  }, []);
+    onMessageEvents(conn);
+  }, [conn]);
   return (
     <>
       <div
@@ -115,7 +116,7 @@ const Room = (props: RoomProp) => {
             verticalAlign: "middle",
           }}
         >
-          <ButtonSendCheer></ButtonSendCheer>
+          <ButtonSendCheer conn={conn}></ButtonSendCheer>
         </div>
       </div>
     </>
