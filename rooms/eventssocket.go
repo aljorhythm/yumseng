@@ -118,6 +118,7 @@ func (socket *eventsSocket) handleEventsAndSendMessages() {
 			err := socket.conn.WriteJSON(message)
 			if err != nil {
 				log.Printf("err writing to socket %#v closing quit channel %s", err, socket.clientId)
+				close(socket.quitIntensityListener)
 			} else {
 				log.Printf("wrote to socket last seconds cheer count %s %d", socket.clientId, count)
 			}
