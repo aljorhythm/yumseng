@@ -10,8 +10,16 @@ setup:
 format: setup
 	sh .format.sh
 
+source-integration-tests:
+	sh .source-integration-tests.sh
+
 unit-test:
 	go test -v $$(go list ./... | grep -v integration-tests)
+
+integration-test:
+	HOST=$(HOSTNAME):$(PORT) go test -v $$(go list ./... | grep integration-tests)
+
+test: unit-test integration-test
 
 run-source:
 	go run .
@@ -28,9 +36,6 @@ docker-build: setup
 docker-run:
 	docker run -d -p $(PORT):$(PORT) -e PORT=$(PORT) aljorhythm/yumseng:$(TAG)
 
-integration-test:
-	HOST=$(HOSTNAME):$(PORT) go test -v $$(go list ./... | grep integration-tests)
-
 docker-run-undetached:
 	docker run --expose=$(PORT) -p $(PORT):$(PORT) -e PORT=$(PORT) aljorhythm/yumseng:$(TAG)
 
@@ -39,9 +44,6 @@ docker-stop:
 
 docker-deploy-run: docker-stop docker-build docker-run-undetached
 	echo built and run and exited server
-
-source-integration-tests:
-	sh .source-integration-tests.sh
 
 all: docker-stop format unit-test docker-build docker-run integration-test docker-stop
 	echo all done
