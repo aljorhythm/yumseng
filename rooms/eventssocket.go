@@ -122,7 +122,7 @@ func (socket *eventsSocket) handleEventsAndSendMessages() {
 				//log.Printf("wrote to socket last seconds cheer count %s %d", socket.clientId, count)
 			}
 		case <-socket.quitIntensityListener:
-			log.Printf("EventsSocketId[%s] Stop sending cheer count", socket.clientId)
+			log.Printf("EventsSocketId: %s Stop sending cheer count", socket.clientId)
 			intensityTicker.Stop()
 			return
 		}

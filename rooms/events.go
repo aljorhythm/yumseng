@@ -62,7 +62,7 @@ func (callbacks *EventCallbacks) callbackAll(args ...interface{}) {
 }
 
 func (callbacks *EventCallbacks) addCallback(callbackId string, callback func(...interface{})) {
-	log.Printf("Adding callback %s to callback list of topic %s", callbackId, callbacks.topic)
+	log.Printf("EventSocket: %s Adding client callback to callback list of topic %s", callbackId, callbacks.topic)
 	(*callbacks.callbacks)[callbackId] = callback
 }
 
@@ -85,16 +85,16 @@ func (manager *EventsCallbacksManager) addEventCallback(topic string, clientId s
 	callbackId := clientId
 
 	if _, found := manager.eventCallbacksList[topic]; !found {
-		log.Printf("Event callbacks list of topic not found. EventsCallbacksManager creating list for topic: %s", topic)
+		log.Printf("EventsSocketId: %s Event callbacks list of topic not found EventsCallbacksManager creating list for topic: %s", callbackId, topic)
 		manager.eventCallbacksList[topic] = newEventCallbacks(topic)
 	}
 
 	eventCallbacks, ok := manager.eventCallbacksList[topic]
 
 	if !ok {
-		log.Panicf("Event callbacks list of topic not found. client[%s] not added to topic[%s]", callbackId, topic)
+		log.Printf("EventsSocketId: %s Event callbacks list of topic not found. client not added to topic: %s", callbackId, topic)
 	} else {
-		log.Printf("Event callbacks list of topic found. client[%s] added to topic[%s]", callbackId, topic)
+		log.Printf("EventsSocketId: %s Event callbacks list of topic found. client added to topic: %s", callbackId, topic)
 		eventCallbacks.addCallback(callbackId, callback)
 	}
 
