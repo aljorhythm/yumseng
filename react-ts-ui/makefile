@@ -3,6 +3,8 @@
 run:
 	npm run start
 
-build:
+install:
 	npm ci
+
+build: install
 	npm run build

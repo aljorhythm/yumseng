@@ -86,7 +86,8 @@ func (r *roomsService) AddCheerAddedListener(room *Room, user User, clientId str
 		} else {
 			userQueryStatus = fmt.Sprintf("User %s found in room %s", userId, room.Name)
 		}
-		log.Printf("EventsSocketId[%s] %s ", clientId, userQueryStatus)
+
+		log.Printf("EventsSocketId: %s room: %s , user id: %s, , %s ", clientId, room.Name, user.GetId(), userQueryStatus)
 	}
 	r.RoomEvents.SubscribeCheerAdded(room, clientId, callback)
 	log.Printf("EventsSocketId[%s] userId : %s in room %s (Subscribed to cheers)", clientId, user.GetId(), room.Name)

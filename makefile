@@ -42,7 +42,7 @@ docker-run-undetached:
 docker-stop:
 	docker ps -q --filter ancestor="aljorhythm/yumseng:$(TAG)" | xargs -r docker stop
 
-docker-deploy-run: docker-stop docker-build docker-run-undetached
+docker-build-run: docker-stop docker-build docker-run-undetached
 	echo built and run and exited server
 
 all: docker-stop format unit-test docker-build docker-run integration-test docker-stop
