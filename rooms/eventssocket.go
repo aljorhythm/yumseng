@@ -49,34 +49,33 @@ func (s *eventsSocket) processFirstMessage() {
 
 func (s *eventsSocket) listenToClientMessages() {
 	go func() {
-
-		log.Printf("EventsSocketId[%s] Listening for cheers", s.clientId)
+		log.Printf("EventsSocketId: %s Listening for cheers", s.clientId)
 		for {
 			_, msg, err := s.conn.ReadMessage()
 
 			if err != nil {
-				log.Printf("EventsSocketId[%s] Error in reading socket message. Error: %#v", s.clientId, err)
+				log.Printf("EventsSocketId: %s Error in reading socket message. Error: %#v", s.clientId, err)
 				return
 			}
 			reader := bytes.NewReader(msg)
 			newCheer := cheers.Cheer{}
 			utils.DecodeJson(reader, &newCheer)
-			log.Printf("EventsSocketId[%s] Adding cheer %#v to %v", s.clientId, newCheer, s.room)
+			log.Printf("EventsSocketId: %s Adding cheer %#v to %v", s.clientId, newCheer, s.room)
 			s.roomsServer.RoomServicer.AddCheer(s.room, &newCheer, s.user)
 		}
 	}()
 }
 
 func (socket *eventsSocket) listenToRoomCheers() {
-	log.Printf("EventsSocketId[%s] Subscribing user %s to cheers in room %s ", socket.clientId, socket.user.GetId(), socket.room.Name)
+	log.Printf("EventsSocketId: %s Subscribing user %s to cheers in room %s ", socket.clientId, socket.user.GetId(), socket.room.Name)
 	callback := func(args ...interface{}) {
 		rawCheer := args[0]
 		cheer, ok := rawCheer.(cheers.Cheer)
 		if ok {
-			log.Printf("EventsSocketId[%s] Cheer Received %#v", socket.clientId, cheer)
+			log.Printf("EventsSocketId: %s Cheer Received %#v", socket.clientId, cheer)
 			socket.addedCheersChannel <- cheer
 		} else {
-			log.Panicf("EventsSocketId[%s] Cheer Not Recognised %#v", socket.clientId, args)
+			log.Panicf("EventsSocketId: %s Cheer Not Recognised %#v", socket.clientId, args)
 		}
 	}
 
@@ -119,7 +118,7 @@ func (socket *eventsSocket) handleEventsAndSendMessages() {
 				log.Printf("err writing to socket %#v closing quit channel %s", err, socket.clientId)
 				close(socket.quitIntensityListener)
 			} else {
-				log.Printf("wrote to socket last seconds cheer count %s %d", socket.clientId, count)
+				//log.Printf("wrote to socket last seconds cheer count %s %d", socket.clientId, count)
 			}
 		case <-socket.quitIntensityListener:
 			log.Printf("quit channel emitted stopping speed ticker %s", socket.clientId)
@@ -144,10 +143,16 @@ func InitEventsSocket(conn *websocket.Conn, roomsServer *RoomsServer) {
 		quitIntensityListener: make(chan struct{}),
 		addedCheersChannel:    make(chan cheers.Cheer)}
 
-	socket.processFirstMessage()
-	socket.listenToClientMessages()
-	socket.listenToRoomCheers()
-	socket.sendRoomConnnectedMessage()
-	socket.handleEventsAndSendMessages()
+	log.Printf("[InitEventsSocket] setCloseHandler")
 	socket.setCloseHandler()
+	log.Printf("[InitEventsSocket] processFirstMessage")
+	socket.processFirstMessage()
+	log.Printf("[InitEventsSocket] listenToClientMessages")
+	socket.listenToClientMessages()
+	log.Printf("[InitEventsSocket] listenToRoomCheers")
+	socket.listenToRoomCheers()
+	log.Printf("[InitEventsSocket] sendRoomConnectedMessage")
+	socket.sendRoomConnnectedMessage()
+	log.Printf("[InitEventsSocket] handleEventsAndSendMessages")
+	socket.handleEventsAndSendMessages()
 }

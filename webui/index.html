@@ -21,7 +21,7 @@
       crossorigin="anonymous"
     />
 
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="archiveui/style.css" />
   </head>
 
   <body>
@@ -55,7 +55,7 @@
           class="yumseng-img"
         >
           <!--            <img class="img-fluid" src="beermug.png"/>-->
-          <img class="img-fluid" src="face_1.jpg" />
+          <img class="img-fluid" src="archiveui/face_1.jpg" />
         </div>
         <style>
           .yumseng-img img {
@@ -75,7 +75,7 @@
         <div id="cheers-speed"></div>
 
         <audio loop volume="0" controls autoplay id="yumseng-audio">
-          <source src="yumseng-full.mp3" type="audio/mp3" />
+          <source src="archiveui/yumseng-full.mp3" type="audio/mp3" />
           Your browser does not support the audio tag.
         </audio>
       </div>
@@ -154,7 +154,7 @@
           yumAudio.volume = count / 7;
         } else if (eventName == "EVENT_CHEER_ADDED") {
           const $mug = $(`<div class="yumseng-img">
-                                    <img class="img-fluid" src="face_1.jpg"/>
+                                    <img class="img-fluid" src="archiveui/face_1.jpg"/>
                               </div>`);
           $mug.attr("id", "bearmug" + Date.now());
 
