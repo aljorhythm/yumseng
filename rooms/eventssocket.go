@@ -116,7 +116,7 @@ func (socket *eventsSocket) handleEventsAndSendMessages() {
 			message, _ := NewRoomLastSecondsCheerCountMessage(count)
 			err := socket.conn.WriteJSON(message)
 			if err != nil {
-				log.Printf("EventsSocketId[%s] Error writing to connection %#v closing quit channel", socket.clientId, err)
+				log.Printf("EventsSocketId: %s Error writing to connection %#v closing quit channel", socket.clientId, err)
 				close(socket.quitIntensityListener)
 			} else {
 				//log.Printf("wrote to socket last seconds cheer count %s %d", socket.clientId, count)
