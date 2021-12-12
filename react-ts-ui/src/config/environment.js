@@ -1,3 +1,4 @@
+//todo LOW PRIORITY remove references to concrete environment `local` and `heroku`
 const SERVER_PORT_HEROKU = process.env.PORT;
 const SERVER_PORT_DEFAULT = process.env.DEFAULT_SERVER_PORT || 80;
 const LOCAL_SERVER_WS_PORT = process.env.LOCAL_SERVER_WS_PORT || process.env.REACT_APP_LOCAL_SERVER_WS_PORT;
