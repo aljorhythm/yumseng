@@ -10,23 +10,28 @@ import (
 
 type CheerImage struct {
 	Url      string `json:"url"`
-	ObjectId string `json:"url"`
+	ObjectId string `json:"object-id"`
 }
 
 type RoomServicer interface {
-	AddCheerImage(ctx context.Context, room *Room, user User, data []byte, id string) error
-	GetCheerImages(ctx context.Context, room *Room, user User) ([]*CheerImage, error)
+	AddCheerImage(ctx context.Context, roomId string, user User, data []byte, id string) error
+	GetCheerImages(ctx context.Context, roomId string, user User) ([]*CheerImage, error)
 	UserJoinsRoom(ctx context.Context, room *Room, user User) error
 	AddCheer(room *Room, cheer *cheers.Cheer, user User)
 	AddCheerAddedListener(room *Room, user User, clientId string, callback Callback) error
 	StopListeningCheers(room *Room, clientId string)
 	GetOrCreateRoom(name string) *Room
+	GetRoom(name string) *Room
 }
 
 type roomsService struct {
 	*RoomEvents
 	rooms         map[string]*Room
 	objectStorage objectstorage.Storage
+}
+
+func (r *roomsService) GetRoom(name string) *Room {
+	return r.rooms[name]
 }
 
 func (r *roomsService) UserJoinsRoom(ctx context.Context, room *Room, user User) error {
@@ -38,11 +43,22 @@ func cheerObjectId(room *Room, user User, id string) string {
 	return fmt.Sprintf("rooms/%s/%s/%s", room.Name, user.GetId(), id)
 }
 
-func (r *roomsService) GetCheerImages(ctx context.Context, room *Room, user User) ([]*CheerImage, error) {
+func (r *roomsService) GetCheerImages(ctx context.Context, roomId string, user User) ([]*CheerImage, error) {
+	room := r.GetRoom(roomId)
+
+	if room == nil {
+		return nil, ERROR_ROOM_NOT_FOUND
+	}
 	return room.GetCheerImages(user)
 }
 
-func (r *roomsService) AddCheerImage(ctx context.Context, room *Room, user User, data []byte, id string) error {
+func (r *roomsService) AddCheerImage(ctx context.Context, roomId string, user User, data []byte, id string) error {
+	room := r.GetRoom(roomId)
+
+	if room == nil {
+		return ERROR_ROOM_NOT_FOUND
+	}
+
 	objectId := cheerObjectId(room, user, id)
 
 	if err := r.objectStorage.Store(ctx, objectId, data); err != nil {

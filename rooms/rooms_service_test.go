@@ -27,10 +27,10 @@ func TestRoomsService(t *testing.T) {
 
 				data := []byte("fake-image")
 
-				err := service.AddCheerImage(ctx, room, user, data, objectId)
+				err := service.AddCheerImage(ctx, room.Name, user, data, objectId)
 				assert.NoError(t, err)
 
-				gotCheerImages, err := service.GetCheerImages(ctx, room, user)
+				gotCheerImages, err := service.GetCheerImages(ctx, room.Name, user)
 				assert.NoError(t, err)
 
 				cheerImages := []*CheerImage{{

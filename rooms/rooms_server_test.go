@@ -1,8 +1,10 @@
 package rooms
 
 import (
+	"context"
 	"github.com/aljorhythm/yumseng/cheers"
 	"github.com/aljorhythm/yumseng/objectstorage"
+	"github.com/aljorhythm/yumseng/utils"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
@@ -28,8 +30,58 @@ func (m MockUserService) GetUser(id string) (User, error) {
 	return MockUser{id: id}, nil
 }
 
-func TestRoomServer(t *testing.T) {
-	roomsServer := NewRoomsServer(mux.NewRouter(), MockUserService{}, objectstorage.NewInmemoryStore(), RoomsServerOpts{})
+func TestRoomServerCheerImages(t *testing.T) {
+	storage := objectstorage.NewInmemoryStore()
+	service := NewRoomsService(storage)
+	userService := MockUserService{}
+	roomsServer := NewRoomsServer(mux.NewRouter(), service, userService, RoomsServerOpts{})
+
+	t.Run("server should respond with error when room does not exist", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
+		request := httptest.NewRequest(http.MethodGet, "/room-1/user/user-1/images", nil)
+		roomsServer.ServeHTTP(recorder, request)
+
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	})
+
+	t.Run("server should respond with correct status code", func(t *testing.T) {
+		t.Run("room with no images for user", func(t *testing.T) {
+			room2 := service.GetOrCreateRoom("room-2")
+			userId := "user-1"
+			user, _ := userService.GetUser(userId)
+			service.UserJoinsRoom(context.Background(), room2, user)
+			recorder := httptest.NewRecorder()
+			request := httptest.NewRequest(http.MethodGet, "/room-2/user/user-1/images", nil)
+			roomsServer.ServeHTTP(recorder, request)
+
+			assert.Equal(t, http.StatusOK, recorder.Code, recorder.Body.String())
+
+			t.Run("room with images for user", func(t *testing.T) {
+				data := []byte("asd")
+				err := service.AddCheerImage(context.Background(), room2.Name, user, data, "image-1")
+				assert.NoError(t, err)
+				recorder := httptest.NewRecorder()
+				request := httptest.NewRequest(http.MethodGet, "/room-2/user/user-1/images", nil)
+				roomsServer.ServeHTTP(recorder, request)
+
+				got := []*CheerImage{}
+				utils.DecodeJson(recorder.Body, &got)
+
+				want := []*CheerImage{
+					{Url: "rooms/room-2/user-1/image-1", ObjectId: "rooms/room-2/user-1/image-1"},
+				}
+
+				assert.Equal(t, http.StatusOK, recorder.Code)
+				assert.Equal(t, want, got)
+			})
+		})
+	})
+}
+
+func TestRoomServerEventsSocket(t *testing.T) {
+	storage := objectstorage.NewInmemoryStore()
+	service := NewRoomsService(storage)
+	roomsServer := NewRoomsServer(mux.NewRouter(), service, MockUserService{}, RoomsServerOpts{})
 
 	t.Run("when we send a cheer it must be broadcasted", func(t *testing.T) {
 		server := httptest.NewServer(roomsServer)

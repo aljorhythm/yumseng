@@ -6,6 +6,7 @@ type Cheer struct {
 	Value           string    `json:"value"`
 	ClientCreatedAt time.Time `json:"client_created_at"`
 	UserId          string    `json:"user_id"`
+	ImageUrl        string    `json:"image_url"`
 }
 
 type Servicer interface {

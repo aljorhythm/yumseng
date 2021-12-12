@@ -101,12 +101,12 @@ func main() {
 
 	objectStorage := objectstorage.NewInmemoryStore()
 
-	roomsSubrouter := router.PathPrefix("/rooms").Subrouter()
-
 	userService := DummyUserService{}
+	roomsService := rooms.NewRoomsService(objectStorage)
 
+	roomsSubrouter := router.PathPrefix("/rooms").Subrouter()
 	opts := rooms.RoomsServerOpts{AllowOriginFunc: allowSameOriginOrInList(getAllowedOrigins())}
-	rooms.NewRoomsServer(roomsSubrouter, userService, objectStorage, opts)
+	rooms.NewRoomsServer(roomsSubrouter, roomsService, userService, opts)
 
 	tag := getVersionTag()
 	router.HandleFunc("/ping", generatePingHandler(tag))

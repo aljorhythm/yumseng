@@ -2,7 +2,7 @@ package rooms
 
 import (
 	"fmt"
-	"github.com/aljorhythm/yumseng/objectstorage"
+	"github.com/aljorhythm/yumseng/utils"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"log"
@@ -39,16 +39,57 @@ func (roomsServer *RoomsServer) eventsWs(w http.ResponseWriter, r *http.Request)
 	InitEventsSocket(conn, roomsServer)
 }
 
-func NewRoomsServer(router *mux.Router, userService UserServicer, storage objectstorage.Storage, opts RoomsServerOpts) http.Handler {
+func writeError(w http.ResponseWriter, statusCode int, err error) {
+	w.WriteHeader(statusCode)
+	fmt.Fprintf(w, "%#v", err)
+}
+
+func (roomsServer *RoomsServer) roomUserCheerHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[RoomsServer#roomUserCheerHandler]")
+	if r.Method == http.MethodGet {
+		vars := mux.Vars(r)
+		roomId, _ := vars["room-id"]
+		userId, _ := vars["user-id"]
+
+		log.Printf("[RoomsServer#roomUserCheerHandler] user-id %s room-id %s", userId, roomId)
+
+		roomsService := roomsServer.RoomServicer
+		userService := roomsServer.UserService
+		user, err := userService.GetUser(userId)
+
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err)
+			return
+		}
+
+		images, err := roomsService.GetCheerImages(r.Context(), roomId, user)
+
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err)
+			return
+		}
+
+		if bytes, err := utils.ToJson(images); err != nil {
+			writeError(w, http.StatusBadRequest, err)
+		} else {
+			fmt.Fprintf(w, string(bytes))
+		}
+	} else if r.Method == http.MethodPost {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "not implemented")
+	} else {
+		fmt.Fprintf(w, "operation does not exist")
+	}
+}
+
+func NewRoomsServer(router *mux.Router, roomsService RoomServicer, userService UserServicer, opts RoomsServerOpts) http.Handler {
 	roomsServer := &RoomsServer{
-		RoomServicer:    NewRoomsService(storage),
+		RoomServicer:    roomsService,
 		UserService:     userService,
 		RoomsServerOpts: opts,
 	}
 
-	router.Handle("/rooms", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		fmt.Fprintf(writer, "you are at rooms")
-	}))
+	router.HandleFunc("/{room-id}/user/{user-id}/images", roomsServer.roomUserCheerHandler)
 
 	router.Handle("/events", http.HandlerFunc(roomsServer.eventsWs))
 
