@@ -4,9 +4,10 @@ const websocketScheme =
   window.location.protocol === "http:" ? "ws://" : "wss://";
 
 const insecureScheme = "ws://";
+
 const serverAddr = document.location.hostname + `:${SERVER_PORT}`;
 
-const sockerRegEndpoint = insecureScheme + serverAddr + "/rooms/events";
+const socketRegEndpoint = insecureScheme + serverAddr + "/rooms/events";
 
 const verboseWsReadyState = (ws: WebSocket): string => {
   switch (ws.readyState) {
@@ -23,7 +24,8 @@ const verboseWsReadyState = (ws: WebSocket): string => {
 };
 
 const newWebSocket = () => {
-  const conn = new WebSocket(sockerRegEndpoint);
+  console.log("Websocket target endpoint:" + socketRegEndpoint)
+  const conn = new WebSocket(socketRegEndpoint);
   console.log("Websocket connection initialized: " + verboseWsReadyState(conn));
   return conn;
 };

@@ -31,7 +31,7 @@ func (s *eventsSocket) processFirstMessage() {
 	joinRoomRequest := JoinRoomRequest{}
 	err = utils.DecodeJsonFromBytes(msg, &joinRoomRequest)
 	if err != nil {
-		log.Panicf("Room Registration Failed: Unrecognised Request: %s", string(msg))
+		log.Panicf("Room Registration Failed. Unrecognised Request: %s", string(msg))
 	}
 
 	roomName := joinRoomRequest.RoomName
@@ -41,7 +41,7 @@ func (s *eventsSocket) processFirstMessage() {
 	s.room = room
 	clientId := fmt.Sprintf("user=%s uuid=%s", user.GetId(), uuid.New().String())
 	s.clientId = clientId
-	log.Printf("Room Registered: User %s in Room %v", s.user, s.room)
+	log.Printf("Room Registered: User %s in Room %s", s.user, s.room.Name)
 	if err != nil {
 		log.Panicf("error emitting room connected %s %#v", clientId, err)
 	}
@@ -60,6 +60,7 @@ func (s *eventsSocket) listenToClientMessages() {
 			reader := bytes.NewReader(msg)
 			newCheer := cheers.Cheer{}
 			utils.DecodeJson(reader, &newCheer)
+
 			log.Printf("EventsSocketId: %s Adding cheer %#v to %v", s.clientId, newCheer, s.room)
 			s.roomsServer.RoomServicer.AddCheer(s.room, &newCheer, s.user)
 		}
@@ -96,7 +97,7 @@ func (socket *eventsSocket) sendRoomConnnectedMessage() {
 }
 
 func (socket *eventsSocket) handleEventsAndSendMessages() {
-	ticker := time.NewTicker(250 * time.Millisecond)
+	intensityTicker := time.NewTicker(250 * time.Millisecond)
 	for {
 		select {
 		case cheer, more := <-socket.addedCheersChannel:
@@ -110,19 +111,19 @@ func (socket *eventsSocket) handleEventsAndSendMessages() {
 			} else {
 				log.Printf("cheers channel is closed %s", socket.clientId)
 			}
-		case <-ticker.C:
+		case <-intensityTicker.C:
 			count := socket.room.CountFrom((time.Duration(1) * time.Second))
 			message, _ := NewRoomLastSecondsCheerCountMessage(count)
 			err := socket.conn.WriteJSON(message)
 			if err != nil {
-				log.Printf("err writing to socket %#v closing quit channel %s", err, socket.clientId)
+				log.Printf("EventsSocketId: %s Error writing to connection %#v closing quit channel", socket.clientId, err)
 				close(socket.quitIntensityListener)
 			} else {
 				//log.Printf("wrote to socket last seconds cheer count %s %d", socket.clientId, count)
 			}
 		case <-socket.quitIntensityListener:
-			log.Printf("quit channel emitted stopping speed ticker %s", socket.clientId)
-			ticker.Stop()
+			log.Printf("EventsSocketId: %s Stop sending cheer count", socket.clientId)
+			intensityTicker.Stop()
 			return
 		}
 	}

@@ -62,12 +62,12 @@ func (callbacks *EventCallbacks) callbackAll(args ...interface{}) {
 }
 
 func (callbacks *EventCallbacks) addCallback(callbackId string, callback func(...interface{})) {
-	log.Printf("topic %s adding callback %s", callbackId, callbacks.topic)
+	log.Printf("EventSocket: %s Adding client callback to callback list of topic %s", callbackId, callbacks.topic)
 	(*callbacks.callbacks)[callbackId] = callback
 }
 
 func (callbacks *EventCallbacks) removeCallback(callbackId string) {
-	log.Printf("removing callback %s to %s", callbackId, callbacks.topic)
+	log.Printf("Removing callback %s to %s", callbackId, callbacks.topic)
 	delete(*callbacks.callbacks, callbackId)
 }
 
@@ -80,18 +80,21 @@ func (manager *EventsCallbacksManager) getEventCallbacks(topic string) *EventCal
 	return eventCallbacks
 }
 
-func (manager *EventsCallbacksManager) addEventCallback(topic string, callbackId string, callback Callback) *EventCallbacks {
+func (manager *EventsCallbacksManager) addEventCallback(topic string, clientId string, callback Callback) *EventCallbacks {
+
+	callbackId := clientId
+
 	if _, found := manager.eventCallbacksList[topic]; !found {
-		log.Printf("manager creating event callbacks topic: %s", topic)
+		log.Printf("EventsSocketId: %s Event callbacks list of topic not found EventsCallbacksManager creating list for topic: %s", callbackId, topic)
 		manager.eventCallbacksList[topic] = newEventCallbacks(topic)
 	}
 
 	eventCallbacks, ok := manager.eventCallbacksList[topic]
 
 	if !ok {
-		log.Panicf("wanted to create callbacks but failed topic: %s callbackId: %s", topic, callbackId)
+		log.Printf("EventsSocketId: %s Event callbacks list of topic not found. client not added to topic: %s", callbackId, topic)
 	} else {
-		log.Printf("manager adding callback %s to %s", callbackId, topic)
+		log.Printf("EventsSocketId: %s Event callbacks list of topic found. client added to topic: %s", callbackId, topic)
 		eventCallbacks.addCallback(callbackId, callback)
 	}
 
@@ -135,14 +138,13 @@ func (roomEvents *RoomEvents) SubscribeCheerAdded(room *Room, clientId string, c
 			log.Panicf("something wrong when subscribing")
 		}
 	}
-
-	log.Printf("subscribed event callback %s to topic %s", clientId, topic)
+	log.Printf("EventsSocketId[%s]: Subscribed callback to topic[%s]", clientId, topic)
 }
 
 func (roomEvents *RoomEvents) PublishCheerAdded(room *Room, cheer cheers.Cheer) {
 	topic := EVENT_CHEER_ADDED.topicName(room)
-	log.Printf("publishing event rooms %s | topic %s", room.Name, topic)
 	roomEvents.eventBus.Publish(topic, cheer)
+	log.Printf("Publishing event room[%s] | topic %s", room.Name, topic)
 }
 
 func (roomEvents *RoomEvents) UnsubscribeCheerAdded(room *Room, clientId string) {

@@ -1,5 +1,5 @@
 TAG ?= local
-PORT ?= 8080
+PORT ?= 80
 HOSTNAME ?= localhost
 
 setup:
