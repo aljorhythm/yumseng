@@ -5,6 +5,7 @@ import (
 	"github.com/aljorhythm/yumseng/utils"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -44,23 +45,24 @@ func writeError(w http.ResponseWriter, statusCode int, err error) {
 	fmt.Fprintf(w, "%#v", err)
 }
 
-func (roomsServer *RoomsServer) roomUserCheerHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("[RoomsServer#roomUserCheerHandler]")
+func (roomsServer *RoomsServer) roomUserImageHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[RoomsServer#roomUserImageHandler]")
+	roomsService := roomsServer.RoomServicer
+	userService := roomsServer.UserService
+
+	vars := mux.Vars(r)
+	roomId, _ := vars["room-id"]
+	userId, _ := vars["user-id"]
+
+	user, err := userService.GetUser(userId)
+
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err)
+		return
+	}
+
 	if r.Method == http.MethodGet {
-		vars := mux.Vars(r)
-		roomId, _ := vars["room-id"]
-		userId, _ := vars["user-id"]
-
-		log.Printf("[RoomsServer#roomUserCheerHandler] user-id %s room-id %s", userId, roomId)
-
-		roomsService := roomsServer.RoomServicer
-		userService := roomsServer.UserService
-		user, err := userService.GetUser(userId)
-
-		if err != nil {
-			writeError(w, http.StatusBadRequest, err)
-			return
-		}
+		log.Printf("[RoomsServer#roomUserImageHandler] GET user-id %s room-id %s", userId, roomId)
 
 		images, err := roomsService.GetCheerImages(r.Context(), roomId, user)
 
@@ -75,8 +77,33 @@ func (roomsServer *RoomsServer) roomUserCheerHandler(w http.ResponseWriter, r *h
 			fmt.Fprintf(w, string(bytes))
 		}
 	} else if r.Method == http.MethodPost {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "not implemented")
+		vars := mux.Vars(r)
+		roomId, _ := vars["room-id"]
+		userId, _ := vars["user-id"]
+
+		log.Printf("[RoomsServer#roomUserImageHandler] POST user-id %s room-id %s", userId, roomId)
+
+		requestBytes, err := ioutil.ReadAll(r.Body)
+
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err)
+			return
+		}
+
+		image, err := roomsService.AddCheerImage(r.Context(), roomId, user, requestBytes)
+
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err)
+			return
+		}
+
+		responseBytes, err := utils.ToJson(image)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err)
+			return
+		}
+
+		fmt.Fprintf(w, string(responseBytes))
 	} else {
 		fmt.Fprintf(w, "operation does not exist")
 	}
@@ -89,7 +116,11 @@ func NewRoomsServer(router *mux.Router, roomsService RoomServicer, userService U
 		RoomsServerOpts: opts,
 	}
 
-	router.HandleFunc("/{room-id}/user/{user-id}/images", roomsServer.roomUserCheerHandler)
+	router.HandleFunc("/{room-id}/user/{user-id}/images",
+		utils.ChainMiddlewares(
+			roomsServer.roomUserImageHandler,
+			utils.AddSetJsonHeaderMw),
+	)
 
 	router.Handle("/events", http.HandlerFunc(roomsServer.eventsWs))
 

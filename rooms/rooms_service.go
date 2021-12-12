@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/aljorhythm/yumseng/cheers"
 	"github.com/aljorhythm/yumseng/objectstorage"
+	"github.com/google/uuid"
 	"log"
 )
 
@@ -14,7 +15,7 @@ type CheerImage struct {
 }
 
 type RoomServicer interface {
-	AddCheerImage(ctx context.Context, roomId string, user User, data []byte, id string) error
+	AddCheerImage(ctx context.Context, roomId string, user User, data []byte) (*CheerImage, error)
 	GetCheerImages(ctx context.Context, roomId string, user User) ([]*CheerImage, error)
 	UserJoinsRoom(ctx context.Context, room *Room, user User) error
 	AddCheer(room *Room, cheer *cheers.Cheer, user User)
@@ -52,22 +53,24 @@ func (r *roomsService) GetCheerImages(ctx context.Context, roomId string, user U
 	return room.GetCheerImages(user)
 }
 
-func (r *roomsService) AddCheerImage(ctx context.Context, roomId string, user User, data []byte, id string) error {
+func (r *roomsService) AddCheerImage(ctx context.Context, roomId string, user User, data []byte) (*CheerImage, error) {
 	room := r.GetRoom(roomId)
 
 	if room == nil {
-		return ERROR_ROOM_NOT_FOUND
+		return nil, ERROR_ROOM_NOT_FOUND
 	}
+
+	id := uuid.New().String()
 
 	objectId := cheerObjectId(room, user, id)
 
 	if err := r.objectStorage.Store(ctx, objectId, data); err != nil {
-		return err
+		return nil, err
 	}
 
 	meta, err := r.objectStorage.RetrieveObjectMetadata(ctx, objectId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	cheerImage := CheerImage{
@@ -75,7 +78,13 @@ func (r *roomsService) AddCheerImage(ctx context.Context, roomId string, user Us
 		ObjectId: objectId,
 	}
 
-	return room.AddCheerImage(user, &cheerImage)
+	err = room.AddCheerImage(user, &cheerImage)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &cheerImage, nil
 }
 
 func (r *roomsService) GetOrCreateRoom(name string) *Room {

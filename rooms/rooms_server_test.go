@@ -1,6 +1,7 @@
 package rooms
 
 import (
+	"bytes"
 	"context"
 	"github.com/aljorhythm/yumseng/cheers"
 	"github.com/aljorhythm/yumseng/objectstorage"
@@ -30,7 +31,7 @@ func (m MockUserService) GetUser(id string) (User, error) {
 	return MockUser{id: id}, nil
 }
 
-func TestRoomServerCheerImages(t *testing.T) {
+func TestRoomServerUserImages(t *testing.T) {
 	storage := objectstorage.NewInmemoryStore()
 	service := NewRoomsService(storage)
 	userService := MockUserService{}
@@ -58,7 +59,7 @@ func TestRoomServerCheerImages(t *testing.T) {
 
 			t.Run("room with images for user", func(t *testing.T) {
 				data := []byte("asd")
-				err := service.AddCheerImage(context.Background(), room2.Name, user, data, "image-1")
+				image, err := service.AddCheerImage(context.Background(), room2.Name, user, data)
 				assert.NoError(t, err)
 				recorder := httptest.NewRecorder()
 				request := httptest.NewRequest(http.MethodGet, "/room-2/user/user-1/images", nil)
@@ -68,11 +69,30 @@ func TestRoomServerCheerImages(t *testing.T) {
 				utils.DecodeJson(recorder.Body, &got)
 
 				want := []*CheerImage{
-					{Url: "rooms/room-2/user-1/image-1", ObjectId: "rooms/room-2/user-1/image-1"},
+					image,
 				}
 
 				assert.Equal(t, http.StatusOK, recorder.Code)
 				assert.Equal(t, want, got)
+
+				t.Run("post image", func(t *testing.T) {
+					recorder := httptest.NewRecorder()
+					data := []byte("image-data")
+					dataReader := bytes.NewReader(data)
+					request := httptest.NewRequest(http.MethodPost, "/room-2/user/user-1/images", dataReader)
+					roomsServer.ServeHTTP(recorder, request)
+
+					assert.Equal(t, http.StatusOK, recorder.Code)
+
+					response := CheerImage{}
+					err := utils.DecodeJson(recorder.Body, &response)
+					assert.NoError(t, err)
+
+					objectId := response.ObjectId
+					gotData, err := storage.Retrieve(context.Background(), objectId)
+					assert.NoError(t, err)
+					assert.Equal(t, data, gotData)
+				})
 			})
 		})
 	})

@@ -23,21 +23,16 @@ func TestRoomsService(t *testing.T) {
 			assert.NoError(t, err)
 
 			t.Run("add cheer image", func(t *testing.T) {
-				objectId := "cheer-image-1"
-
 				data := []byte("fake-image")
 
-				err := service.AddCheerImage(ctx, room.Name, user, data, objectId)
+				image, err := service.AddCheerImage(ctx, room.Name, user, data)
 				assert.NoError(t, err)
 
 				gotCheerImages, err := service.GetCheerImages(ctx, room.Name, user)
 				assert.NoError(t, err)
 
-				cheerImages := []*CheerImage{{
-					ObjectId: "rooms/test-room/test-user-1/cheer-image-1",
-					Url:      "rooms/test-room/test-user-1/cheer-image-1",
-				}}
-				assert.Equal(t, cheerImages, gotCheerImages)
+				wantCheerImages := []*CheerImage{image}
+				assert.Equal(t, wantCheerImages, gotCheerImages)
 
 				t.Run("get from storage", func(t *testing.T) {
 					gotData, err := storage.Retrieve(ctx, gotCheerImages[0].ObjectId)
