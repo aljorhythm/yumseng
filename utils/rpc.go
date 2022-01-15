@@ -63,3 +63,11 @@ func ToJson(object interface{}) ([]byte, error) {
 	message := json.RawMessage(bytes)
 	return message, nil
 }
+
+func ToJsonReaderPanic(object interface{}) (body io.Reader) {
+	rawBytes, err := json.Marshal(object)
+	if err != nil {
+		panic(err)
+	}
+	return bytes.NewReader(rawBytes)
+}
