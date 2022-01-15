@@ -104,7 +104,7 @@ func TestRoomsServerCheers(t *testing.T) {
 	t.Run("add cheer should be successful", func(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		mockRoomService := NewMockRoomServicer(mockCtrl)
-		mockRoomService.EXPECT().GetRoom(gomock.Eq("room-2")).Return(&Room{
+		mockRoomService.EXPECT().GetOrCreateRoom(gomock.Eq("room-2")).Return(&Room{
 			Cheers:                  nil,
 			Name:                    "room-2",
 			MovingAverageCalculator: nil,

@@ -111,7 +111,7 @@ func (roomsServer *RoomsServer) roomUserCheersHandler(w http.ResponseWriter, r *
 
 	if r.Method == http.MethodPost {
 		roomId, _ := vars["room-id"]
-		room := roomsServer.RoomServicer.GetRoom(roomId)
+		room := roomsServer.RoomServicer.GetOrCreateRoom(roomId)
 		userId, _ := vars["user-id"]
 		user, _ := roomsServer.UserService.GetUser(userId)
 		cheer := &cheers.Cheer{}
