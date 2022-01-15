@@ -6,6 +6,7 @@ import (
 	"github.com/aljorhythm/yumseng/cheers"
 	"github.com/aljorhythm/yumseng/objectstorage"
 	"github.com/aljorhythm/yumseng/utils"
+	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
@@ -95,6 +96,48 @@ func TestRoomServerUserImages(t *testing.T) {
 				})
 			})
 		})
+	})
+}
+
+func TestRoomsServerCheers(t *testing.T) {
+
+	t.Run("add cheer should be successful", func(t *testing.T) {
+		mockCtrl := gomock.NewController(t)
+		mockRoomService := NewMockRoomServicer(mockCtrl)
+		mockRoomService.EXPECT().GetRoom(gomock.Eq("room-2")).Return(&Room{
+			Cheers:                  nil,
+			Name:                    "room-2",
+			MovingAverageCalculator: nil,
+			Users:                   nil,
+		})
+		mockRoomService.EXPECT().AddCheer(
+			roomMatcher{func(room *Room) bool {
+				return room.Name == "room-2"
+			}},
+			cheerMatcher{matcherFn: func(cheer *cheers.Cheer) bool {
+				return cheer.UserId == "dummy-user"
+			}},
+			userMatcher{matcherFn: func(user User) bool {
+				return user.GetId() == "dummy-user"
+			}},
+		).Return()
+		roomsServer := NewRoomsServer(mux.NewRouter(), mockRoomService, MockUserService{}, RoomsServerOpts{})
+		server := httptest.NewServer(roomsServer)
+		defer server.Close()
+
+		recorder := httptest.NewRecorder()
+		request := httptest.NewRequest(http.MethodPost, "/room-2/user/dummy-user/cheers",
+			utils.ToJsonReaderPanic(cheers.Cheer{
+				Value:           "",
+				ClientCreatedAt: time.Time{},
+				UserId:          "dummy-user",
+				ImageUrl:        "",
+			}))
+
+		roomsServer.ServeHTTP(recorder, request)
+
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		assertAllResponses(t, recorder)
 	})
 }
 

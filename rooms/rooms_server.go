@@ -2,6 +2,7 @@ package rooms
 
 import (
 	"fmt"
+	"github.com/aljorhythm/yumseng/cheers"
 	"github.com/aljorhythm/yumseng/utils"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -77,10 +78,6 @@ func (roomsServer *RoomsServer) roomUserImageHandler(w http.ResponseWriter, r *h
 			fmt.Fprintf(w, string(bytes))
 		}
 	} else if r.Method == http.MethodPost {
-		vars := mux.Vars(r)
-		roomId, _ := vars["room-id"]
-		userId, _ := vars["user-id"]
-
 		log.Printf("[RoomsServer#roomUserImageHandler] POST user-id %s room-id %s", userId, roomId)
 
 		requestBytes, err := ioutil.ReadAll(r.Body)
@@ -109,6 +106,22 @@ func (roomsServer *RoomsServer) roomUserImageHandler(w http.ResponseWriter, r *h
 	}
 }
 
+func (roomsServer *RoomsServer) roomUserCheersHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	if r.Method == http.MethodPost {
+		roomId, _ := vars["room-id"]
+		room := roomsServer.RoomServicer.GetRoom(roomId)
+		userId, _ := vars["user-id"]
+		user, _ := roomsServer.UserService.GetUser(userId)
+		cheer := &cheers.Cheer{}
+		utils.DecodeJson(r.Body, cheer)
+
+		roomsServer.RoomServicer.AddCheer(room, cheer, user)
+		w.Write([]byte{})
+	}
+}
+
 func NewRoomsServer(router *mux.Router, roomsService RoomServicer, userService UserServicer, opts RoomsServerOpts) http.Handler {
 	roomsServer := &RoomsServer{
 		RoomServicer:    roomsService,
@@ -119,6 +132,12 @@ func NewRoomsServer(router *mux.Router, roomsService RoomServicer, userService U
 	router.HandleFunc("/{room-id}/user/{user-id}/images",
 		utils.ChainMiddlewares(
 			roomsServer.roomUserImageHandler,
+			utils.AddSetJsonHeaderMw),
+	)
+
+	router.HandleFunc("/{room-id}/user/{user-id}/cheers",
+		utils.ChainMiddlewares(
+			roomsServer.roomUserCheersHandler,
 			utils.AddSetJsonHeaderMw),
 	)
 
