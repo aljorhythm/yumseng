@@ -107,7 +107,7 @@
                 console.log(this.userId)
                 $.post(`/rooms/${this.roomId}/user/${this.userId}/cheers`, {
                     value: "a cheer",
-                    userId: userId,
+                    userId: this.userId,
                 }).done(function (data) {
                     console.log(data)
                 });

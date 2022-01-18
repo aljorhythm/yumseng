@@ -1,118 +1,100 @@
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
     <title>Cheers To Life</title>
 
     <!-- Latest compiled and minified CSS -->
     <link
-      rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-      crossorigin="anonymous"
+            rel="stylesheet"
+            href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+            integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+            crossorigin="anonymous"
     />
     <!-- Optional theme -->
     <link
-      rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
-      integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
-      crossorigin="anonymous"
+            rel="stylesheet"
+            href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+            integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+            crossorigin="anonymous"
     />
 
-    <link rel="stylesheet" href="style.css" />
-  </head>
+    <link rel="stylesheet" href="style.css"/>
+</head>
 
-  <body>
-    <div class="container">
-      <div class="header clearfix">
+<body>
+<div class="container">
+    <div class="header clearfix">
         <h3 class="text-muted">Cheers to life!</h3>
-      </div>
+    </div>
 
-      <div class="row" id="cheers">
+    <div class="row" id="cheers">
         <div id="cheers-count"></div>
 
-        <button type="button" class="btn btn-primary" id="yum-button">
-          YUMMMMM
+        <button style="display:none;" type="button" class="btn btn-primary" id="yum-button">
+            YUMMMMM
         </button>
 
         <button type="button" class="btn btn-primary" id="seng">SENG</button>
 
         <div class="row" id="beer-img-container"></div>
         <style>
-          #beer-img-container {
-            position: relative;
-            width: 80%;
-            height: 50vh;
-            background: rgb(238, 238, 238);
-          }
+            #beer-img-container {
+                position: relative;
+                width: 80%;
+                height: 50vh;
+                background: rgb(238, 238, 238);
+            }
         </style>
 
-        <div
-          style="float: left; display: none"
-          id="bearmug"
-          class="yumseng-img"
-        >
-          <!--            <img class="img-fluid" src="beermug.png"/>-->
-          <img class="img-fluid" src="archiveui/face_1.jpg" />
+        <div style="float: left; display: none"
+             id="bearmug"
+             class="yumseng-img">
+            <img class="img-fluid" src="archiveui/face_1.jpg"/>
         </div>
         <style>
-          .yumseng-img img {
-            width: 100px;
-            margin: 10px;
-          }
+            .yumseng-img img {
+                width: 100px;
+                margin: 10px;
+            }
         </style>
 
-        <div>
-          cheers info
-          <ul
-            style="overflow: hidden; height: 100px; list-style-type: none"
-            id="cheers-list"
-          ></ul>
+        <div style="display: none">
+            cheers info
+            <ul
+                    style="overflow: hidden; height: 100px; list-style-type: none"
+                    id="cheers-list"
+            ></ul>
         </div>
 
         <div id="cheers-speed"></div>
 
         <audio loop volume="0" controls autoplay id="yumseng-audio">
-          <source src="yumseng-full.mp3" type="audio/mp3" />
-          Your browser does not support the audio tag.
+            <source src="yumseng-full.mp3" type="audio/mp3"/>
+            Your browser does not support the audio tag.
         </audio>
-      </div>
-
-      <footer class="footer">
-        <p>2021 aljorhythm</p>
-      </footer>
-
-      <!--    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8929628296364257"-->
-      <!--            crossorigin="anonymous"></script>-->
-      <!-- yumseng -->
-      <ins
-        class="adsbygoogle"
-        style="display: block"
-        data-ad-client="ca-pub-8929628296364257"
-        data-ad-slot="9312052730"
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      ></ins>
-      <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <footer class="footer">
+        <p>2021 aljorhythm</p>
+    </footer>
+</div>
 
-    <!-- Latest compiled and minified JavaScript -->
-    <script
-      src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-      integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-      crossorigin="anonymous"
-    ></script>
-  </body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-  <script type="application/javascript">
+<!-- Latest compiled and minified JavaScript -->
+<script
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"
+></script>
+</body>
+
+<script type="application/javascript">
     function randomInteger(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     const yumButton = document.getElementById("yum-button");
@@ -121,84 +103,84 @@
     const dummyRoomName = "global-room";
 
     if (window["WebSocket"]) {
-      websocketScheme =
-        window.location.protocol == "http:" ? "ws://" : "wss://";
-      const conn = new WebSocket(
-        websocketScheme + document.location.host + "/rooms/events"
-      );
+        websocketScheme =
+            window.location.protocol == "http:" ? "ws://" : "wss://";
+        const conn = new WebSocket(
+            websocketScheme + document.location.host + "/rooms/events"
+        );
 
-      yumButton.onclick = (_) => {
-        const cheersMessage = JSON.stringify({
-          value: "yum",
-          client_created_at: new Date().toJSON(),
-        });
-        console.log("send jsonMessage", cheersMessage);
-        conn.send(cheersMessage);
-      };
+        yumButton.onclick = (_) => {
+            const cheersMessage = JSON.stringify({
+                value: "yum",
+                client_created_at: new Date().toJSON(),
+            });
+            console.log("send jsonMessage", cheersMessage);
+            conn.send(cheersMessage);
+        };
 
-      conn.onclose = (_) => {
-        console.log("connection closed");
-      };
+        conn.onclose = (_) => {
+            console.log("connection closed");
+        };
 
-      conn.onmessage = ({ data }) => {
-        console.log("onmessage event data", data);
-        const event = JSON.parse(data);
-        const eventName = event["event_name"];
+        conn.onmessage = ({data}) => {
+            console.log("onmessage event data", data);
+            const event = JSON.parse(data);
+            const eventName = event["event_name"];
 
-        if (eventName == "EVENT_LAST_SECONDS_COUNT") {
-          const count = event["count"];
-          var cheersSpeedHtml = `<div>speed: ${count}</div>`;
-          $("#cheers-speed").empty().append(cheersSpeedHtml);
-          const yumAudio = document.getElementById("yumseng-audio");
-          yumAudio.play();
-          yumAudio.volume = count / 7;
-        } else if (eventName == "EVENT_CHEER_ADDED") {
-          const $mug = $(`<div class="yumseng-img">
+            if (eventName == "EVENT_LAST_SECONDS_COUNT") {
+                const count = event["count"];
+                var cheersSpeedHtml = `<div>speed: ${count}</div>`;
+                $("#cheers-speed").empty().append(cheersSpeedHtml);
+                const yumAudio = document.getElementById("yumseng-audio");
+                yumAudio.play();
+                yumAudio.volume = count / 7;
+            } else if (eventName == "EVENT_CHEER_ADDED") {
+                const $mug = $(`<div class="yumseng-img">
                                     <img class="img-fluid" src="archiveui/face_1.jpg"/>
                               </div>`);
-          $mug.attr("id", "bearmug" + Date.now());
+                $mug.attr("id", "bearmug" + Date.now());
 
-          const $container = $("#beer-img-container");
+                const $container = $("#beer-img-container");
 
-          $container.append($mug);
-          $mug.css({
-            position: "absolute",
-          });
-          const randomLeft = randomInteger(
-            1,
-            $container.width() - $mug.width()
-          );
-          const randomTop = randomInteger(
-            1,
-            $container.height() - $mug.height()
-          );
+                $container.append($mug);
+                $mug.css({
+                    position: "absolute",
+                });
+                const randomLeft = randomInteger(
+                    1,
+                    $container.width() - $mug.width()
+                );
+                const randomTop = randomInteger(
+                    1,
+                    $container.height() - $mug.height()
+                );
 
-          $mug.css({
-            top: `${randomTop}px`,
-            left: `${randomLeft}px`,
-          });
+                $mug.css({
+                    top: `${randomTop}px`,
+                    left: `${randomLeft}px`,
+                });
 
-          $mug.fadeIn(600, () => {
-            $mug.fadeOut(600, () => {
-              $mug.remove();
+                $mug.fadeIn(600, () => {
+                    $mug.fadeOut(600, () => {
+                        $mug.remove();
+                    });
+                });
+
+                $cheersList = $("#cheers-list");
+                $cheerInfo = $(`<li>${event["cheer"]["user_id"]}</li>`);
+                $cheersList.prepend($cheerInfo);
+            }
+        };
+
+        conn.onopen = (_) => {
+            console.log("connection opened");
+            const userDetails = JSON.stringify({
+                room_name: dummyRoomName,
+                user_id: dummyUserId,
             });
-          });
-
-          $cheersList = $("#cheers-list");
-          $cheerInfo = $(`<li>${event["cheer"]["user_id"]}</li>`);
-          $cheersList.prepend($cheerInfo);
-        }
-      };
-
-      conn.onopen = (_) => {
-        console.log("connection opened");
-        const userDetails = JSON.stringify({
-          room_name: dummyRoomName,
-          user_id: dummyUserId,
-        });
-        console.log("send first message (user info)", userDetails);
-        conn.send(userDetails);
-      };
+            console.log("send first message (user info)", userDetails);
+            conn.send(userDetails);
+        };
     }
-  </script>
+</script>
 </html>
