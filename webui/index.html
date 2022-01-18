@@ -37,7 +37,7 @@
             YUMMMMM
         </button>
 
-        <button type="button" class="btn btn-primary" id="seng">SENG</button>
+        <button style="display:none;" type="button" class="btn btn-primary" id="seng">SENG</button>
 
         <div class="row" id="beer-img-container"></div>
         <style>
@@ -52,7 +52,7 @@
         <div style="float: left; display: none"
              id="bearmug"
              class="yumseng-img">
-            <img class="img-fluid" src="archiveui/face_1.jpg"/>
+            <img class="img-fluid" src="face_1.jpg"/>
         </div>
         <style>
             .yumseng-img img {
@@ -136,7 +136,7 @@
                 yumAudio.volume = count / 7;
             } else if (eventName == "EVENT_CHEER_ADDED") {
                 const $mug = $(`<div class="yumseng-img">
-                                    <img class="img-fluid" src="archiveui/face_1.jpg"/>
+                                    <img class="img-fluid" src="face_1.jpg"/>
                               </div>`);
                 $mug.attr("id", "bearmug" + Date.now());
 
