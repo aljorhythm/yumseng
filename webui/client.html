@@ -25,6 +25,59 @@
 </head>
 <body>
 
+<style>
+
+    #app * {
+        width: 100%;
+    }
+
+    #app {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        align-content: space-evenly;
+        padding: 5%;
+    }
+
+    #userIdContainer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        align-content: space-evenly;
+    }
+
+    #yum-btns {
+        display: flex;
+        justify-content: space-evenly;
+    }
+
+    #yum-btns button {
+        width: 30%
+    }
+</style>
+<div id="app" class="container">
+    Yum Seng
+    <div id="actionsContainer" v-if="userId != null">
+        <h1>Hi, {{ userId }} </h1>
+        <div id="yum-btns">
+            <button class="btn btn-primary" v-on:click="yum">Yum</button>
+            <button class='btn btn-success'>Seng</button>
+        </div>
+    </div>
+    <div id="userIdContainer" v-else>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Name</span>
+            </div>
+            <input class="form-control" v-model="userIdInput"/>
+        </div>
+        <div class="input-group">
+            <button class="btn btn-primary" v-on:click="setUserId">Enter</button>
+        </div>
+    </div>
+</div>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <!-- Latest compiled and minified JavaScript -->
@@ -33,18 +86,34 @@
         integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"
 ></script>
-</body>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+
 <script>
-    $(document).ready(() => {
-        console.log("ready()")
-        let roomId = "global-room"
-        let userId = "dummy-user"
-        $.post(`/rooms/${roomId}/user/${userId}/cheers`, {
-            value: "a cheer",
-            userId: userId,
-        }).done(function (data) {
-            alert("cheer added: " + data);
-        });
+
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            userId: null,
+            userIdInput: null,
+            roomId: "global-room"
+        },
+        methods: {
+            setUserId: function (event) {
+                this.userId = this.userIdInput
+            },
+            yum: function (event) {
+                console.log(this.userId)
+                $.post(`/rooms/${this.roomId}/user/${this.userId}/cheers`, {
+                    value: "a cheer",
+                    userId: userId,
+                }).done(function (data) {
+                    console.log(data)
+                });
+            }
+        }
     })
 </script>
+</body>
 </html>
