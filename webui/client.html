@@ -40,6 +40,10 @@
         padding: 5%;
     }
 
+    #actionsContainer {
+        text-align: center;
+    }
+
     #userIdContainer {
         display: flex;
         flex-direction: column;
@@ -61,8 +65,8 @@
     <div id="actionsContainer" v-if="userId != null">
         <h1>Hi, {{ userId }} </h1>
         <div id="yum-btns">
-            <button class="btn btn-primary" v-on:click="yum">Yum</button>
-            <button class='btn btn-success'>Seng</button>
+            <button class="btn btn-primary" v-on:click="yum">YUM</button>
+            <button class='btn btn-success'>SENG</button>
         </div>
     </div>
     <div id="userIdContainer" v-else>
