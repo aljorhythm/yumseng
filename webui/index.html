@@ -136,8 +136,12 @@
                 var cheersSpeedHtml = `<div>speed: ${count}</div>`;
                 $("#cheers-speed").empty().append(cheersSpeedHtml);
                 const yumAudio = document.getElementById("yumseng-audio");
-                yumAudio.play();
-                yumAudio.volume = count / 7;
+                if (count == 0) {
+                    yumAudio.play();
+                    yumAudio.volume = count / 7;
+                } else {
+                    yumAudio.pause()
+                }
             } else if (eventName == "EVENT_CHEER_ADDED") {
                 const $mug = $(`<div class="yumseng-img">
                                     <img class="img-fluid" src="face_1.jpg"/>
