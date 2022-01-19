@@ -136,7 +136,7 @@
                 var cheersSpeedHtml = `<div>speed: ${count}</div>`;
                 $("#cheers-speed").empty().append(cheersSpeedHtml);
                 const yumAudio = document.getElementById("yumseng-audio");
-                if (count == 0) {
+                if (count != 0) {
                     yumAudio.play();
                     yumAudio.volume = count / 7;
                 } else {
