@@ -31,13 +31,13 @@ func NewCheerAddedMessage(cheer cheers.Cheer) (*CheerAddedMessage, error) {
 	return &message, nil
 }
 
-type RoomLastSecondsCheerCountMessage struct {
-	Count     int    `json:"count"`
+type RoomIntensityMessage struct {
+	Intensity int    `json:"count"`
 	EventName string `json:"event_name"`
 }
 
-func NewRoomLastSecondsCheerCountMessage(count int) (*RoomLastSecondsCheerCountMessage, error) {
-	eventType := EVENT_LAST_SECONDS_COUNT
-	message := RoomLastSecondsCheerCountMessage{Count: count, EventName: eventType.GetName()}
+func NewRoomIntensityMessage(count int) (*RoomIntensityMessage, error) {
+	eventType := EVENT_ROOM_INTENSITY
+	message := RoomIntensityMessage{Intensity: count, EventName: eventType.GetName()}
 	return &message, nil
 }

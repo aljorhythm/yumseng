@@ -74,12 +74,14 @@
             ></ul>
         </div>
 
-        <div id="cheers-speed"></div>
+        <div style="display: none">
+            <div id="cheers-speed"></div>
 
-        <audio loop volume="0" controls autoplay id="yumseng-audio">
-            <source src="yumseng-full.mp3" type="audio/mp3"/>
-            Your browser does not support the audio tag.
-        </audio>
+            <audio loop volume="0" controls autoplay id="yumseng-audio">
+                <source src="yumseng-full.mp3" type="audio/mp3"/>
+                Your browser does not support the audio tag.
+            </audio>
+        </div>
     </div>
 
     <footer class="footer">
@@ -132,7 +134,7 @@
             const event = JSON.parse(data);
             const eventName = event["event_name"];
 
-            if (eventName == "EVENT_LAST_SECONDS_COUNT") {
+            if (eventName == "EVENT_INTENSITY") {
                 const count = event["count"];
                 var cheersSpeedHtml = `<div>speed: ${count}</div>`;
                 $("#cheers-speed").empty().append(cheersSpeedHtml);

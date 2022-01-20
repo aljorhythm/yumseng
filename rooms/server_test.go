@@ -185,11 +185,11 @@ func TestRoomServerEventsSocket(t *testing.T) {
 		assert.Equal(t, wantedConnected, gotConnected)
 		t.Logf("room connected message %#v", gotConnected)
 
-		gotIntensity := RoomLastSecondsCheerCountMessage{}
-		wantedIntensity := RoomLastSecondsCheerCountMessage{
-			EventName: "EVENT_LAST_SECONDS_COUNT",
-			Count:     0,
+		wantedIntensity := RoomIntensityMessage{
+			EventName: "EVENT_INTENSITY",
+			Intensity: 0,
 		}
+		gotIntensity := RoomIntensityMessage{}
 		err = ws.ReadJSON(&gotIntensity)
 
 		assert.NoError(t, err)

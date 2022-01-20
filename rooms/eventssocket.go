@@ -113,7 +113,7 @@ func (socket *eventsSocket) handleEventsAndSendMessages() {
 			}
 		case <-intensityTicker.C:
 			count := socket.room.CountFrom((time.Duration(1) * time.Second))
-			message, _ := NewRoomLastSecondsCheerCountMessage(count)
+			message, _ := NewRoomIntensityMessage(count)
 			err := socket.conn.WriteJSON(message)
 			if err != nil {
 				log.Printf("EventsSocketId: %s Error writing to connection %#v closing quit channel", socket.clientId, err)

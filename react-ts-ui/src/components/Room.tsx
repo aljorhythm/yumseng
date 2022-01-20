@@ -57,7 +57,7 @@ const Room = (props: RoomProp) => {
           }
           return { ...prevPos };
         });
-      } else if (eventName === "EVENT_LAST_SECONDS_COUNT") {
+      } else if (eventName === "EVENT_INTENSITY") {
         const { count } = event;
         setIntensity(count);
       }
