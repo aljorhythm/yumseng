@@ -115,10 +115,19 @@ func (roomsServer *RoomsServer) roomUserCheersHandler(w http.ResponseWriter, r *
 		userId, _ := vars["user-id"]
 		user, _ := roomsServer.UserService.GetUser(userId)
 		cheer := &cheers.Cheer{}
-		utils.DecodeJson(r.Body, cheer)
 
-		roomsServer.RoomServicer.AddCheer(room, cheer, user)
-		w.Write([]byte{})
+		if err := utils.DecodeJson(r.Body, cheer); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		if err := roomsServer.RoomServicer.AddCheer(room, cheer, user); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
+		} else {
+			w.Write([]byte{})
+		}
 	}
 }
 

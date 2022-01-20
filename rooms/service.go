@@ -19,7 +19,7 @@ type RoomServicer interface {
 	AddCheerImage(ctx context.Context, roomId string, user User, data []byte) (*CheerImage, error)
 	GetCheerImages(ctx context.Context, roomId string, user User) ([]*CheerImage, error)
 	UserJoinsRoom(ctx context.Context, room *Room, user User) error
-	AddCheer(room *Room, cheer *cheers.Cheer, user User)
+	AddCheer(room *Room, cheer *cheers.Cheer, user User) error
 	AddCheerAddedListener(room *Room, user User, clientId string, callback Callback) error
 	StopListeningCheers(room *Room, clientId string)
 	GetOrCreateRoom(name string) *Room
@@ -92,7 +92,8 @@ func (r *roomsService) GetOrCreateRoom(name string) *Room {
 	if room, ok := r.rooms[name]; ok {
 		return room
 	} else {
-		r.rooms[name] = NewRoom(name)
+		newRoom := NewRoom(name)
+		r.rooms[name] = newRoom
 		return r.rooms[name]
 	}
 }
@@ -120,10 +121,13 @@ func (r *roomsService) AddCheerAddedListener(room *Room, user User, clientId str
 	return nil
 }
 
-func (r *roomsService) AddCheer(room *Room, cheer *cheers.Cheer, user User) {
+func (r *roomsService) AddCheer(room *Room, cheer *cheers.Cheer, user User) error {
 	cheer.UserId = user.GetId()
-	room.AddCheer(cheer)
+	if err := room.AddCheer(cheer); err != nil {
+		return err
+	}
 	r.RoomEvents.PublishCheerAdded(room, *cheer)
+	return nil
 }
 
 func NewRoomsService(storage objectstorage.Storage) RoomServicer {

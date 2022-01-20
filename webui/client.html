@@ -26,7 +26,6 @@
 <body>
 
 <style>
-
     #app * {
         width: 100%;
     }
@@ -106,11 +105,11 @@
                 this.userId = this.userIdInput
             },
             yum: function (event) {
-                console.log(this.userId)
-                $.post(`/rooms/${this.roomId}/user/${this.userId}/cheers`, {
+                $.post(`/rooms/${this.roomId}/user/${this.userId}/cheers`, JSON.stringify({
                     value: "a cheer",
+                    client_created_at: new Date().toJSON(),
                     userId: this.userId,
-                }).done(function (data) {
+                })).done(function (data) {
                     console.log(data)
                 });
             }

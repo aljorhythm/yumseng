@@ -6,6 +6,7 @@ import (
 	"github.com/aljorhythm/yumseng/cheers"
 	"github.com/aljorhythm/yumseng/objectstorage"
 	"github.com/aljorhythm/yumseng/utils"
+	"github.com/aljorhythm/yumseng/utils/movingavg"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -105,10 +106,10 @@ func TestRoomsServerCheers(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		mockRoomService := NewMockRoomServicer(mockCtrl)
 		mockRoomService.EXPECT().GetOrCreateRoom(gomock.Eq("room-2")).Return(&Room{
-			Cheers:                  nil,
-			Name:                    "room-2",
-			MovingAverageCalculator: nil,
-			Users:                   nil,
+			Cheers:     nil,
+			Name:       "room-2",
+			calculator: movingavg.NewCalculator(movingavg.NowTime{}),
+			Users:      nil,
 		})
 		mockRoomService.EXPECT().AddCheer(
 			roomMatcher{func(room *Room) bool {
@@ -120,7 +121,7 @@ func TestRoomsServerCheers(t *testing.T) {
 			userMatcher{matcherFn: func(user User) bool {
 				return user.GetId() == "dummy-user"
 			}},
-		).Return()
+		).Return(nil)
 		roomsServer := NewRoomsServer(mux.NewRouter(), mockRoomService, MockUserService{}, RoomsServerOpts{})
 		server := httptest.NewServer(roomsServer)
 		defer server.Close()

@@ -1,6 +1,8 @@
 package cheers
 
-import "time"
+import (
+	"time"
+)
 
 type Cheer struct {
 	Value           string    `json:"value"`

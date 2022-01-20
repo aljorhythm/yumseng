@@ -64,11 +64,8 @@ func TestCountFrom(t *testing.T) {
 
 	for _, testcase := range testcases {
 		cal := NewCalculator(mockNower{now: now})
-		for _, item := range testcase.list {
-			cal.AddItem(item)
-		}
 
-		got := cal.CountFrom(time.Duration(2) * time.Second)
+		got := cal.CountFrom(time.Duration(2)*time.Second, testcase.list)
 
 		wanted := testcase.expected
 

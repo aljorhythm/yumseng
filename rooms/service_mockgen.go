@@ -36,9 +36,11 @@ func (m *MockRoomServicer) EXPECT() *MockRoomServicerMockRecorder {
 }
 
 // AddCheer mocks base method.
-func (m *MockRoomServicer) AddCheer(room *Room, cheer *cheers.Cheer, user User) {
+func (m *MockRoomServicer) AddCheer(room *Room, cheer *cheers.Cheer, user User) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "AddCheer", room, cheer, user)
+	ret := m.ctrl.Call(m, "AddCheer", room, cheer, user)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // AddCheer indicates an expected call of AddCheer.
