@@ -23,11 +23,21 @@ func (item CheerItem) GetTime() time.Time {
 	return item.Cheer.ClientCreatedAt
 }
 
+type CheerUser struct {
+	*cheers.Cheer
+}
+
+func (c CheerUser) GetId() string {
+	return c.UserId
+}
+
 func (room *Room) AddCheer(cheer *cheers.Cheer) error {
 	if cheer.ClientCreatedAt.IsZero() {
 		return errors.New(fmt.Sprintf("%#v ClientCreatedAt cannot be 0", cheer))
 	}
 	room.Cheers = append(room.Cheers, cheer)
+
+	room.AddUserIfNotPresent(CheerUser{cheer})
 	return nil
 }
 
@@ -66,12 +76,32 @@ func (room *Room) AddCheerImage(user User, cheerImage *CheerImage) error {
 	}
 }
 
-func (room *Room) CountFrom(duration time.Duration) int {
+const expectedMaxPerSecond float32 = 7.2
+
+func (room *Room) Intensity() float32 {
 	items := []movingavg.Item{}
 	for _, item := range room.Cheers {
 		items = append(items, CheerItem{item})
 	}
-	return room.calculator.CountFrom(duration, items)
+
+	users := room.Users
+	usersCount := 0
+
+	// todo remove hardcoding of excluded user
+	for _, user := range users {
+		if user.User.GetId() != "global-user" {
+			usersCount += 1
+		}
+	}
+
+	if usersCount == 0 {
+		return 0
+	}
+
+	expectedMax := (float32(usersCount) * expectedMaxPerSecond)
+	count := room.calculator.CountFrom((time.Duration(1) * time.Second), items)
+	intensity := float32(count) / expectedMax
+	return intensity
 }
 
 func NewRoom(name string) *Room {

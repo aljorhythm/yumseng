@@ -32,12 +32,12 @@ func NewCheerAddedMessage(cheer cheers.Cheer) (*CheerAddedMessage, error) {
 }
 
 type RoomIntensityMessage struct {
-	Intensity int    `json:"count"`
-	EventName string `json:"event_name"`
+	Intensity float32 `json:"intensity"`
+	EventName string  `json:"event_name"`
 }
 
-func NewRoomIntensityMessage(count int) (*RoomIntensityMessage, error) {
+func NewRoomIntensityMessage(intensity float32) (*RoomIntensityMessage, error) {
 	eventType := EVENT_ROOM_INTENSITY
-	message := RoomIntensityMessage{Intensity: count, EventName: eventType.GetName()}
+	message := RoomIntensityMessage{Intensity: intensity, EventName: eventType.GetName()}
 	return &message, nil
 }

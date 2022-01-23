@@ -112,7 +112,7 @@ func (socket *eventsSocket) handleEventsAndSendMessages() {
 				log.Printf("cheers channel is closed %s", socket.clientId)
 			}
 		case <-intensityTicker.C:
-			count := socket.room.CountFrom((time.Duration(1) * time.Second))
+			count := socket.room.Intensity()
 			message, _ := NewRoomIntensityMessage(count)
 			err := socket.conn.WriteJSON(message)
 			if err != nil {
