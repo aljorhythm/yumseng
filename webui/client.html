@@ -75,7 +75,7 @@
 
         <div v-show="takingPhoto">
             <div>
-                <button id="take-photo">KACHING</button>
+                <button id="take-photo" v-on:click="takePhoto">KACHING</button>
                 <button id="stop-camera" v-on:click="stopCamera">BACK</button>
             </div>
             <video id="video" width="320" height="240" autoplay></video>
@@ -129,12 +129,15 @@
             userImages: []
         },
         methods: {
-            postImage:  async function (imageDataUrl) {
+            joinRoom: async function () {
+                return await fetch(`/rooms/${this.roomId}/user/${this.userId}`, {
+                    method: 'POST',
+                })
+            },
+            postImage: async function (imageDataUrl) {
                 return await fetch(`/rooms/${this.roomId}/user/${this.userId}/images`, {
-                    headers: {
-                        contentType: "multipart/form-data",
-                        body: imageDataUrl
-                    }
+                    method: 'POST',
+                    body: imageDataUrl
                 })
             },
             fetchUserImages: async function () {
@@ -152,7 +155,7 @@
                 video.srcObject = null;
                 this.takingPhoto = false;
             },
-            takePhoto: async function(){
+            takePhoto: async function () {
                 let canvas = document.querySelector("#canvas");
                 canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
                 let image_data_url = canvas.toDataURL('image/jpeg');
@@ -161,16 +164,21 @@
             },
             setUserId: async function (event) {
                 this.userId = this.userIdInput
+                await this.joinRoom()
                 await this.fetchUserImages()
             },
             yum: async function (event) {
-                await $.post(`/rooms/${this.roomId}/user/${this.userId}/cheers`, JSON.stringify({
-                    value: "a cheer",
-                    client_created_at: new Date().toJSON(),
-                    userId: this.userId,
-                })).done(function (data) {
-                    console.log(data)
-                });
+                await fetch(`/rooms/${this.roomId}/user/${this.userId}/cheers`, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'POST',
+                    body: JSON.stringify({
+                        value: "a cheer",
+                        client_created_at: new Date().toJSON(),
+                        userId: this.userId,
+                    })
+                })
             }
         }
     })
