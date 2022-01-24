@@ -11,7 +11,7 @@ import (
 
 type CheerImage struct {
 	Url      string `json:"url"`
-	ObjectId string `json:"object-id"`
+	ObjectId string `json:"object_id"`
 }
 
 // mockgen -source=service.go -destination service_mockgen.go -package rooms
