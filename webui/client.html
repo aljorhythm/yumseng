@@ -67,6 +67,18 @@
             <button class="btn btn-primary" v-on:click="yum">YUM</button>
             <button class='btn btn-success'>SENG</button>
         </div>
+
+        <div v-show="takingPhoto">
+            <div>
+                <button id="take-photo">KACHING</button>
+                <button id="stop-camera" v-on:click="stopCamera">BACK</button>
+            </div>
+            <video id="video" width="320" height="240" autoplay></video>
+            <canvas id="canvas" width="320" height="240"></canvas>
+        </div>
+        <div v-show="!takingPhoto">
+            <button id="start-camera" v-on:click="startCamera">Take Photo</button>
+        </div>
     </div>
     <div id="userIdContainer" v-else>
         <div class="input-group">
@@ -76,7 +88,7 @@
             <input class="form-control" v-model="userIdInput"/>
         </div>
         <div class="input-group">
-            <button class="btn btn-primary" v-on:click="setUserId">Enter</button>
+            <button class="btn btn-primary" v-on:click="setUserId">Choose a special name and remember it!</button>
         </div>
     </div>
 </div>
@@ -98,9 +110,21 @@
         data: {
             userId: null,
             userIdInput: null,
-            roomId: "global-room"
+            roomId: "global-room",
+            takingPhoto: false
         },
         methods: {
+            startCamera: async function () {
+                let video = document.querySelector("#video");
+                let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                video.srcObject = stream;
+                this.takingPhoto = true;
+            },
+            stopCamera: async function() {
+                let video = document.querySelector("#video");
+                video.srcObject = null;
+                this.takingPhoto = false;
+            },
             setUserId: function (event) {
                 this.userId = this.userIdInput
             },
