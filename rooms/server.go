@@ -131,12 +131,29 @@ func (roomsServer *RoomsServer) roomUserCheersHandler(w http.ResponseWriter, r *
 	}
 }
 
+func (roomsServer *RoomsServer) roomUserHandler(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+
+	roomId, _ := vars["room-id"]
+	userId, _ := vars["user-id"]
+	room := roomsServer.RoomServicer.GetOrCreateRoom(roomId)
+	user, _ := roomsServer.UserService.GetUser(userId)
+	roomsServer.RoomServicer.UserJoinsRoom(request.Context(), room, user)
+	writer.Write([]byte{})
+}
+
 func NewRoomsServer(router *mux.Router, roomsService RoomServicer, userService UserServicer, opts RoomsServerOpts) http.Handler {
 	roomsServer := &RoomsServer{
 		RoomServicer:    roomsService,
 		UserService:     userService,
 		RoomsServerOpts: opts,
 	}
+
+	router.HandleFunc("/{room-id}/user/{user-id}",
+		utils.ChainMiddlewares(
+			roomsServer.roomUserHandler,
+			utils.AddSetJsonHeaderMw),
+	)
 
 	router.HandleFunc("/{room-id}/user/{user-id}/images",
 		utils.ChainMiddlewares(

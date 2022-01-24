@@ -33,6 +33,26 @@ func (m MockUserService) GetUser(id string) (User, error) {
 	return MockUser{id: id}, nil
 }
 
+func TestRoomServerUser(t *testing.T) {
+	storage := objectstorage.NewInmemoryStore()
+	service := NewRoomsService(storage)
+	userService := MockUserService{}
+	roomsServer := NewRoomsServer(mux.NewRouter(), service, userService, RoomsServerOpts{})
+
+	t.Run("server should add user to room and respond ok when user joins room", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
+		request := httptest.NewRequest(http.MethodPost, "/room-1/user/user-1", nil)
+		roomsServer.ServeHTTP(recorder, request)
+
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		assertAllResponses(t, recorder)
+		room := service.GetRoom("room-1")
+		assert.NotNil(t, room)
+		_, present := room.Users["user-1"]
+		assert.True(t, present)
+	})
+}
+
 func TestRoomServerUserImages(t *testing.T) {
 	storage := objectstorage.NewInmemoryStore()
 	service := NewRoomsService(storage)
