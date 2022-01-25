@@ -147,8 +147,10 @@
                 yumAudio.volume -= (yumAudio.volume - targetVolume) / 1.8
                 yumAudio.play();
             } else if (eventName == "EVENT_CHEER_ADDED") {
-                const $mug = $(`<div class="yumseng-img">
-                                    <img class="img-fluid" src="face_1.jpg"/>
+                const cheer = event["cheer"]
+                const imageUrl = cheer["image_url"] || 'face_1.jpg'
+                const $mug = $(`<div id=${Date.now()} class="yumseng-img">
+                                    <img class="img-fluid" src="${imageUrl}"/>
                               </div>`);
                 $mug.attr("id", "bearmug" + Date.now());
 
