@@ -115,13 +115,13 @@ func main() {
 	if err != nil {
 		log.Panicf("[main.go#main] Error generateUiHandler %s", err)
 	}
-	router.PathPrefix("/archiveui").Handler(http.StripPrefix("/archiveui", webuiHandler))
+	router.PathPrefix("/").Handler(webuiHandler)
 
 	reactUiHandler, err := generateReactUiHandler()
 	if err != nil {
 		log.Panicf("[main.go#main] Error generateReactUiHandler %s", err)
 	}
-	router.PathPrefix("/").Handler(reactUiHandler)
+	router.PathPrefix("/archiveui").Handler(http.StripPrefix("/archiveui", reactUiHandler))
 
 	port := getPort()
 	portArg := fmt.Sprintf(":%s", port)
