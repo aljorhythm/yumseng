@@ -101,6 +101,10 @@
 </body>
 
 <script type="application/javascript">
+
+    function log(args) {
+        // console.log(args)
+    }
     function randomInteger(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -125,16 +129,16 @@
                 value: "yum",
                 client_created_at: new Date().toJSON(),
             });
-            console.log("send jsonMessage", cheersMessage);
+            log("send jsonMessage", cheersMessage);
             conn.send(cheersMessage);
         };
 
         conn.onclose = (_) => {
-            console.log("connection closed");
+            log("connection closed");
         };
 
         conn.onmessage = ({data}) => {
-            console.log("onmessage event data", data);
+            log("onmessage event data", data);
             const event = JSON.parse(data);
             const eventName = event["event_name"];
 
@@ -187,12 +191,12 @@
         };
 
         conn.onopen = (_) => {
-            console.log("connection opened");
+            log("connection opened");
             const userDetails = JSON.stringify({
                 room_name: dummyRoomName,
                 user_id: dummyUserId,
             });
-            console.log("send first message (user info)", userDetails);
+            log("send first message (user info)", userDetails);
             conn.send(userDetails);
         };
     }

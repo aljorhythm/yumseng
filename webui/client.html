@@ -94,15 +94,17 @@
                 <button id="stop-camera" v-on:click="stopCamera">BACK</button>
             </div>
             <video id="video" width="320" height="240" autoplay></video>
-            <canvas id="canvas" width="320" height="240"></canvas>
+            <canvas style="display: none" id="canvas" width="320" height="240"></canvas>
         </div>
 
         <div v-show="!takingPhoto">
             <button id="start-camera" v-on:click="startCamera">Take Photo</button>
         </div>
         <div id="user-images-container">
-            <img v-bind:class="{ active: yumImageUrl == 'beermug.png' }" v-on:click="setYumImageUrl('beermug.png')" src="beermug.png"/>
-            <img v-bind:class="{ active: yumImageUrl == image.url }" v-on:click="setYumImageUrl(image.url)" v-for="image in userImages" v-bind:src="image.url" :key="image.object_id"/>
+            <img v-bind:class="{ active: yumImageUrl == 'beermug.png' }" v-on:click="setYumImageUrl('beermug.png')"
+                 src="beermug.png"/>
+            <img v-bind:class="{ active: yumImageUrl == image.url }" v-on:click="setYumImageUrl(image.url)"
+                 v-for="image in userImages" v-bind:src="image.url" :key="image.object_id"/>
         </div>
     </div>
     <div id="userIdContainer" v-else>
@@ -153,11 +155,15 @@
             postImage: async function (imageDataUrl) {
                 return await fetch(`/rooms/${this.roomId}/user/${this.userId}/images`, {
                     method: 'POST',
-                    body: imageDataUrl
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({url: imageDataUrl})
                 })
             },
             fetchUserImages: async function () {
-                let images = await fetch(`/rooms/${this.roomId}/user/${this.userId}/images`)
+                const resp = await fetch(`/rooms/${this.roomId}/user/${this.userId}/images`)
+                const images = await resp.json()
                 this.userImages = images
             },
             startCamera: async function () {
