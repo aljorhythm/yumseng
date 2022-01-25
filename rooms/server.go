@@ -46,6 +46,10 @@ func writeError(w http.ResponseWriter, statusCode int, err error) {
 	fmt.Fprintf(w, "%#v", err)
 }
 
+type AddCheerRequest struct {
+	Url string `json:"url"`
+}
+
 func (roomsServer *RoomsServer) roomUserImageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[RoomsServer#roomUserImageHandler]")
 	roomsService := roomsServer.RoomServicer
@@ -80,27 +84,49 @@ func (roomsServer *RoomsServer) roomUserImageHandler(w http.ResponseWriter, r *h
 	} else if r.Method == http.MethodPost {
 		log.Printf("[RoomsServer#roomUserImageHandler] POST user-id %s room-id %s", userId, roomId)
 
-		requestBytes, err := ioutil.ReadAll(r.Body)
+		contentType := r.Header.Get("Content-Type")
 
-		if err != nil {
-			writeError(w, http.StatusBadRequest, err)
-			return
+		if contentType == "application/json" {
+			log.Printf("[RoomsServer#roomUserImageHandler] POST user-id %s room-id %s add cheer image", userId, roomId)
+
+			req := &AddCheerRequest{}
+			err := utils.DecodeJson(r.Body, req)
+
+			if err != nil {
+				writeError(w, http.StatusBadRequest, err)
+				return
+			}
+
+			err = roomsService.AddCheerImage(r.Context(), roomId, user, req.Url)
+			if err != nil {
+				writeError(w, http.StatusBadRequest, err)
+				return
+			}
+		} else {
+			log.Printf("[RoomsServer#roomUserImageHandler] POST user-id %s room-id %s upload cheer image", userId, roomId)
+
+			requestBytes, err := ioutil.ReadAll(r.Body)
+
+			if err != nil {
+				writeError(w, http.StatusBadRequest, err)
+				return
+			}
+
+			image, err := roomsService.UploadCheerImage(r.Context(), roomId, user, requestBytes)
+
+			if err != nil {
+				writeError(w, http.StatusBadRequest, err)
+				return
+			}
+
+			responseBytes, err := utils.ToJson(image)
+			if err != nil {
+				writeError(w, http.StatusBadRequest, err)
+				return
+			}
+
+			fmt.Fprintf(w, string(responseBytes))
 		}
-
-		image, err := roomsService.UploadCheerImage(r.Context(), roomId, user, requestBytes)
-
-		if err != nil {
-			writeError(w, http.StatusBadRequest, err)
-			return
-		}
-
-		responseBytes, err := utils.ToJson(image)
-		if err != nil {
-			writeError(w, http.StatusBadRequest, err)
-			return
-		}
-
-		fmt.Fprintf(w, string(responseBytes))
 	} else {
 		fmt.Fprintf(w, "operation does not exist")
 	}

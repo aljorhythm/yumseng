@@ -63,6 +63,20 @@ func (mr *MockRoomServicerMockRecorder) AddCheerAddedListener(room, user, client
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCheerAddedListener", reflect.TypeOf((*MockRoomServicer)(nil).AddCheerAddedListener), room, user, clientId, callback)
 }
 
+// AddCheerImage mocks base method.
+func (m *MockRoomServicer) AddCheerImage(ctx context.Context, roomId string, user User, url string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddCheerImage", ctx, roomId, user, url)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddCheerImage indicates an expected call of AddCheerImage.
+func (mr *MockRoomServicerMockRecorder) AddCheerImage(ctx, roomId, user, url interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCheerImage", reflect.TypeOf((*MockRoomServicer)(nil).AddCheerImage), ctx, roomId, user, url)
+}
+
 // GetCheerImages mocks base method.
 func (m *MockRoomServicer) GetCheerImages(ctx context.Context, roomId string, user User) ([]*CheerImage, error) {
 	m.ctrl.T.Helper()

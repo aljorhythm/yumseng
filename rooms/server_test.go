@@ -115,13 +115,44 @@ func TestRoomServerUserImages(t *testing.T) {
 					assert.NoError(t, err)
 					assert.Equal(t, data, gotData)
 				})
+
+				t.Run("add image", func(t *testing.T) {
+					recorder := httptest.NewRecorder()
+					url := "some.url"
+					encoded := utils.MustEncodeJson(AddCheerRequest{
+						Url: url,
+					})
+					dataReader := bytes.NewReader(encoded)
+					request := httptest.NewRequest(http.MethodPost, "/room-2/user/user-1/images", dataReader)
+					request.Header.Set("Content-Type", "application/json")
+					roomsServer.ServeHTTP(recorder, request)
+
+					assert.Equal(t, http.StatusOK, recorder.Code)
+
+					images, err := service.GetCheerImages(context.Background(), "room-2", user)
+
+					assert.NoError(t, err)
+
+					expected := CheerImage{
+						Url:      url,
+						ObjectId: url,
+					}
+
+					found := false
+					for _, image := range images {
+						if *image == expected {
+							found = true
+							break
+						}
+					}
+					assert.True(t, found)
+				})
 			})
 		})
 	})
 }
 
 func TestRoomsServerCheers(t *testing.T) {
-
 	t.Run("add cheer should be successful", func(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		mockRoomService := NewMockRoomServicer(mockCtrl)

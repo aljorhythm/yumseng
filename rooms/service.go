@@ -16,6 +16,7 @@ type CheerImage struct {
 
 // mockgen -source=service.go -destination service_mockgen.go -package rooms
 type RoomServicer interface {
+	AddCheerImage(ctx context.Context, roomId string, user User, url string) error
 	UploadCheerImage(ctx context.Context, roomId string, user User, data []byte) (*CheerImage, error)
 	GetCheerImages(ctx context.Context, roomId string, user User) ([]*CheerImage, error)
 	UserJoinsRoom(ctx context.Context, room *Room, user User) error
@@ -30,6 +31,23 @@ type roomsService struct {
 	*RoomEvents
 	rooms         map[string]*Room
 	objectStorage objectstorage.Storage
+}
+
+func (r *roomsService) AddCheerImage(ctx context.Context, roomId string, user User, url string) error {
+	cheerImage := CheerImage{
+		Url:      url,
+		ObjectId: url,
+	}
+
+	room := r.GetRoom(roomId)
+
+	err := room.AddCheerImage(user, &cheerImage)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *roomsService) GetRoom(name string) *Room {
