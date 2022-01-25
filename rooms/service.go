@@ -16,7 +16,7 @@ type CheerImage struct {
 
 // mockgen -source=service.go -destination service_mockgen.go -package rooms
 type RoomServicer interface {
-	AddCheerImage(ctx context.Context, roomId string, user User, data []byte) (*CheerImage, error)
+	UploadCheerImage(ctx context.Context, roomId string, user User, data []byte) (*CheerImage, error)
 	GetCheerImages(ctx context.Context, roomId string, user User) ([]*CheerImage, error)
 	UserJoinsRoom(ctx context.Context, room *Room, user User) error
 	AddCheer(room *Room, cheer *cheers.Cheer, user User) error
@@ -54,7 +54,7 @@ func (r *roomsService) GetCheerImages(ctx context.Context, roomId string, user U
 	return room.GetCheerImages(user)
 }
 
-func (r *roomsService) AddCheerImage(ctx context.Context, roomId string, user User, data []byte) (*CheerImage, error) {
+func (r *roomsService) UploadCheerImage(ctx context.Context, roomId string, user User, data []byte) (*CheerImage, error) {
 	room := r.GetRoom(roomId)
 
 	if room == nil {

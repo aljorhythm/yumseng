@@ -63,21 +63,6 @@ func (mr *MockRoomServicerMockRecorder) AddCheerAddedListener(room, user, client
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCheerAddedListener", reflect.TypeOf((*MockRoomServicer)(nil).AddCheerAddedListener), room, user, clientId, callback)
 }
 
-// AddCheerImage mocks base method.
-func (m *MockRoomServicer) AddCheerImage(ctx context.Context, roomId string, user User, data []byte) (*CheerImage, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddCheerImage", ctx, roomId, user, data)
-	ret0, _ := ret[0].(*CheerImage)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// AddCheerImage indicates an expected call of AddCheerImage.
-func (mr *MockRoomServicerMockRecorder) AddCheerImage(ctx, roomId, user, data interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCheerImage", reflect.TypeOf((*MockRoomServicer)(nil).AddCheerImage), ctx, roomId, user, data)
-}
-
 // GetCheerImages mocks base method.
 func (m *MockRoomServicer) GetCheerImages(ctx context.Context, roomId string, user User) ([]*CheerImage, error) {
 	m.ctrl.T.Helper()
@@ -131,6 +116,21 @@ func (m *MockRoomServicer) StopListeningCheers(room *Room, clientId string) {
 func (mr *MockRoomServicerMockRecorder) StopListeningCheers(room, clientId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopListeningCheers", reflect.TypeOf((*MockRoomServicer)(nil).StopListeningCheers), room, clientId)
+}
+
+// UploadCheerImage mocks base method.
+func (m *MockRoomServicer) UploadCheerImage(ctx context.Context, roomId string, user User, data []byte) (*CheerImage, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadCheerImage", ctx, roomId, user, data)
+	ret0, _ := ret[0].(*CheerImage)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UploadCheerImage indicates an expected call of UploadCheerImage.
+func (mr *MockRoomServicerMockRecorder) UploadCheerImage(ctx, roomId, user, data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadCheerImage", reflect.TypeOf((*MockRoomServicer)(nil).UploadCheerImage), ctx, roomId, user, data)
 }
 
 // UserJoinsRoom mocks base method.

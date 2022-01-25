@@ -87,7 +87,7 @@ func (roomsServer *RoomsServer) roomUserImageHandler(w http.ResponseWriter, r *h
 			return
 		}
 
-		image, err := roomsService.AddCheerImage(r.Context(), roomId, user, requestBytes)
+		image, err := roomsService.UploadCheerImage(r.Context(), roomId, user, requestBytes)
 
 		if err != nil {
 			writeError(w, http.StatusBadRequest, err)

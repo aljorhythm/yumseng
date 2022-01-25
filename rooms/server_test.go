@@ -81,7 +81,7 @@ func TestRoomServerUserImages(t *testing.T) {
 
 			t.Run("room with images for user", func(t *testing.T) {
 				data := []byte("asd")
-				image, err := service.AddCheerImage(context.Background(), room2.Name, user, data)
+				image, err := service.UploadCheerImage(context.Background(), room2.Name, user, data)
 				assert.NoError(t, err)
 				recorder := httptest.NewRecorder()
 				request := httptest.NewRequest(http.MethodGet, "/room-2/user/user-1/images", nil)
