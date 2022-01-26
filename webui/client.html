@@ -63,19 +63,36 @@
         width: 30%
     }
 
+    #user-images-container {
+        width: 100%;
+        position: relative;
+    }
+
     #user-images-container img {
-        width: 250px;
+        max-width: 30vw;
     }
 
     #user-images-container img:hover {
         border: 1px solid orangered;
-        border-radius: 3px;
+        border-radius: 5px;
         cursor: pointer;
     }
 
     #user-images-container img.active {
         border: 1px solid orangered;
-        border-radius: 3px;
+        border-radius: 5px;
+    }
+
+    #takeMobilePhotoContainer {
+        position: relative;
+        text-align: center;
+    }
+
+    #takeMobilePhotoBtn {
+        cursor: pointer;
+        font-size: xxx-large;
+        border-radius: 4px;
+        display: inline;
     }
 </style>
 <div id="app" class="container">
@@ -88,18 +105,27 @@
             <button class='btn btn-success'>SENG</button>
         </div>
 
-        <div v-show="takingPhoto">
-            <div>
-                <button id="take-photo" v-on:click="takePhoto">KACHING</button>
-                <button id="stop-camera" v-on:click="stopCamera">BACK</button>
+        <div v-if="!isMobile">
+            <h2>Add Photos</h2>
+            <div v-show="takingPhoto">
+                <div>
+                    <button id="take-photo" v-on:click="takePhoto">KACHING</button>
+                    <button id="stop-camera" v-on:click="stopCamera">BACK</button>
+                </div>
+                <video id="video" width="320" height="240" autoplay></video>
+                <canvas style="display: none" id="canvas" width="320" height="240"></canvas>
             </div>
-            <video id="video" width="320" height="240" autoplay></video>
-            <canvas style="display: none" id="canvas" width="320" height="240"></canvas>
+
+            <div v-show="!takingPhoto">
+                <button id="start-camera" v-on:click="startCamera">Take Photo</button>
+            </div>
+        </div>
+        <div id="takeMobilePhotoContainer" v-if="isMobile">
+            <div id="takeMobilePhotoBtn" onclick="document.getElementById('camera-input').click();">📷</div>
+            <input v-on:change="takeMobileCameraPhoto" class="btn btn-primary" style="display:none;" type="file"
+                   id="camera-input" accept="image/*" capture="camera"/>
         </div>
 
-        <div v-show="!takingPhoto">
-            <button id="start-camera" v-on:click="startCamera">Take Photo</button>
-        </div>
         <div id="user-images-container">
             <img v-bind:class="{ active: yumImageUrl == 'beermug.png' }" v-on:click="setYumImageUrl('beermug.png')"
                  src="beermug.png"/>
@@ -133,6 +159,39 @@
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 
 <script>
+    const maxWidth = 200;
+    const maxHeight = 200;
+
+    function resizeImage(img) {
+        var canvas = document.createElement('canvas');
+
+        var width = img.width;
+        var height = img.height;
+
+        // calculate the width and height, constraining the proportions
+        if (width > height) {
+            if (width > maxWidth) {
+                //height *= maxWidth / width;
+                height = Math.round(height *= maxWidth / width);
+                width = maxWidth;
+            }
+        } else {
+            if (height > maxHeight) {
+                //width *= maxHeight / height;
+                width = Math.round(width *= maxHeight / height);
+                height = maxHeight;
+            }
+        }
+
+        // resize the canvas and draw the image data into it
+        canvas.width = width;
+        canvas.height = height;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+
+        return canvas.toDataURL("image/jpeg", 0.7); // get the data from canvas as 70% JPG (can be also PNG, etc.)
+    }
+
     var app = new Vue({
         el: '#app',
         data: {
@@ -141,9 +200,36 @@
             roomId: "global-room",
             takingPhoto: false,
             userImages: [],
-            yumImageUrl: ""
+            yumImageUrl: "",
+            isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
         },
         methods: {
+            takeMobileCameraPhoto: function () {
+                const cameraInput = document.querySelector("#camera-input")
+                const reader = new FileReader();
+                const file = cameraInput.files[0];
+                const thiss = this;
+                reader.onload = function (event) {
+                    // blob stuff
+                    var blob = new Blob([event.target.result]); // create blob...
+                    window.URL = window.URL || window.webkitURL;
+                    var blobURL = window.URL.createObjectURL(blob); // and get it's URL
+
+
+                    var image = new Image();
+                    image.src = blobURL;
+                    //preview.appendChild(image); // preview commented out, I am using the canvas instead
+                    image.onload = async () => {
+                        // have to wait till it's loaded
+                        var resized = resizeImage(image); // send it to canvas
+
+                        await thiss.postImage(resized);
+                        await thiss.fetchUserImages();
+                    }
+                }
+
+                reader.readAsArrayBuffer(file);
+            },
             setYumImageUrl: function (url) {
                 this.yumImageUrl = url
             },

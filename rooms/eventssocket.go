@@ -49,12 +49,12 @@ func (s *eventsSocket) processFirstMessage() {
 
 func (s *eventsSocket) listenToClientMessages() {
 	go func() {
-		log.Printf("EventsSocketId: %s Listening for cheers", s.clientId)
+		log.Printf("[listenToClientMessages] EventsSocketId: %s", s.clientId)
 		for {
 			_, msg, err := s.conn.ReadMessage()
 
 			if err != nil {
-				log.Printf("EventsSocketId: %s Error in reading socket message. Error: %#v", s.clientId, err)
+				log.Printf("[listenToClientMessages] Error reading socket message. EventsSocketId: %s Error: %#v", s.clientId, err)
 				return
 			}
 			reader := bytes.NewReader(msg)
