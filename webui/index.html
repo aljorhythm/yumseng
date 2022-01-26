@@ -23,72 +23,128 @@
 
     <link rel="stylesheet" href="style.css"/>
 </head>
-
 <body>
-<div class="container">
-    <div class="header clearfix">
-        <h3 class="text-muted">Cheers to life!</h3>
-    </div>
 
-    <div id="interact"
-         style="position: fixed; top: 0; left: 0; background: white; width: 100vw; height: 100vh; text-align: center; z-index: 100">
-        <button class="btn btn-info" onclick="document.querySelector('#interact').remove()">
-            ENTER
-        </button>
-        <a href="client.html">client</a>
-    </div>
+<style>
+    #app * {
+        width: 100%;
+    }
 
-    <div class="row" id="cheers">
-        <div id="cheers-count"></div>
-        <button style="display:none;" type="button" class="btn btn-primary" id="yum-button">
-            YUMMMMM
-        </button>
+    #app {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        align-content: space-evenly;
+        padding: 5%;
+    }
 
-        <button style="display:none;" type="button" class="btn btn-primary" id="seng">SENG</button>
+    #actionsContainer {
+        text-align: center;
+    }
 
-        <div class="row" id="beer-img-container"></div>
-        <style>
-            #beer-img-container {
-                position: relative;
-                width: 80%;
-                height: 50vh;
-                background: rgb(238, 238, 238);
-            }
-        </style>
+    #actionsContainer * {
+        margin-top: 20px;
+    }
 
-        <div style="float: left; display: none"
-             id="bearmug"
-             class="yumseng-img">
-            <img class="img-fluid" src="face_1.jpg"/>
+    #userIdContainer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        align-content: space-evenly;
+    }
+
+    #yum-btns {
+        display: flex;
+        justify-content: space-evenly;
+    }
+
+    #yum-btns button {
+        width: 30%
+    }
+
+    #user-images-container {
+        width: 100%;
+        position: relative;
+    }
+
+    #user-images-container img {
+        max-width: 30vw;
+    }
+
+    #user-images-container img:hover {
+        border: 1px solid orangered;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    #user-images-container img.active {
+        border: 1px solid orangered;
+        border-radius: 5px;
+    }
+
+    #takeMobilePhotoContainer {
+        position: relative;
+        text-align: center;
+    }
+
+    #takeMobilePhotoBtn {
+        cursor: pointer;
+        font-size: xxx-large;
+        border-radius: 4px;
+        display: inline;
+    }
+</style>
+<div id="app" class="container">
+    Yum Seng
+    <div id="actionsContainer" v-if="userId != null">
+        <h1>Hi, {{ userId }} </h1>
+
+        <div id="yum-btns">
+            <button class="btn btn-primary" v-on:click="yum">YUM</button>
+            <button class='btn btn-success'>SENG</button>
         </div>
-        <style>
-            .yumseng-img img {
-                width: 100px;
-                margin: 10px;
-            }
-        </style>
 
-        <div style="display: none">
-            cheers info
-            <ul
-                    style="overflow: hidden; height: 100px; list-style-type: none"
-                    id="cheers-list"
-            ></ul>
+        <div v-if="!isMobile">
+            <h2>Add Photos</h2>
+            <div v-show="takingPhoto">
+                <div>
+                    <button id="take-photo" v-on:click="takePhoto">KACHING</button>
+                    <button id="stop-camera" v-on:click="stopCamera">BACK</button>
+                </div>
+                <video id="video" width="320" height="240" autoplay></video>
+                <canvas style="display: none" id="canvas" width="320" height="240"></canvas>
+            </div>
+
+            <div v-show="!takingPhoto">
+                <button id="start-camera" v-on:click="startCamera">Take Photo</button>
+            </div>
+        </div>
+        <div id="takeMobilePhotoContainer" v-if="isMobile">
+            <div id="takeMobilePhotoBtn" onclick="document.getElementById('camera-input').click();">📷</div>
+            <input v-on:change="takeMobileCameraPhoto" class="btn btn-primary" style="display:none;" type="file"
+                   id="camera-input" accept="image/*" capture="camera"/>
         </div>
 
-        <div style="display: none">
-            <div id="cheers-speed"></div>
-
-            <audio loop volume="0" controls autoplay id="yumseng-audio">
-                <source src="yumseng-full.mp3" type="audio/mp3"/>
-                Your browser does not support the audio tag.
-            </audio>
+        <div id="user-images-container">
+            <img v-bind:class="{ active: yumImageUrl == 'beermug.png' }" v-on:click="setYumImageUrl('beermug.png')"
+                 src="beermug.png"/>
+            <img v-bind:class="{ active: yumImageUrl == image.url }" v-on:click="setYumImageUrl(image.url)"
+                 v-for="image in userImages" v-bind:src="image.url" :key="image.object_id"/>
         </div>
     </div>
-
-    <footer class="footer">
-        <p>2021 aljorhythm</p>
-    </footer>
+    <div id="userIdContainer" v-else>
+        Choose a special name and remember it!
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Name</span>
+            </div>
+            <input class="form-control" v-model="userIdInput"/>
+        </div>
+        <div class="input-group">
+            <button class="btn btn-primary" v-on:click="setUserId">Let's Go!</button>
+        </div>
+    </div>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -99,107 +155,142 @@
         integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"
 ></script>
-</body>
 
-<script type="application/javascript">
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 
-    function log(args) {
-        // console.log(args)
-    }
-    function randomInteger(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+<script>
+    const maxWidth = 200;
+    const maxHeight = 200;
 
-    const yumButton = document.getElementById("yum-button");
+    function resizeImage(img) {
+        var canvas = document.createElement('canvas');
 
-    const dummyUserId = "global-user";
-    const dummyRoomName = "global-room";
+        var width = img.width;
+        var height = img.height;
 
-    const yumAudio = document.getElementById("yumseng-audio");
-    yumAudio.volume = 0
-
-    if (window["WebSocket"]) {
-        websocketScheme =
-            window.location.protocol == "http:" ? "ws://" : "wss://";
-        const conn = new WebSocket(
-            websocketScheme + document.location.host + "/rooms/events"
-        );
-
-        yumButton.onclick = (_) => {
-            const cheersMessage = JSON.stringify({
-                value: "yum",
-                client_created_at: new Date().toJSON(),
-            });
-            log("send jsonMessage", cheersMessage);
-            conn.send(cheersMessage);
-        };
-
-        conn.onclose = (_) => {
-            log("connection closed");
-        };
-
-        conn.onmessage = ({data}) => {
-            log("onmessage event data", data);
-            const event = JSON.parse(data);
-            const eventName = event["event_name"];
-
-            if (eventName == "EVENT_INTENSITY") {
-                const intensity = event["intensity"];
-                var cheersSpeedHtml = `<div>speed: ${intensity}</div>`;
-                $("#cheers-speed").empty().append(cheersSpeedHtml);
-                const yumAudio = document.getElementById("yumseng-audio");
-                const targetVolume = intensity
-                yumAudio.volume -= (yumAudio.volume - targetVolume) / 1.8
-                yumAudio.play();
-            } else if (eventName == "EVENT_CHEER_ADDED") {
-                const cheer = event["cheer"]
-                const imageUrl = cheer["image_url"] || 'face_1.jpg'
-                const $mug = $(`<div id=${Date.now()} class="yumseng-img">
-                                    <img class="img-fluid" src="${imageUrl}"/>
-                              </div>`);
-                $mug.attr("id", "bearmug" + Date.now());
-
-                const $container = $("#beer-img-container");
-
-                $container.append($mug);
-                $mug.css({
-                    position: "absolute",
-                });
-                const randomLeft = randomInteger(
-                    1,
-                    $container.width() - $mug.width()
-                );
-                const randomTop = randomInteger(
-                    1,
-                    $container.height() - $mug.height()
-                );
-
-                $mug.css({
-                    top: `${randomTop}px`,
-                    left: `${randomLeft}px`,
-                });
-
-                $mug.fadeIn(600, () => {
-                    $mug.fadeOut(600, () => {
-                        $mug.remove();
-                    });
-                });
-
-                $cheersList = $("#cheers-list");
-                $cheerInfo = $(`<li>${event["cheer"]["user_id"]}</li>`);
-                $cheersList.prepend($cheerInfo);
+        // calculate the width and height, constraining the proportions
+        if (width > height) {
+            if (width > maxWidth) {
+                //height *= maxWidth / width;
+                height = Math.round(height *= maxWidth / width);
+                width = maxWidth;
             }
-        };
+        } else {
+            if (height > maxHeight) {
+                //width *= maxHeight / height;
+                width = Math.round(width *= maxHeight / height);
+                height = maxHeight;
+            }
+        }
 
-        conn.onopen = (_) => {
-            log("connection opened");
-            const userDetails = JSON.stringify({
-                room_name: dummyRoomName,
-                user_id: dummyUserId,
-            });
-            log("send first message (user info)", userDetails);
-            conn.send(userDetails);
-        };
+        // resize the canvas and draw the image data into it
+        canvas.width = width;
+        canvas.height = height;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+
+        return canvas.toDataURL("image/jpeg", 0.7); // get the data from canvas as 70% JPG (can be also PNG, etc.)
     }
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            userId: null,
+            userIdInput: null,
+            roomId: "global-room",
+            takingPhoto: false,
+            userImages: [],
+            yumImageUrl: "",
+            isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+        },
+        methods: {
+            takeMobileCameraPhoto: function () {
+                const cameraInput = document.querySelector("#camera-input")
+                const reader = new FileReader();
+                const file = cameraInput.files[0];
+                const thiss = this;
+                reader.onload = function (event) {
+                    // blob stuff
+                    var blob = new Blob([event.target.result]); // create blob...
+                    window.URL = window.URL || window.webkitURL;
+                    var blobURL = window.URL.createObjectURL(blob); // and get it's URL
+
+
+                    var image = new Image();
+                    image.src = blobURL;
+                    //preview.appendChild(image); // preview commented out, I am using the canvas instead
+                    image.onload = async () => {
+                        // have to wait till it's loaded
+                        var resized = resizeImage(image); // send it to canvas
+
+                        await thiss.postImage(resized);
+                        await thiss.fetchUserImages();
+                    }
+                }
+
+                reader.readAsArrayBuffer(file);
+            },
+            setYumImageUrl: function (url) {
+                this.yumImageUrl = url
+            },
+            joinRoom: async function () {
+                return await fetch(`/rooms/${this.roomId}/user/${this.userId}`, {
+                    method: 'POST',
+                })
+            },
+            postImage: async function (imageDataUrl) {
+                return await fetch(`/rooms/${this.roomId}/user/${this.userId}/images`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({url: imageDataUrl})
+                })
+            },
+            fetchUserImages: async function () {
+                const resp = await fetch(`/rooms/${this.roomId}/user/${this.userId}/images`)
+                const images = await resp.json()
+                this.userImages = images
+            },
+            startCamera: async function () {
+                let video = document.querySelector("#video");
+                let stream = await navigator.mediaDevices.getUserMedia({video: true, audio: false});
+                video.srcObject = stream;
+                this.takingPhoto = true;
+            },
+            stopCamera: async function () {
+                let video = document.querySelector("#video");
+                video.srcObject = null;
+                this.takingPhoto = false;
+            },
+            takePhoto: async function () {
+                let canvas = document.querySelector("#canvas");
+                canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                let image_data_url = canvas.toDataURL('image/jpeg');
+                await this.postImage(image_data_url)
+                await this.fetchUserImages()
+            },
+            setUserId: async function (event) {
+                this.userId = this.userIdInput
+                await this.joinRoom()
+                await this.fetchUserImages()
+            },
+            yum: async function (event) {
+                await fetch(`/rooms/${this.roomId}/user/${this.userId}/cheers`, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'POST',
+                    body: JSON.stringify({
+                        value: "a cheer",
+                        client_created_at: new Date().toJSON(),
+                        user_id: this.userId,
+                        image_url: this.yumImageUrl
+                    })
+                })
+            }
+        }
+    })
 </script>
+</body>
 </html>
