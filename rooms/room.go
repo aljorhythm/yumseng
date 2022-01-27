@@ -46,7 +46,8 @@ func (room *Room) AddCheer(cheer *cheers.Cheer) error {
 		return err
 	}
 
-	room.addUserPoints(cheerUser, rand.Intn(5))
+	points := rand.Intn(50)
+	room.addUserPoints(cheerUser, points)
 
 	return nil
 }

@@ -1,6 +1,7 @@
 package rooms
 
 import (
+	"container/heap"
 	"context"
 	"fmt"
 	"github.com/aljorhythm/yumseng/cheers"
@@ -25,12 +26,45 @@ type RoomServicer interface {
 	StopListeningCheers(room *Room, clientId string)
 	GetOrCreateRoom(name string) *Room
 	GetRoom(name string) *Room
+	GetLeaderboard(roomId string) []*UserInfo
 }
 
 type roomsService struct {
 	*RoomEvents
 	rooms         map[string]*Room
 	objectStorage objectstorage.Storage
+}
+
+func findPointLeaders(users map[string]*UserInfo, k int) []*UserInfo {
+	userInfoHeap := &UserInfoHeap{}
+	for _, user := range users {
+		// todo remove hardcoding of excluded user
+		if user.User.GetId() == "global-user" {
+			continue
+		}
+
+		heap.Push(userInfoHeap, user)
+
+		if userInfoHeap.Len() > k {
+			heap.Pop(userInfoHeap) // O(log K)
+		}
+	}
+
+	return func() []*UserInfo { // O (k log k)
+		result := make([]*UserInfo, userInfoHeap.Len())
+		initialLen := userInfoHeap.Len()
+		for i := initialLen; i > 0; i-- {
+			result[i-1] = heap.Pop(userInfoHeap).(*UserInfo)
+		}
+		return result
+	}()
+}
+
+func (r *roomsService) GetLeaderboard(roomId string) []*UserInfo {
+	room := r.GetRoom(roomId)
+	users := room.Users
+
+	return findPointLeaders(users, 10)
 }
 
 func (r *roomsService) AddCheerImage(ctx context.Context, roomId string, user User, url string) error {

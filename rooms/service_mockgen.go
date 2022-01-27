@@ -92,6 +92,20 @@ func (mr *MockRoomServicerMockRecorder) GetCheerImages(ctx, roomId, user interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCheerImages", reflect.TypeOf((*MockRoomServicer)(nil).GetCheerImages), ctx, roomId, user)
 }
 
+// GetLeaderboard mocks base method.
+func (m *MockRoomServicer) GetLeaderboard(roomId string) []*UserInfo {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLeaderboard", roomId)
+	ret0, _ := ret[0].([]*UserInfo)
+	return ret0
+}
+
+// GetLeaderboard indicates an expected call of GetLeaderboard.
+func (mr *MockRoomServicerMockRecorder) GetLeaderboard(roomId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLeaderboard", reflect.TypeOf((*MockRoomServicer)(nil).GetLeaderboard), roomId)
+}
+
 // GetOrCreateRoom mocks base method.
 func (m *MockRoomServicer) GetOrCreateRoom(name string) *Room {
 	m.ctrl.T.Helper()

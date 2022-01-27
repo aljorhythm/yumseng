@@ -48,6 +48,7 @@
                 flex-direction: row;
                 justify-content: space-around;
             }
+
             #beer-img-container {
                 position: relative;
                 height: 80vh;
@@ -61,8 +62,8 @@
             <div style="width: 10%" id="leaderboard-container">
                 <h2>Leaderboard</h2>
                 <div v-for="scorer in topScorers">
-                    {{scorer.userId}}
-                    {{scorer.points}}
+                    <span>{{scorer.user_id}}</span>
+                    <span>{{scorer.points}}</span>
                 </div>
             </div>
         </div>
@@ -198,20 +199,20 @@
     var app = new Vue({
         el: '#leaderboard-container',
         data: {
+            roomId: dummyRoomName,
             topScorers: []
         },
-        created: function () {
-            setInterval(async () => {
-                this.topScorers = [{
-                    "userId": "person1",
-                    "points": new Date().getSeconds()
-                }, {
-                    "userId": "person2",
-                    "points": new Date().getSeconds()
-                }]
-            },)
+        methods: {
+            async fetchLeaderboard() {
+                const resp = await fetch(`/rooms/${this.roomId}/leaderboard`)
+                this.topScorers = await resp.json()
+            }
         },
-        methods: {}
+        created() {
+            setInterval(() => {
+                this.fetchLeaderboard()
+            }, 100)
+        },
     })
 </script>
 </html>

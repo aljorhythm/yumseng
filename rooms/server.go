@@ -168,6 +168,34 @@ func (roomsServer *RoomsServer) roomUserHandler(writer http.ResponseWriter, requ
 	writer.Write([]byte{})
 }
 
+type LeaderboardResponseUser struct {
+	UserId string `json:"user_id"`
+	Points int    `json:"points"`
+}
+
+func (roomsServer *RoomsServer) roomLeaderboardHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	roomId, _ := vars["room-id"]
+	users := roomsServer.GetLeaderboard(roomId)
+
+	responseUsers := []LeaderboardResponseUser{}
+	for _, user := range users {
+		responseUsers = append(responseUsers, LeaderboardResponseUser{
+			UserId: user.User.GetId(),
+			Points: user.Points,
+		})
+	}
+
+	data, err := utils.ToJson(responseUsers)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+	} else {
+		w.Write(data)
+	}
+}
+
 func NewRoomsServer(router *mux.Router, roomsService RoomServicer, userService UserServicer, opts RoomsServerOpts) http.Handler {
 	roomsServer := &RoomsServer{
 		RoomServicer:    roomsService,
@@ -178,6 +206,12 @@ func NewRoomsServer(router *mux.Router, roomsService RoomServicer, userService U
 	router.HandleFunc("/{room-id}/user/{user-id}",
 		utils.ChainMiddlewares(
 			roomsServer.roomUserHandler,
+			utils.AddSetJsonHeaderMw),
+	)
+
+	router.HandleFunc("/{room-id}/leaderboard",
+		utils.ChainMiddlewares(
+			roomsServer.roomLeaderboardHandler,
 			utils.AddSetJsonHeaderMw),
 	)
 
