@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/aljorhythm/yumseng/cheers"
 	"github.com/aljorhythm/yumseng/utils/movingavg"
+	"math/rand"
 	"time"
 )
 
@@ -35,9 +36,18 @@ func (room *Room) AddCheer(cheer *cheers.Cheer) error {
 	if cheer.ClientCreatedAt.IsZero() {
 		return errors.New(fmt.Sprintf("%#v ClientCreatedAt cannot be 0", cheer))
 	}
+
 	room.Cheers = append(room.Cheers, cheer)
 
-	room.AddUserIfNotPresent(CheerUser{cheer})
+	cheerUser := CheerUser{cheer}
+	_, err := room.AddUserIfNotPresent(cheerUser)
+
+	if err != nil {
+		return err
+	}
+
+	room.addUserPoints(cheerUser, rand.Intn(5))
+
 	return nil
 }
 
@@ -49,6 +59,15 @@ func (room *Room) AddUserIfNotPresent(user User) (bool, error) {
 		return true, nil
 	}
 	return false, nil
+}
+
+func (room *Room) addUserPoints(userArg User, points int) error {
+	if user, ok := room.Users[userArg.GetId()]; ok {
+		user.Points += points
+		return nil
+	} else {
+		return errors.New(fmt.Sprintf("no user found %#v", userArg.GetId()))
+	}
 }
 
 func (room *Room) GetUserInfo(user User) (*UserInfo, error) {

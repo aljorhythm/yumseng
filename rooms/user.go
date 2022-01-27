@@ -17,11 +17,13 @@ var (
 type UserInfo struct {
 	CheerImages []*CheerImage
 	User        User
+	Points      int
 }
 
 func NewUserAndInfo(user User) *UserInfo {
 	return &UserInfo{
 		[]*CheerImage{},
 		user,
+		0,
 	}
 }
