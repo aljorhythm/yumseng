@@ -26,10 +26,6 @@
 
 <body>
 <div class="container">
-    <div class="header clearfix">
-        <h3 class="text-muted">Cheers to life!</h3>
-    </div>
-
     <div id="interact"
          style="position: fixed; top: 0; left: 0; background: white; width: 100vw; height: 100vh; text-align: center; z-index: 100">
         <button class="btn btn-info" onclick="document.querySelector('#interact').remove()">
@@ -38,57 +34,54 @@
         <a href="/">client</a>
     </div>
 
+    <div style="float: left; display: none"
+         id="bearmug"
+         class="yumseng-img">
+        <img class="img-fluid" src="face_1.jpg"/>
+    </div>
+
     <div class="row" id="cheers">
-        <div id="cheers-count"></div>
-        <button style="display:none;" type="button" class="btn btn-primary" id="yum-button">
-            YUMMMMM
-        </button>
 
-        <button style="display:none;" type="button" class="btn btn-primary" id="seng">SENG</button>
-
-        <div class="row" id="beer-img-container"></div>
         <style>
+            #container-1 {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-around;
+            }
             #beer-img-container {
                 position: relative;
-                width: 80%;
-                height: 50vh;
-                background: rgb(238, 238, 238);
+                height: 80vh;
+                background: rgba(252, 3, 3, 0.7);
+                border-radius: 4px;
             }
         </style>
 
-        <div style="float: left; display: none"
-             id="bearmug"
-             class="yumseng-img">
-            <img class="img-fluid" src="face_1.jpg"/>
+        <div id="container-1">
+            <div style="width: 80%" id="beer-img-container"></div>
+            <div style="width: 10%" id="leaderboard-container">
+                <h2>Leaderboard</h2>
+                <div v-for="scorer in topScorers">
+                    {{scorer.userId}}
+                    {{scorer.points}}
+                </div>
+            </div>
         </div>
+
+
         <style>
             .yumseng-img img {
                 width: 100px;
-                margin: 10px;
+                border-radius: 10px;
             }
         </style>
 
         <div style="display: none">
-            cheers info
-            <ul
-                    style="overflow: hidden; height: 100px; list-style-type: none"
-                    id="cheers-list"
-            ></ul>
-        </div>
-
-        <div style="display: none">
-            <div id="cheers-speed"></div>
-
             <audio loop volume="0" controls autoplay id="yumseng-audio">
                 <source src="yumseng-full.mp3" type="audio/mp3"/>
                 Your browser does not support the audio tag.
             </audio>
         </div>
     </div>
-
-    <footer class="footer">
-        <p>2021 aljorhythm</p>
-    </footer>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -99,6 +92,9 @@
         integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"
 ></script>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+
 </body>
 
 <script type="application/javascript">
@@ -106,6 +102,7 @@
     function log(args) {
         // console.log(args)
     }
+
     function randomInteger(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -125,14 +122,14 @@
             websocketScheme + document.location.host + "/rooms/events"
         );
 
-        yumButton.onclick = (_) => {
-            const cheersMessage = JSON.stringify({
-                value: "yum",
-                client_created_at: new Date().toJSON(),
-            });
-            log("send jsonMessage", cheersMessage);
-            conn.send(cheersMessage);
-        };
+        // yumButton.onclick = (_) => {
+        //     const cheersMessage = JSON.stringify({
+        //         value: "yum",
+        //         client_created_at: new Date().toJSON(),
+        //     });
+        //     log("send jsonMessage", cheersMessage);
+        //     conn.send(cheersMessage);
+        // };
 
         conn.onclose = (_) => {
             log("connection closed");
@@ -184,10 +181,6 @@
                         $mug.remove();
                     });
                 });
-
-                $cheersList = $("#cheers-list");
-                $cheerInfo = $(`<li>${event["cheer"]["user_id"]}</li>`);
-                $cheersList.prepend($cheerInfo);
             }
         };
 
@@ -201,5 +194,24 @@
             conn.send(userDetails);
         };
     }
+
+    var app = new Vue({
+        el: '#leaderboard-container',
+        data: {
+            topScorers: []
+        },
+        created: function () {
+            setInterval(async () => {
+                this.topScorers = [{
+                    "userId": "person1",
+                    "points": new Date().getSeconds()
+                }, {
+                    "userId": "person2",
+                    "points": new Date().getSeconds()
+                }]
+            },)
+        },
+        methods: {}
+    })
 </script>
 </html>

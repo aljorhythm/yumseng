@@ -26,6 +26,10 @@
 <body>
 
 <style>
+    body {
+        font-family: 'Trebuchet MS', sans-serif;
+    }
+
     #app * {
         width: 100%;
     }
@@ -56,11 +60,11 @@
 
     #yum-btns {
         display: flex;
-        justify-content: space-evenly;
+        justify-content: space-between;
     }
 
-    #yum-btns button {
-        width: 30%
+    #yum-btns * {
+        width: 25%
     }
 
     #user-images-container {
@@ -96,36 +100,42 @@
     }
 </style>
 <div id="app" class="container">
-    Yum Seng
     <div id="actionsContainer" v-if="userId != null">
-        <h1>Hi, {{ userId }} </h1>
+        <h4>Hi, {{ userId }} </h4>
 
         <div id="yum-btns">
-            <button class="btn btn-primary" v-on:click="yum">YUM</button>
-            <button class='btn btn-success'>SENG</button>
+            <button class="btn btn-warning" v-on:click="yum">YUUUUUUM</button>
+            <button class='btn btn-danger'>SENG</button>
+
+            <div id="takeMobilePhotoContainer" v-if="isMobile">
+                <a style="font-size: 80px" id="takeMobilePhotoBtn" onclick="document.getElementById('camera-input').click();">📸</a>
+                <input v-on:change="takeMobileCameraPhoto" class="btn btn-primary" style="display:none;" type="file"
+                       id="camera-input" accept="image/*" capture="camera"/>
+            </div>
         </div>
 
         <div v-if="!isMobile">
-            <h2>Add Photos</h2>
-            <div v-show="takingPhoto">
-                <div>
-                    <button id="take-photo" v-on:click="takePhoto">KACHING</button>
-                    <button id="stop-camera" v-on:click="stopCamera">BACK</button>
-                </div>
+            <div style="background: lightpink; border-radius: 5px; padding: 20px" v-show="takingPhoto">
+                <h2>Add Photo</h2>
                 <video id="video" width="320" height="240" autoplay></video>
                 <canvas style="display: none" id="canvas" width="320" height="240"></canvas>
+
+                <div style="font-size: xxx-large; display: flex; justify-content: center">
+                    <span id="take-photo" v-on:click="takePhoto">📸</span>
+                    <span id="stop-camera" v-on:click="stopCamera">❌</span>
+                </div>
             </div>
 
             <div v-show="!takingPhoto">
                 <button id="start-camera" v-on:click="startCamera">Take Photo</button>
             </div>
         </div>
-        <div id="takeMobilePhotoContainer" v-if="isMobile">
-            <div id="takeMobilePhotoBtn" onclick="document.getElementById('camera-input').click();">📷</div>
-            <input v-on:change="takeMobileCameraPhoto" class="btn btn-primary" style="display:none;" type="file"
-                   id="camera-input" accept="image/*" capture="camera"/>
-        </div>
 
+        <hr/>
+        <div style="display: flex; justify-content: space-between">
+            <span>choose</span>
+            <span>选择</span>
+        </div>
         <div id="user-images-container">
             <img v-bind:class="{ active: yumImageUrl == 'beermug.png' }" v-on:click="setYumImageUrl('beermug.png')"
                  src="beermug.png"/>
@@ -214,7 +224,6 @@
                     var blob = new Blob([event.target.result]); // create blob...
                     window.URL = window.URL || window.webkitURL;
                     var blobURL = window.URL.createObjectURL(blob); // and get it's URL
-
 
                     var image = new Image();
                     image.src = blobURL;
