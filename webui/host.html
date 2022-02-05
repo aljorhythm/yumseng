@@ -41,6 +41,25 @@
         <img class="img-fluid" src="face_1.jpg"/>
     </div>
 
+    <div id="shuang-xi"
+         style="position: fixed;
+         left: 0;
+         background: white;
+         display:none;
+         font-size: 500px;
+         top: 0;
+         width: 100vw; height: 100vh;
+         z-index: 99999;
+         color: red">
+        <div style="display: flex;
+         align-items: center;
+         width: 100%;
+         height: 100%;
+         justify-content: center;">
+            囍
+        </div>
+    </div>
+
     <div class="row" id="cheers">
 
         <style>
@@ -52,8 +71,8 @@
 
             #beer-img-container {
                 position: relative;
-                height: 80vh;
-                background: rgba(252, 3, 3, 0.7);
+                height: 90vh;
+                background: orangered;
                 border-radius: 4px;
             }
 
@@ -77,6 +96,8 @@
                 justify-content: space-between;
                 text-transform: uppercase;
                 font-size: xx-large;
+                color: orangered;
+                font-weight: bold;
             }
         </style>
 
@@ -191,9 +212,12 @@
 
                 if (cheer["value"] == "seng") {
                     playSeng()
-                    const $mug = $(`<div id=${Date.now()} class="yumseng-img">
-                                    <img class="img-fluid" src="${imageUrl}"/>
-                              </div>`);
+
+                    if (!$("#shuang-xi").is(":visible")) {
+                        $("#shuang-xi").show(1000, () => {
+                            setTimeout(() => $("#shuang-xi").hide(1000), 8000)
+                        })
+                    }
                     return
                 }
                 const $mug = $(`<div id=${Date.now()} class="yumseng-img">

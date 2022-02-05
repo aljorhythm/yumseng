@@ -2,7 +2,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="viewport" content="width=device-width, user-scalable=no"/>
 
     <title>Cheers To Life</title>
 
@@ -28,6 +28,7 @@
 <style>
     body {
         font-family: 'Trebuchet MS', sans-serif;
+        touch-action: pan-x pan-y;
     }
 
     #app * {
@@ -35,7 +36,7 @@
     }
 
     #app {
-        width: 100%;
+        width: 90%;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -66,7 +67,6 @@
     #yum-btns * {
         width: 25%;
         background: none;
-        color: #ff0a0a;
         border: none;
         padding: 0;
         font: inherit;
@@ -78,12 +78,12 @@
         transform: translateY(10px);
         -ms-transform: translateY(10px);
         -webkit-transform: translateY(10px);
-        background: orangered;
-        border-radius: 3px;
     }
 
     #yum-btns button {
         font-size: 3em;
+        background: #ff0a0a;
+        color: floralwhite;
     }
 
     #user-images-container {
@@ -123,8 +123,8 @@
         <h3>{{ userId }} </h3>
 
         <div id="yum-btns">
-            <button v-on:click="yum">飲</button>
-            <button v-on:click="seng">勝</button>
+            <button v-on:click="yum" ontouchstart>飲</button>
+            <button v-on:click="seng" ontouchstart>勝</button>
 
             <div id="takeMobilePhotoContainer" v-if="isMobile">
                 <a id="takeMobilePhotoBtn"
@@ -154,13 +154,14 @@
         <hr/>
         <div style="display: flex; justify-content: space-between">
             <span>choose</span>
-            <span>选择</span>
+            <span>选照片</span>
         </div>
         <div id="user-images-container">
             <img v-bind:class="{ active: yumImageUrl == 'beermug.png' }" v-on:click="setYumImageUrl('beermug.png')"
                  src="beermug.png"/>
-            <img v-bind:class="{ active: yumImageUrl == image.url }" v-on:click="setYumImageUrl(image.url)"
-                 v-for="image in userImages" v-bind:src="image.url" :key="image.object_id"/>
+            <img v-for="image in userImages" v-bind:src="image.url"
+                 v-bind:class="{ active: yumImageUrl == image.url }" v-on:click="setYumImageUrl(image.url)"
+                 :key="image.object_id"/>
         </div>
     </div>
     <div id="userIdContainer" v-else>
@@ -230,7 +231,7 @@
             roomId: "global-room",
             takingPhoto: false,
             userImages: [],
-            yumImageUrl: "",
+            yumImageUrl: "beermug.png",
             isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
         },
         created() {
