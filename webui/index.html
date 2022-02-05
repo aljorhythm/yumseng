@@ -125,13 +125,18 @@
         <div id="yum-btns">
             <button v-on:click="yum" ontouchstart>飲</button>
             <button v-on:click="seng" ontouchstart>勝</button>
+        </div>
 
-            <div id="takeMobilePhotoContainer" v-if="isMobile">
-                <a id="takeMobilePhotoBtn"
-                   onclick="document.getElementById('camera-input').click();">📸</a>
-                <input v-on:change="takeMobileCameraPhoto" class="btn btn-primary" style="display:none;" type="file"
-                       id="camera-input" accept="image/*" capture="camera"/>
-            </div>
+        <hr/>
+        <div style="display: flex; font-weight: bold; justify-content: space-between">
+            <span>SNAP</span>
+            <span>拍</span>
+        </div>
+        <div id="takeMobilePhotoContainer" v-if="isMobile">
+            <a id="takeMobilePhotoBtn"
+               onclick="document.getElementById('camera-input').click();">📸</a>
+            <input v-on:change="takeMobileCameraPhoto" class="btn btn-primary" style="display:none;" type="file"
+                   id="camera-input" accept="image/*" capture="camera"/>
         </div>
 
         <div v-if="!isMobile">
@@ -152,8 +157,8 @@
         </div>
 
         <hr/>
-        <div style="display: flex; justify-content: space-between">
-            <span>choose</span>
+        <div style="display: flex; font-weight: bold; justify-content: space-between">
+            <span>CHOOSE</span>
             <span>选照片</span>
         </div>
         <div id="user-images-container">
