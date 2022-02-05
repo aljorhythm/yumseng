@@ -112,17 +112,19 @@ func (socket *eventsSocket) handleEventsAndSendMessages() {
 				log.Printf("cheers channel is closed %s", socket.clientId)
 			}
 		case <-intensityTicker.C:
-			count := socket.room.Intensity()
-			message, _ := NewRoomIntensityMessage(count)
+			intensity := socket.room.Intensity(func(cheer cheers.Cheer) bool {
+				return cheer.Value == "yum"
+			})
+			message, _ := NewRoomIntensityMessage(intensity)
 			err := socket.conn.WriteJSON(message)
 			if err != nil {
 				log.Printf("EventsSocketId: %s Error writing to connection %#v closing quit channel", socket.clientId, err)
 				close(socket.quitIntensityListener)
 			} else {
-				//log.Printf("wrote to socket last seconds cheer count %s %d", socket.clientId, count)
+				log.Printf("wrote to socket last seconds cheer intensity %s %f", socket.clientId, intensity)
 			}
 		case <-socket.quitIntensityListener:
-			log.Printf("EventsSocketId: %s Stop sending cheer count", socket.clientId)
+			log.Printf("EventsSocketId: %s Stop sending cheer intensity", socket.clientId)
 			intensityTicker.Stop()
 			return
 		}

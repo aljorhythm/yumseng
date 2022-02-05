@@ -27,7 +27,7 @@ jobs:
       TAG: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v2
-      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+      - uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "yumseng" #Must be unique in Heroku

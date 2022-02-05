@@ -98,10 +98,12 @@ func (room *Room) AddCheerImage(user User, cheerImage *CheerImage) error {
 
 const expectedMaxPerSecond float32 = 7.2
 
-func (room *Room) Intensity() float32 {
+func (room *Room) Intensity(filterCheer func(cheer cheers.Cheer) bool) float32 {
 	items := []movingavg.Item{}
 	for _, item := range room.Cheers {
-		items = append(items, CheerItem{item})
+		if filterCheer(*item) {
+			items = append(items, CheerItem{item})
+		}
 	}
 
 	users := room.Users

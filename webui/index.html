@@ -105,10 +105,11 @@
 
         <div id="yum-btns">
             <button class="btn btn-warning" v-on:click="yum">YUUUUUUM</button>
-            <button class='btn btn-danger'>SENG</button>
+            <button class='btn btn-danger' v-on:click="seng">SENG</button>
 
             <div id="takeMobilePhotoContainer" v-if="isMobile">
-                <a style="font-size: 80px" id="takeMobilePhotoBtn" onclick="document.getElementById('camera-input').click();">📸</a>
+                <a style="font-size: 80px" id="takeMobilePhotoBtn"
+                   onclick="document.getElementById('camera-input').click();">📸</a>
                 <input v-on:change="takeMobileCameraPhoto" class="btn btn-primary" style="display:none;" type="file"
                        id="camera-input" accept="image/*" capture="camera"/>
             </div>
@@ -146,9 +147,9 @@
     <div id="userIdContainer" v-else>
         Choose a special name and remember it!
         <div class="input-group">
-<!--            <div class="input-group-prepend">-->
-<!--                <span class="input-group-text">Name</span>-->
-<!--            </div>-->
+            <!--            <div class="input-group-prepend">-->
+            <!--                <span class="input-group-text">Name</span>-->
+            <!--            </div>-->
             <input class="form-control" v-model="userIdInput"/>
         </div>
         <div class="input-group">
@@ -284,14 +285,28 @@
                 await this.joinRoom()
                 await this.fetchUserImages()
             },
-            yum: async function (event) {
+            yum: async function () {
                 await fetch(`/rooms/${this.roomId}/user/${this.userId}/cheers`, {
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     method: 'POST',
                     body: JSON.stringify({
-                        value: "a cheer",
+                        value: "yum",
+                        client_created_at: new Date().toJSON(),
+                        user_id: this.userId,
+                        image_url: this.yumImageUrl
+                    })
+                })
+            },
+            seng: async function () {
+                await fetch(`/rooms/${this.roomId}/user/${this.userId}/cheers`, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'POST',
+                    body: JSON.stringify({
+                        value: "seng",
                         client_created_at: new Date().toJSON(),
                         user_id: this.userId,
                         image_url: this.yumImageUrl
