@@ -8,6 +8,7 @@ import (
 	"github.com/aljorhythm/yumseng/objectstorage"
 	"github.com/google/uuid"
 	"log"
+	"time"
 )
 
 type CheerImage struct {
@@ -27,12 +28,30 @@ type RoomServicer interface {
 	GetOrCreateRoom(name string) *Room
 	GetRoom(name string) *Room
 	GetLeaderboard(roomId string) []*UserInfo
+	RemoveOutdatedCheers() //todo remove this issue-1.md
 }
 
 type roomsService struct {
 	*RoomEvents
 	rooms         map[string]*Room
 	objectStorage objectstorage.Storage
+}
+
+//todo remove this issue-1.md
+func (service *roomsService) RemoveOutdatedCheers() {
+	beforeTime := time.Now().Add(time.Second * time.Duration(20))
+	for _, room := range service.rooms {
+		allCheers := room.Cheers
+		filteredCheers := []*cheers.Cheer{}
+
+		for _, cheer := range allCheers {
+			if cheer.ClientCreatedAt.After(beforeTime) {
+				filteredCheers = append(filteredCheers, cheer)
+			}
+		}
+
+		room.Cheers = filteredCheers
+	}
 }
 
 func findPointLeaders(users map[string]*UserInfo, k int) []*UserInfo {

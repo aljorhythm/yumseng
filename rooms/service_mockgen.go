@@ -134,6 +134,18 @@ func (mr *MockRoomServicerMockRecorder) GetRoom(name interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoom", reflect.TypeOf((*MockRoomServicer)(nil).GetRoom), name)
 }
 
+// RemoveOutdatedCheers mocks base method.
+func (m *MockRoomServicer) RemoveOutdatedCheers() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "RemoveOutdatedCheers")
+}
+
+// RemoveOutdatedCheers indicates an expected call of RemoveOutdatedCheers.
+func (mr *MockRoomServicerMockRecorder) RemoveOutdatedCheers() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveOutdatedCheers", reflect.TypeOf((*MockRoomServicer)(nil).RemoveOutdatedCheers))
+}
+
 // StopListeningCheers mocks base method.
 func (m *MockRoomServicer) StopListeningCheers(room *Room, clientId string) {
 	m.ctrl.T.Helper()

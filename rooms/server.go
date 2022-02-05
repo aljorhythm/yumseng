@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 )
 
 type RoomsServer struct {
@@ -228,6 +229,19 @@ func NewRoomsServer(router *mux.Router, roomsService RoomServicer, userService U
 	)
 
 	router.Handle("/events", http.HandlerFunc(roomsServer.eventsWs))
+
+	//todo remove this issue-1.md
+	go func() {
+		ticker := time.NewTicker(10 * time.Second)
+		for {
+			select {
+			case _ = <-ticker.C:
+				log.Printf("[RoomsServer] clearing outdated cheers")
+				roomsService.RemoveOutdatedCheers()
+				log.Printf("[RoomsServer] cleared outdated cheers")
+			}
+		}
+	}()
 
 	roomsServer.Handler = router
 	return roomsServer
