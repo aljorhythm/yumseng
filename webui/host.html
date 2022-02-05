@@ -25,6 +25,7 @@
 </head>
 
 <body>
+
 <div class="container">
     <div id="interact"
          style="position: fixed; top: 0; left: 0; background: white; width: 100vw; height: 100vh; text-align: center; z-index: 100">
@@ -55,15 +56,42 @@
                 background: rgba(252, 3, 3, 0.7);
                 border-radius: 4px;
             }
+
+            #new-top-scorer-box {
+                border-radius: 4px;
+                background: #ffb700;
+                text-transform: uppercase;
+                text-align: center;
+                font-weight: bold;
+                font-size: x-large;
+                padding: 20px;
+                color: #ff0a0a;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .leaderboard-row {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                text-transform: uppercase;
+                font-size: xx-large;
+            }
         </style>
 
         <div id="container-1">
             <div style="width: 80%" id="beer-img-container"></div>
-            <div style="width: 10%" id="leaderboard-container">
-                <h2>Leaderboard</h2>
-                <div v-for="scorer in topScorers">
-                    <span>{{scorer.user_id}}</span>
-                    <span>{{scorer.points}}</span>
+            <div style="width: 15%" id="leaderboard-container">
+                <div id="new-top-scorer-box"
+                     style="display: none;">
+                    <span style="margin: 5px">{{ newTopScorer.user_id }}</span>
+                    <span style="margin: 5px">{{ newTopScorer.points }}</span>
+                    <img v-bind:src="newTopScorer.image"/>
+                </div>
+                <div class='leaderboard-row' v-for="scorer in leaderboard">
+                    <span style="text-align: left">{{scorer.user_id}}</span>
+                    <span style="text-align: right">{{scorer.points}}</span>
                 </div>
             </div>
         </div>
@@ -82,7 +110,7 @@
                 Your browser does not support the audio tag.
             </audio>
 
-            <audio volume="0" controls autoplay id="seng-audio">
+            <audio volume="0" controls id="seng-audio">
                 <source src="seng.mp3" type="audio/mp3"/>
                 Your browser does not support the audio tag.
             </audio>
@@ -129,6 +157,8 @@
         yumAudio.volume = 0
     })()
 
+    let userCache = {}
+
     if (window["WebSocket"]) {
         websocketScheme =
             window.location.protocol == "http:" ? "ws://" : "wss://";
@@ -155,11 +185,18 @@
                 yumAudio.play();
             } else if (eventName == "EVENT_CHEER_ADDED") {
                 const cheer = event["cheer"]
+                const userId = event["cheer"]["user_id"]
+                const imageUrl = cheer["image_url"] || 'face_1.jpg'
+
+                userCache[userId] = cheer
+
                 if (cheer["value"] == "seng") {
                     playSeng()
+                    const $mug = $(`<div id=${Date.now()} class="yumseng-img">
+                                    <img class="img-fluid" src="${imageUrl}"/>
+                              </div>`);
                     return
                 }
-                const imageUrl = cheer["image_url"] || 'face_1.jpg'
                 const $mug = $(`<div id=${Date.now()} class="yumseng-img">
                                     <img class="img-fluid" src="${imageUrl}"/>
                               </div>`);
@@ -208,18 +245,40 @@
         el: '#leaderboard-container',
         data: {
             roomId: dummyRoomName,
-            topScorers: []
+            leaderboard: [],
+            newTopScorer: {},
+            isAnimatingTopScorer: false
         },
         methods: {
             async fetchLeaderboard() {
                 const resp = await fetch(`/rooms/${this.roomId}/leaderboard`)
-                this.topScorers = await resp.json()
+                const newLeaderBoard = await resp.json()
+                const nextTopScorer = this.leaderboard.length == 0 ? null : this.leaderboard[0]["user_id"]
+                const previousTopScorer = newLeaderBoard.length == 0 ? null : newLeaderBoard[0]["user_id"]
+                this.leaderboard = newLeaderBoard
+
+                if (this.isAnimatingTopScorer) {
+                    return
+                }
+
+                if (previousTopScorer != nextTopScorer) {
+                    this.newTopScorer = newLeaderBoard[0]
+                    this.newTopScorer["image"] = userCache[this.newTopScorer["user_id"]] ? userCache[this.newTopScorer["user_id"]]["image_url"] : "face_1.jpg"
+                    this.isAnimatingTopScorer = true
+                    $("#new-top-scorer-box").show(1000, () => {
+                        setTimeout(() => {
+                            $("#new-top-scorer-box").hide(1000, () => {
+                                this.isAnimatingTopScorer = false
+                            })
+                        }, 1000)
+                    })
+                }
             }
         },
         created() {
             setInterval(() => {
                 this.fetchLeaderboard()
-            }, 100)
+            }, 200)
         },
     })
 </script>

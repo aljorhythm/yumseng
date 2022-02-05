@@ -60,11 +60,19 @@
 
     #yum-btns {
         display: flex;
-        justify-content: space-between;
+        justify-content: space-around;
     }
 
     #yum-btns * {
-        width: 25%
+        width: 25%;
+        background: none;
+        color: #ff0a0a;
+        font-size: xxx-large !important;
+        border: none;
+        padding: 0;
+        font: inherit;
+        cursor: pointer;
+        outline: inherit;
     }
 
     #user-images-container {
@@ -101,11 +109,11 @@
 </style>
 <div id="app" class="container">
     <div id="actionsContainer" v-if="userId != null">
-        <h4>Hi, {{ userId }} </h4>
+        <h3>{{ userId }} </h3>
 
         <div id="yum-btns">
-            <button class="btn btn-warning" v-on:click="yum">YUUUUUUM</button>
-            <button class='btn btn-danger' v-on:click="seng">SENG</button>
+            <button v-on:click="yum">飲</button>
+            <button v-on:click="seng">勝</button>
 
             <div id="takeMobilePhotoContainer" v-if="isMobile">
                 <a style="font-size: 80px" id="takeMobilePhotoBtn"
@@ -213,6 +221,16 @@
             userImages: [],
             yumImageUrl: "",
             isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+        },
+        created() {
+            const urlParams = new URLSearchParams(window.location.search);
+            console.log(window.location.search)
+            const name = urlParams.get('name');
+            console.log(name)
+            if(name != null && name != "") {
+                this.userId = name
+                this.joinRoom()
+            }
         },
         methods: {
             takeMobileCameraPhoto: function () {

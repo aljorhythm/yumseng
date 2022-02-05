@@ -121,7 +121,7 @@ func (socket *eventsSocket) handleEventsAndSendMessages() {
 				log.Printf("EventsSocketId: %s Error writing to connection %#v closing quit channel", socket.clientId, err)
 				close(socket.quitIntensityListener)
 			} else {
-				log.Printf("wrote to socket last seconds cheer intensity %s %f", socket.clientId, intensity)
+				//log.Printf("wrote to socket last seconds cheer intensity %s %f", socket.clientId, intensity)
 			}
 		case <-socket.quitIntensityListener:
 			log.Printf("EventsSocketId: %s Stop sending cheer intensity", socket.clientId)
