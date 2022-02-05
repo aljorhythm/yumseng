@@ -75,7 +75,9 @@
     }
 
     #yum-btns button:active {
-        transform: translateY(10px)
+        transform: translateY(10px);
+        -ms-transform: translateY(10px);
+        -webkit-transform: translateY(10px);
     }
 
     #yum-btns button {
@@ -234,7 +236,7 @@
             console.log(window.location.search)
             const name = urlParams.get('name');
             console.log(name)
-            if(name != null && name != "") {
+            if (name != null && name != "") {
                 this.userId = name
                 this.joinRoom()
             }
