@@ -67,7 +67,6 @@
         width: 25%;
         background: none;
         color: #ff0a0a;
-        font-size: 10em !important;
         border: none;
         padding: 0;
         font: inherit;
@@ -75,8 +74,12 @@
         outline: inherit;
     }
 
-    #yum-btns *:active {
-        transform: translateY(4px)
+    #yum-btns button:active {
+        transform: translateY(10px)
+    }
+
+    #yum-btns button {
+        font-size: 3em;
     }
 
     #user-images-container {
@@ -106,7 +109,7 @@
 
     #takeMobilePhotoBtn {
         cursor: pointer;
-        font-size: xxx-large;
+        font-size: 3em;
         border-radius: 4px;
         display: inline;
     }
@@ -120,7 +123,7 @@
             <button v-on:click="seng">勝</button>
 
             <div id="takeMobilePhotoContainer" v-if="isMobile">
-                <a style="font-size: 80px" id="takeMobilePhotoBtn"
+                <a id="takeMobilePhotoBtn"
                    onclick="document.getElementById('camera-input').click();">📸</a>
                 <input v-on:change="takeMobileCameraPhoto" class="btn btn-primary" style="display:none;" type="file"
                        id="camera-input" accept="image/*" capture="camera"/>
