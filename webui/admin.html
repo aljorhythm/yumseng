@@ -16,6 +16,7 @@
 </style>
 <div id="app">
     <button v-on:click="resetPoints">Reset points</button>
+    <button v-on:click="deleteAllUsers">Delete all users</button>
     <hr/>
     <div id="users-table">
         <div class="user-row" v-for="user in users"
@@ -36,10 +37,14 @@
         el: '#app',
         data: {
             roomId: "global-room",
-            users: []
+            users: [],
+            isSengDisallowed: nil
         },
         methods: {
             async resetPoints() {
+                if (!confirm("Confirm reset all users points?")) {
+                    return
+                }
                 const response = await fetch(`/rooms/${this.roomId}/reset-points`, {
                     method: "POST"
                 })
@@ -48,8 +53,8 @@
             },
             async fetchUsers() {
                 const response = await fetch(`/rooms/${this.roomId}/users`)
-                this.users = await response.json()
-                this.users = this.users.sort((a, b) => {
+                const users = await response.json()
+                this.users = users.sort((a, b) => {
                     const diff = a.points - b.points
                     if (diff == 0) {
                         return a["user_id"].localeCompare(b["user_id"])
@@ -57,16 +62,35 @@
                     return diff
                 })
             },
+            async deleteAllUsers() {
+                if (!confirm("Confirm delete all users?")) {
+                    return
+                }
+                const response = await fetch(`/rooms/${this.roomId}/users`, {
+                    method: "DELETE"
+                })
+                console.log(await response.json())
+                this.fetchUsers()
+            },
             async deleteUser(userId) {
                 const response = await fetch(`/rooms/${this.roomId}/user/${userId}`, {
                     method: "DELETE"
                 })
                 console.log(await response.json())
                 this.fetchUsers()
+            },
+            async fetchCheerRules() {
+                const response = await fetch(`/rooms/${this.roomId}/cheer-rules`)
+                const data = response.json()
+                this.isSengDisallowed = data
             }
         },
         created() {
             this.fetchUsers()
+            setInterval(() => this.fetchUsers(), 2000)
+
+            this.fetchCheerRules()
+            setInterval(() => this.fetchCheerRules(), 2000)
         }
     })
 </script>
