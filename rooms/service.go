@@ -32,12 +32,19 @@ type RoomServicer interface {
 	//todo remove this issue-1.md
 	RemoveOutdatedCheers()
 	ResetPoints(roomId string)
+	DeleteAllUsers(id string)
 }
 
 type roomsService struct {
 	*RoomEvents
 	rooms         map[string]*Room
 	objectStorage objectstorage.Storage
+}
+
+func (service *roomsService) DeleteAllUsers(roomId string) {
+	if room, ok := service.rooms[roomId]; ok {
+		room.DeleteAllUsers()
+	}
 }
 
 func (service *roomsService) ResetPoints(roomId string) {

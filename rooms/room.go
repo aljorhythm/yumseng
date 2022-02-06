@@ -177,6 +177,12 @@ func (room *Room) ResetPoints() {
 	}
 }
 
+func (room *Room) DeleteAllUsers() {
+	room.usersRWMutex.Lock()
+	defer room.usersRWMutex.Unlock()
+	room.Users = map[string]*UserInfo{}
+}
+
 func NewRoom(name string) *Room {
 	return &Room{
 		[]*cheers.Cheer{},

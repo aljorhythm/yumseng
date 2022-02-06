@@ -195,6 +195,9 @@ func (roomsServer *RoomsServer) roomUsersHandler(writer http.ResponseWriter, req
 			})
 		}
 		writer.Write(utils.MustEncodeJson(responseUsers))
+	} else if request.Method == "DELETE" {
+		roomsServer.RoomServicer.DeleteAllUsers(roomId)
+		writer.Write(utils.MustEncodeJson(map[string]interface{}{}))
 	}
 }
 

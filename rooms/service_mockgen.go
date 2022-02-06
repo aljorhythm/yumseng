@@ -77,6 +77,18 @@ func (mr *MockRoomServicerMockRecorder) AddCheerImage(ctx, roomId, user, url int
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCheerImage", reflect.TypeOf((*MockRoomServicer)(nil).AddCheerImage), ctx, roomId, user, url)
 }
 
+// DeleteAllUsers mocks base method.
+func (m *MockRoomServicer) DeleteAllUsers(id string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "DeleteAllUsers", id)
+}
+
+// DeleteAllUsers indicates an expected call of DeleteAllUsers.
+func (mr *MockRoomServicerMockRecorder) DeleteAllUsers(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAllUsers", reflect.TypeOf((*MockRoomServicer)(nil).DeleteAllUsers), id)
+}
+
 // GetCheerImages mocks base method.
 func (m *MockRoomServicer) GetCheerImages(ctx context.Context, roomId string, user User) ([]*CheerImage, error) {
 	m.ctrl.T.Helper()
