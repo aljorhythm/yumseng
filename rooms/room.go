@@ -7,6 +7,7 @@ import (
 	"github.com/aljorhythm/yumseng/utils/movingavg"
 	"log"
 	"math/rand"
+	"strings"
 	"sync"
 	"time"
 )
@@ -18,6 +19,7 @@ type Room struct {
 	Users         map[string]*UserInfo
 	usersRWMutex  *sync.RWMutex
 	cheersRWMutex *sync.RWMutex
+	toSkipCheerFn func(cheer *cheers.Cheer) bool
 }
 
 type CheerItem struct {
@@ -168,6 +170,14 @@ func (room *Room) GetUsers() []*UserInfo {
 	return users
 }
 
+func (room *Room) toSkipCheer(cheer *cheers.Cheer) bool {
+	if room.toSkipCheerFn == nil {
+		return false
+	} else {
+		return room.toSkipCheerFn(cheer)
+	}
+}
+
 func (room *Room) ResetPoints() {
 	room.usersRWMutex.Lock()
 	defer room.usersRWMutex.Unlock()
@@ -183,6 +193,22 @@ func (room *Room) DeleteAllUsers() {
 	room.Users = map[string]*UserInfo{}
 }
 
+func ToSkipCheerIfSeng(cheer *cheers.Cheer) bool {
+	return strings.ToLower(cheer.Value) == "seng"
+}
+
+func (room *Room) HasSkipCheerRule() bool {
+	return room.toSkipCheerFn != nil
+}
+
+func (room *Room) ClearSkipCheerRule() {
+	room.toSkipCheerFn = nil
+}
+
+func (room *Room) SkipCheerIfSeng() {
+	room.toSkipCheerFn = ToSkipCheerIfSeng
+}
+
 func NewRoom(name string) *Room {
 	return &Room{
 		[]*cheers.Cheer{},
@@ -191,5 +217,7 @@ func NewRoom(name string) *Room {
 		map[string]*UserInfo{},
 		&sync.RWMutex{},
 		&sync.RWMutex{},
+		// todo remove default behavior
+		ToSkipCheerIfSeng,
 	}
 }

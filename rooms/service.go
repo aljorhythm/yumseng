@@ -33,12 +33,27 @@ type RoomServicer interface {
 	RemoveOutdatedCheers()
 	ResetPoints(roomId string)
 	DeleteAllUsers(id string)
+	//todo remove hardcode
+	AllowAllCheers(roomId string)
+	DisallowSeng(roomId string)
 }
 
 type roomsService struct {
 	*RoomEvents
 	rooms         map[string]*Room
 	objectStorage objectstorage.Storage
+}
+
+func (service *roomsService) AllowAllCheers(roomId string) {
+	if room, ok := service.rooms[roomId]; ok {
+		room.toSkipCheerFn = nil
+	}
+}
+
+func (service *roomsService) DisallowSeng(roomId string) {
+	if room, ok := service.rooms[roomId]; ok {
+		room.toSkipCheerFn = ToSkipCheerIfSeng
+	}
 }
 
 func (service *roomsService) DeleteAllUsers(roomId string) {
@@ -214,6 +229,9 @@ func (r *roomsService) AddCheerAddedListener(room *Room, user User, clientId str
 
 func (r *roomsService) AddCheer(room *Room, cheer *cheers.Cheer, user User) error {
 	cheer.UserId = user.GetId()
+	if room.toSkipCheer(cheer) {
+		return nil
+	}
 	if err := room.AddCheer(cheer); err != nil {
 		return err
 	}

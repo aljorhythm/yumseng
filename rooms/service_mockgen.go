@@ -77,6 +77,18 @@ func (mr *MockRoomServicerMockRecorder) AddCheerImage(ctx, roomId, user, url int
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCheerImage", reflect.TypeOf((*MockRoomServicer)(nil).AddCheerImage), ctx, roomId, user, url)
 }
 
+// AllowAllCheers mocks base method.
+func (m *MockRoomServicer) AllowAllCheers(roomId string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "AllowAllCheers", roomId)
+}
+
+// AllowAllCheers indicates an expected call of AllowAllCheers.
+func (mr *MockRoomServicerMockRecorder) AllowAllCheers(roomId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AllowAllCheers", reflect.TypeOf((*MockRoomServicer)(nil).AllowAllCheers), roomId)
+}
+
 // DeleteAllUsers mocks base method.
 func (m *MockRoomServicer) DeleteAllUsers(id string) {
 	m.ctrl.T.Helper()
@@ -87,6 +99,18 @@ func (m *MockRoomServicer) DeleteAllUsers(id string) {
 func (mr *MockRoomServicerMockRecorder) DeleteAllUsers(id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAllUsers", reflect.TypeOf((*MockRoomServicer)(nil).DeleteAllUsers), id)
+}
+
+// DisallowSeng mocks base method.
+func (m *MockRoomServicer) DisallowSeng(roomId string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "DisallowSeng", roomId)
+}
+
+// DisallowSeng indicates an expected call of DisallowSeng.
+func (mr *MockRoomServicerMockRecorder) DisallowSeng(roomId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DisallowSeng", reflect.TypeOf((*MockRoomServicer)(nil).DisallowSeng), roomId)
 }
 
 // GetCheerImages mocks base method.

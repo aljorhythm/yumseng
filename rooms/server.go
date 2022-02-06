@@ -238,6 +238,29 @@ func (roomsServer *RoomsServer) roomPointsHandler(w http.ResponseWriter, r *http
 	w.Write(utils.MustEncodeJson(map[string]interface{}{}))
 }
 
+func (roomsServer *RoomsServer) disallowSeng(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	roomId, _ := vars["room-id"]
+	room := roomsServer.GetRoom(roomId)
+	room.SkipCheerIfSeng()
+	w.Write(utils.MustEncodeJson(map[string]interface{}{}))
+}
+
+func (roomsServer *RoomsServer) cheerRulesHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	roomId, _ := vars["room-id"]
+	room := roomsServer.GetRoom(roomId)
+
+	if r.Method == "GET" {
+		w.Write(utils.MustEncodeJson(room.HasSkipCheerRule()))
+	} else if r.Method == "DELETE" {
+		room.ClearSkipCheerRule()
+		w.Write(utils.MustEncodeJson(map[string]interface{}{}))
+	}
+}
+
 func NewRoomsServer(router *mux.Router, roomsService RoomServicer, userService UserServicer, opts RoomsServerOpts) http.Handler {
 	roomsServer := &RoomsServer{
 		RoomServicer:    roomsService,
@@ -254,6 +277,18 @@ func NewRoomsServer(router *mux.Router, roomsService RoomServicer, userService U
 	router.HandleFunc("/{room-id}/reset-points",
 		utils.ChainMiddlewares(
 			roomsServer.roomPointsHandler,
+			utils.AddSetJsonHeaderMw),
+	)
+
+	router.HandleFunc("/{room-id}/cheer-rules",
+		utils.ChainMiddlewares(
+			roomsServer.cheerRulesHandler,
+			utils.AddSetJsonHeaderMw),
+	)
+
+	router.HandleFunc("/{room-id}/cheer-rules/disallow-seng",
+		utils.ChainMiddlewares(
+			roomsServer.disallowSeng,
 			utils.AddSetJsonHeaderMw),
 	)
 
