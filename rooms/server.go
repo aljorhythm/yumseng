@@ -163,10 +163,27 @@ func (roomsServer *RoomsServer) roomUserHandler(writer http.ResponseWriter, requ
 
 	roomId, _ := vars["room-id"]
 	userId, _ := vars["user-id"]
-	room := roomsServer.RoomServicer.GetOrCreateRoom(roomId)
-	user, _ := roomsServer.UserService.GetUser(userId)
-	roomsServer.RoomServicer.UserJoinsRoom(request.Context(), room, user)
-	writer.Write([]byte{})
+
+	if request.Method == "POST" {
+		room := roomsServer.RoomServicer.GetOrCreateRoom(roomId)
+		user, _ := roomsServer.UserService.GetUser(userId)
+		roomsServer.RoomServicer.UserJoinsRoom(request.Context(), room, user)
+		writer.Write([]byte{})
+	} else if request.Method == "DELETE" {
+		roomsServer.RemoveUserFromRoom(userId, roomId)
+		writer.Write([]byte{})
+	}
+}
+
+func (roomsServer *RoomsServer) roomUsersHandler(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+
+	roomId, _ := vars["room-id"]
+
+	if request.Method == "GET" {
+		roomsServer.RoomServicer.GetUsers(roomId)
+		writer.Write([]byte{})
+	}
 }
 
 type LeaderboardResponseUser struct {

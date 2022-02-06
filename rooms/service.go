@@ -27,14 +27,34 @@ type RoomServicer interface {
 	StopListeningCheers(room *Room, clientId string)
 	GetOrCreateRoom(name string) *Room
 	GetRoom(name string) *Room
+	GetUsers(roomId string) []*UserInfo
+	RemoveUserFromRoom(userId string, roomId string)
 	GetLeaderboard(roomId string) []*UserInfo
-	RemoveOutdatedCheers() //todo remove this issue-1.md
+	//todo remove this issue-1.md
+	RemoveOutdatedCheers()
 }
 
 type roomsService struct {
 	*RoomEvents
 	rooms         map[string]*Room
 	objectStorage objectstorage.Storage
+}
+
+func (service *roomsService) GetUsers(roomId string) []*UserInfo {
+	users := []*UserInfo{}
+
+	if room, ok := service.rooms[roomId]; ok {
+		for _, user := range room.Users {
+			users = append(users, user)
+		}
+	}
+	return users
+}
+
+func (service *roomsService) RemoveUserFromRoom(userId string, roomId string) {
+	if room, ok := service.rooms[roomId]; ok {
+		delete(room.Users, userId)
+	}
 }
 
 //todo remove this issue-1.md

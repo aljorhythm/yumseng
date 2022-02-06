@@ -15,9 +15,9 @@ var (
 )
 
 type UserInfo struct {
-	CheerImages []*CheerImage
-	User        User
-	Points      int
+	CheerImages []*CheerImage `json:"cheer_images"`
+	User        User          `json:"user"`
+	Points      int           `json:"points"`
 }
 
 func NewUserAndInfo(user User) *UserInfo {
