@@ -18,6 +18,14 @@
     <button v-on:click="resetPoints">Reset points</button>
     <button v-on:click="deleteAllUsers">Delete all users</button>
     <hr/>
+    <div v-if="isSengDisallowed">Seng Is Not Allowed!!
+        <button v-on:click="allowSeng">Allow Seng</button>
+    </div>
+    <div v-else>
+        Seng is Allowed!!
+        <button v-on:click="disallowSeng">Disallow Seng</button>
+    </div>
+    <hr/>
     <div id="users-table">
         <div class="user-row" v-for="user in users"
              :key="user.user_id">
@@ -38,7 +46,7 @@
         data: {
             roomId: "global-room",
             users: [],
-            isSengDisallowed: nil
+            isSengDisallowed: null
         },
         methods: {
             async resetPoints() {
@@ -81,8 +89,24 @@
             },
             async fetchCheerRules() {
                 const response = await fetch(`/rooms/${this.roomId}/cheer-rules`)
-                const data = response.json()
+                const data = await response.json()
                 this.isSengDisallowed = data
+            },
+            async disallowSeng() {
+                const response = await fetch(`/rooms/${this.roomId}/cheer-rules/disallow-seng`, {
+                    method: "POST"
+                })
+                console.log(await response.json())
+                this.fetchCheerRules()
+            },
+            async allowSeng() {
+                const response = await fetch(`/rooms/${this.roomId}/cheer-rules`, {
+                    method: "DELETE"
+                })
+
+                console.log(await response.json())
+
+                this.fetchCheerRules()
             }
         },
         created() {

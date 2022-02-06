@@ -9,7 +9,6 @@ import (
 	"github.com/aljorhythm/yumseng/utils"
 	"github.com/gorilla/mux"
 	"io/fs"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -98,7 +97,7 @@ func allowSameOriginOrInList(list []string) func(*http.Request) bool {
 }
 
 func main() {
-	log.SetOutput(ioutil.Discard)
+	//log.SetOutput(ioutil.Discard)
 
 	router := mux.NewRouter()
 

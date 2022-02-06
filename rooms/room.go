@@ -205,7 +205,7 @@ func (room *Room) ClearSkipCheerRule() {
 	room.toSkipCheerFn = nil
 }
 
-func (room *Room) SkipCheerIfSeng() {
+func (room *Room) SkipAddCheerIfSeng() {
 	room.toSkipCheerFn = ToSkipCheerIfSeng
 }
 

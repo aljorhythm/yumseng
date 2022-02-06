@@ -242,8 +242,8 @@ func (roomsServer *RoomsServer) disallowSeng(w http.ResponseWriter, r *http.Requ
 	vars := mux.Vars(r)
 
 	roomId, _ := vars["room-id"]
-	room := roomsServer.GetRoom(roomId)
-	room.SkipCheerIfSeng()
+	room := roomsServer.GetOrCreateRoom(roomId)
+	room.SkipAddCheerIfSeng()
 	w.Write(utils.MustEncodeJson(map[string]interface{}{}))
 }
 
@@ -251,7 +251,7 @@ func (roomsServer *RoomsServer) cheerRulesHandler(w http.ResponseWriter, r *http
 	vars := mux.Vars(r)
 
 	roomId, _ := vars["room-id"]
-	room := roomsServer.GetRoom(roomId)
+	room := roomsServer.GetOrCreateRoom(roomId)
 
 	if r.Method == "GET" {
 		w.Write(utils.MustEncodeJson(room.HasSkipCheerRule()))
