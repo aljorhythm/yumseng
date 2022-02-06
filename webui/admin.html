@@ -50,7 +50,7 @@
                 const response = await fetch(`/rooms/${this.roomId}/users`)
                 this.users = await response.json()
                 this.users = this.users.sort((a, b) => {
-                    const diff = b.points - a.points
+                    const diff = a.points - b.points
                     if (diff == 0) {
                         return a["user_id"].localeCompare(b["user_id"])
                     }

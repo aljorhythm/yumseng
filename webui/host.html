@@ -26,7 +26,7 @@
 
 <body>
 
-<div class="container">
+<div class="container" style="width: 90%">
     <div id="interact"
          style="position: fixed; top: 0; left: 0; background: white; width: 100vw; height: 100vh; text-align: center; z-index: 100">
         <button class="btn btn-info" onclick="document.querySelector('#interact').remove()">
@@ -71,7 +71,7 @@
 
             #beer-img-container {
                 position: relative;
-                height: 90vh;
+                height: 95vh;
                 background: orangered;
                 border-radius: 4px;
             }
@@ -95,15 +95,15 @@
                 flex-direction: row;
                 justify-content: space-between;
                 text-transform: uppercase;
-                font-size: xx-large;
+                font-size: x-large;
                 color: orangered;
                 font-weight: bold;
             }
         </style>
 
         <div id="container-1">
-            <div style="width: 80%" id="beer-img-container"></div>
-            <div style="width: 15%" id="leaderboard-container">
+            <div style="width: 75%" id="beer-img-container"></div>
+            <div style="width: 20%" id="leaderboard-container">
                 <div id="new-top-scorer-box"
                      style="display: none;">
                     <span style="margin: 5px">{{ newTopScorer.user_id }}</span>
@@ -246,9 +246,11 @@
                 });
 
                 $mug.fadeIn(600, () => {
-                    $mug.fadeOut(600, () => {
-                        $mug.remove();
-                    });
+                    setTimeout(() => {
+                        $mug.fadeOut(300, () => {
+                            $mug.remove();
+                        });
+                    }, 300)
                 });
             }
         };

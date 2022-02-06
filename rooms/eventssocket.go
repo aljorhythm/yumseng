@@ -73,7 +73,7 @@ func (socket *eventsSocket) listenToRoomCheers() {
 		rawCheer := args[0]
 		cheer, ok := rawCheer.(cheers.Cheer)
 		if ok {
-			log.Printf("EventsSocketId: %s Cheer Received %#v", socket.clientId, cheer)
+			log.Printf("EventsSocketId: %s Cheer Received from %s value: %s", socket.clientId, cheer.UserId, cheer.Value)
 			socket.addedCheersChannel <- cheer
 		} else {
 			log.Panicf("EventsSocketId: %s Cheer Not Recognised %#v", socket.clientId, args)
@@ -103,7 +103,7 @@ func (socket *eventsSocket) handleEventsAndSendMessages() {
 		case cheer, more := <-socket.addedCheersChannel:
 			if more {
 				cheerAddedMessage, err := NewCheerAddedMessage(cheer)
-				log.Printf("%s writing to socket %#v", socket.clientId, cheer)
+				log.Printf("%s writing to socket cheer added from %s value: %s", socket.clientId, cheer.UserId, cheer.Value)
 				err = socket.conn.WriteJSON(cheerAddedMessage)
 				if err != nil {
 					log.Panicf("client %s webSocket erroring write message %#v", socket.clientId, err)
