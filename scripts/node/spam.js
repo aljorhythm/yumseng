@@ -1,8 +1,8 @@
 import axios from 'axios'
 import testToImage from 'text-to-image'
 
-// const host = "https://yumseng-m4pgrqojya-as.a.run.app/" //
-const host = "http://localhost" // "https://yumseng.herokuapp.com"
+const host = "https://yumseng-m4pgrqojya-as.a.run.app/" //
+// const host = "http://localhost" // "https://yumseng.herokuapp.com"
 
 const CHEERS_PER_USER = 200;
 
@@ -66,7 +66,7 @@ async function main() {
             await joinRoom(userId, 'global-room')
             const imgUrl = await generateImageUrl(userId, bgColors[index % bgColors.length])
             for (let i = 0; i < CHEERS_PER_USER; i++) {
-                console.log(`${i}/200 ${userId}`)
+                console.log(`${i}/${CHEERS_PER_USER} ${userId}`)
                 try {
                     await yum(userId, 'global-room', imgUrl)
                     await sleep(Math.random() * 50);
