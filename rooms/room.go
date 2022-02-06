@@ -5,15 +5,19 @@ import (
 	"fmt"
 	"github.com/aljorhythm/yumseng/cheers"
 	"github.com/aljorhythm/yumseng/utils/movingavg"
+	"log"
 	"math/rand"
+	"sync"
 	"time"
 )
 
 type Room struct {
-	Cheers     []*cheers.Cheer
-	Name       string
-	calculator movingavg.MovingAverageCalculator
-	Users      map[string]*UserInfo
+	Cheers        []*cheers.Cheer
+	Name          string
+	calculator    movingavg.MovingAverageCalculator
+	Users         map[string]*UserInfo
+	usersRWMutex  *sync.RWMutex
+	cheersRWMutex *sync.RWMutex
 }
 
 type CheerItem struct {
@@ -33,6 +37,8 @@ func (c CheerUser) GetId() string {
 }
 
 func (room *Room) AddCheer(cheer *cheers.Cheer) error {
+	room.cheersRWMutex.Lock()
+	defer room.cheersRWMutex.Unlock()
 	if cheer.ClientCreatedAt.IsZero() {
 		return errors.New(fmt.Sprintf("%#v ClientCreatedAt cannot be 0", cheer))
 	}
@@ -55,10 +61,14 @@ func (room *Room) AddCheer(cheer *cheers.Cheer) error {
 func (room *Room) AddUserIfNotPresent(user User) (bool, error) {
 	id := user.GetId()
 
+	room.usersRWMutex.Lock()
+	defer room.usersRWMutex.Unlock()
+
 	if _, ok := room.Users[id]; !ok {
 		room.Users[id] = NewUserAndInfo(user)
 		return true, nil
 	}
+
 	return false, nil
 }
 
@@ -126,11 +136,54 @@ func (room *Room) Intensity(filterCheer func(cheer cheers.Cheer) bool) float32 {
 	return intensity
 }
 
+func (room *Room) removeOutdatedCheers() {
+	room.cheersRWMutex.Lock()
+	defer room.cheersRWMutex.Unlock()
+
+	beforeTime := time.Now().Add(-time.Second * time.Duration(5))
+
+	allCheers := room.Cheers
+	filteredCheers := []*cheers.Cheer{}
+	removedCheerCount := 0
+	for _, cheer := range allCheers {
+		if cheer.ClientCreatedAt.After(beforeTime) {
+			filteredCheers = append(filteredCheers, cheer)
+		} else {
+			removedCheerCount++
+		}
+	}
+
+	room.Cheers = filteredCheers
+	log.Printf("[Room#removeOutdatedCheers] room: %s cheers count: %d removed: %d", room.Name, len(room.Cheers), removedCheerCount)
+}
+
+func (room *Room) GetUsers() []*UserInfo {
+	room.usersRWMutex.Lock()
+	defer room.usersRWMutex.Unlock()
+
+	users := []*UserInfo{}
+	for _, user := range room.Users {
+		users = append(users, user)
+	}
+	return users
+}
+
+func (room *Room) ResetPoints() {
+	room.usersRWMutex.Lock()
+	defer room.usersRWMutex.Unlock()
+
+	for _, user := range room.Users {
+		user.Points = 0
+	}
+}
+
 func NewRoom(name string) *Room {
 	return &Room{
 		[]*cheers.Cheer{},
 		name,
 		movingavg.NewCalculator(movingavg.NowTime{}),
 		map[string]*UserInfo{},
+		&sync.RWMutex{},
+		&sync.RWMutex{},
 	}
 }

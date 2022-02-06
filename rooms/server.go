@@ -171,8 +171,13 @@ func (roomsServer *RoomsServer) roomUserHandler(writer http.ResponseWriter, requ
 		writer.Write([]byte{})
 	} else if request.Method == "DELETE" {
 		roomsServer.RemoveUserFromRoom(userId, roomId)
-		writer.Write([]byte{})
+		writer.Write(utils.MustEncodeJson(map[string]interface{}{}))
 	}
+}
+
+type ResponseUser struct {
+	UserId string `json:"user_id"`
+	Points int    `json:"points"`
 }
 
 func (roomsServer *RoomsServer) roomUsersHandler(writer http.ResponseWriter, request *http.Request) {
@@ -181,8 +186,15 @@ func (roomsServer *RoomsServer) roomUsersHandler(writer http.ResponseWriter, req
 	roomId, _ := vars["room-id"]
 
 	if request.Method == "GET" {
-		roomsServer.RoomServicer.GetUsers(roomId)
-		writer.Write([]byte{})
+		users := roomsServer.RoomServicer.GetUsers(roomId)
+		responseUsers := []ResponseUser{}
+		for _, user := range users {
+			responseUsers = append(responseUsers, ResponseUser{
+				UserId: user.User.GetId(),
+				Points: user.Points,
+			})
+		}
+		writer.Write(utils.MustEncodeJson(responseUsers))
 	}
 }
 
@@ -214,6 +226,15 @@ func (roomsServer *RoomsServer) roomLeaderboardHandler(w http.ResponseWriter, r 
 	}
 }
 
+func (roomsServer *RoomsServer) roomPointsHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	roomId, _ := vars["room-id"]
+
+	roomsServer.RoomServicer.ResetPoints(roomId)
+	w.Write(utils.MustEncodeJson(map[string]interface{}{}))
+}
+
 func NewRoomsServer(router *mux.Router, roomsService RoomServicer, userService UserServicer, opts RoomsServerOpts) http.Handler {
 	roomsServer := &RoomsServer{
 		RoomServicer:    roomsService,
@@ -224,6 +245,18 @@ func NewRoomsServer(router *mux.Router, roomsService RoomServicer, userService U
 	router.HandleFunc("/{room-id}/user/{user-id}",
 		utils.ChainMiddlewares(
 			roomsServer.roomUserHandler,
+			utils.AddSetJsonHeaderMw),
+	)
+
+	router.HandleFunc("/{room-id}/reset-points",
+		utils.ChainMiddlewares(
+			roomsServer.roomPointsHandler,
+			utils.AddSetJsonHeaderMw),
+	)
+
+	router.HandleFunc("/{room-id}/users",
+		utils.ChainMiddlewares(
+			roomsServer.roomUsersHandler,
 			utils.AddSetJsonHeaderMw),
 	)
 

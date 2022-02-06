@@ -1,0 +1,76 @@
+<html>
+
+
+<body>
+<style>
+    #users-table {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .user-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+    }
+</style>
+<div id="app">
+    <button v-on:click="resetPoints">Reset points</button>
+    <hr/>
+    <div id="users-table">
+        <div class="user-row" v-for="user in users"
+             :key="user.user_id">
+            <div>
+                {{user.user_id}}
+                <button v-on:click="deleteUser(user.user_id)">❌</button>
+            </div>
+            <div>{{user.points}}</div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            roomId: "global-room",
+            users: []
+        },
+        methods: {
+            async resetPoints() {
+                const response = await fetch(`/rooms/${this.roomId}/reset-points`, {
+                    method: "POST"
+                })
+                console.log(await response.json())
+                this.fetchUsers()
+            },
+            async fetchUsers() {
+                const response = await fetch(`/rooms/${this.roomId}/users`)
+                this.users = await response.json()
+                this.users = this.users.sort((a, b) => {
+                    const diff = b.points - a.points
+                    if (diff == 0) {
+                        return a["user_id"].localeCompare(b["user_id"])
+                    }
+                    return diff
+                })
+            },
+            async deleteUser(userId) {
+                const response = await fetch(`/rooms/${this.roomId}/user/${userId}`, {
+                    method: "DELETE"
+                })
+                console.log(await response.json())
+                this.fetchUsers()
+            }
+        },
+        created() {
+            this.fetchUsers()
+        }
+    })
+</script>
+</body>
+
+
+</html>

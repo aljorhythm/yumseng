@@ -172,6 +172,18 @@ func (mr *MockRoomServicerMockRecorder) RemoveUserFromRoom(userId, roomId interf
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveUserFromRoom", reflect.TypeOf((*MockRoomServicer)(nil).RemoveUserFromRoom), userId, roomId)
 }
 
+// ResetPoints mocks base method.
+func (m *MockRoomServicer) ResetPoints(roomId string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ResetPoints", roomId)
+}
+
+// ResetPoints indicates an expected call of ResetPoints.
+func (mr *MockRoomServicerMockRecorder) ResetPoints(roomId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResetPoints", reflect.TypeOf((*MockRoomServicer)(nil).ResetPoints), roomId)
+}
+
 // StopListeningCheers mocks base method.
 func (m *MockRoomServicer) StopListeningCheers(room *Room, clientId string) {
 	m.ctrl.T.Helper()

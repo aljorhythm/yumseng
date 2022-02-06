@@ -1,7 +1,7 @@
 import axios from 'axios'
 import testToImage from 'text-to-image'
 
-const host = "https://yumseng-m4pgrqojya-as.a.run.app/" // "https://yumseng.herokuapp.com"
+const host = "http://localhost" // "https://yumseng-m4pgrqojya-as.a.run.app/" // "https://yumseng.herokuapp.com"
 
 async function joinRoom(userId, roomId) {
     console.log(`user ${userId} joining room ${roomId}`)
@@ -111,18 +111,20 @@ async function main() {
         `#008080`
     ]
 
+    const CHEERS_PER_USER = 20;
+
     async function joinAndSend(userId, index) {
         try {
             userId = `${index}-${userId}`
             await joinRoom(userId, 'global-room')
             const imgUrl = await generateImageUrl(userId, bgColors[index % bgColors.length])
-            for (let i = 0; i < 500; i++) {
+            for (let i = 0; i < CHEERS_PER_USER; i++) {
                 console.log(`${i}/200 ${userId}`)
                 try {
                     await yum(userId, 'global-room', imgUrl)
                     await sleep(Math.random() * 50);
                 } catch (e) {
-                    console.log(`${i}/200 EXCEPTION ${userId} ${e}`)
+                    console.log(`${i}/${CHEERS_PER_USER} EXCEPTION ${userId} ${e}`)
                 }
             }
         } catch (exception) {
@@ -131,6 +133,7 @@ async function main() {
     }
 
     const all = userIds.map(joinAndSend)
+    // const all = userIds.map((userId) => joinRoom(userId, 'global-room'))
     console.log("awaiting all jobs")
     await Promise.all(all)
     console.log("finished")

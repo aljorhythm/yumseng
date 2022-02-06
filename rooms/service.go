@@ -8,7 +8,6 @@ import (
 	"github.com/aljorhythm/yumseng/objectstorage"
 	"github.com/google/uuid"
 	"log"
-	"time"
 )
 
 type CheerImage struct {
@@ -32,6 +31,7 @@ type RoomServicer interface {
 	GetLeaderboard(roomId string) []*UserInfo
 	//todo remove this issue-1.md
 	RemoveOutdatedCheers()
+	ResetPoints(roomId string)
 }
 
 type roomsService struct {
@@ -40,15 +40,17 @@ type roomsService struct {
 	objectStorage objectstorage.Storage
 }
 
-func (service *roomsService) GetUsers(roomId string) []*UserInfo {
-	users := []*UserInfo{}
-
+func (service *roomsService) ResetPoints(roomId string) {
 	if room, ok := service.rooms[roomId]; ok {
-		for _, user := range room.Users {
-			users = append(users, user)
-		}
+		room.ResetPoints()
 	}
-	return users
+}
+
+func (service *roomsService) GetUsers(roomId string) []*UserInfo {
+	if room, ok := service.rooms[roomId]; ok {
+		return room.GetUsers()
+	}
+	return []*UserInfo{}
 }
 
 func (service *roomsService) RemoveUserFromRoom(userId string, roomId string) {
@@ -59,18 +61,9 @@ func (service *roomsService) RemoveUserFromRoom(userId string, roomId string) {
 
 //todo remove this issue-1.md
 func (service *roomsService) RemoveOutdatedCheers() {
-	beforeTime := time.Now().Add(time.Second * time.Duration(20))
 	for _, room := range service.rooms {
-		allCheers := room.Cheers
-		filteredCheers := []*cheers.Cheer{}
-
-		for _, cheer := range allCheers {
-			if cheer.ClientCreatedAt.After(beforeTime) {
-				filteredCheers = append(filteredCheers, cheer)
-			}
-		}
-
-		room.Cheers = filteredCheers
+		log.Printf("[RoomsService] remove outdated cheers %s", room.Name)
+		room.removeOutdatedCheers()
 	}
 }
 
