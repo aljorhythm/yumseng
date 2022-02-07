@@ -13,6 +13,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/rs/cors"
 )
@@ -40,9 +41,14 @@ func generateReactUiHandler() (http.Handler, error) {
 	return http.FileServer(http.FS(uiFileSystem)), nil
 }
 
-func generatePingHandler(tag string) func(writer http.ResponseWriter, request *http.Request) {
+func generatePingHandler(tag string, timeArg time.Time) func(writer http.ResponseWriter, request *http.Request) {
+	timeLocation, err := time.LoadLocation("Asia/Singapore")
+	if err != nil {
+		panic(err)
+	}
 	response := &ping.PingResponse{
-		Tag: tag,
+		Tag:             tag,
+		ServerStartTime: timeArg.In(timeLocation),
 	}
 	bytes, err := utils.ToJson(response)
 
@@ -112,7 +118,7 @@ func main() {
 	rooms.NewRoomsServer(roomsSubrouter, roomsService, userService, opts)
 
 	tag := getVersionTag()
-	router.HandleFunc("/ping", generatePingHandler(tag))
+	router.HandleFunc("/ping", generatePingHandler(tag, time.Now()))
 
 	webuiHandler, err := generateUiHandler()
 	if err != nil {

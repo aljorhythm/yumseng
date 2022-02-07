@@ -1,6 +1,7 @@
 <html>
-
-
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
 <body>
 <style>
     #users-table {
@@ -14,17 +15,19 @@
         justify-content: space-evenly;
     }
 </style>
-<div id="app">
-    <button v-on:click="resetPoints">Reset points</button>
-    <button v-on:click="deleteAllUsers">Delete all users</button>
+<div id="app" class="container">
+    <button class="btn-warning btn" v-on:click="resetPoints">Reset points</button>
+    <button class="btn-warning btn" v-on:click="deleteAllUsers">Delete all users</button>
     <hr/>
     <div v-if="isSengDisallowed">Seng Is Not Allowed!!
-        <button v-on:click="allowSeng">Allow Seng</button>
+        <button class="btn btn-success" v-on:click="allowSeng">Allow Seng</button>
     </div>
     <div v-else>
         Seng is Allowed!!
-        <button v-on:click="disallowSeng">Disallow Seng</button>
+        <button class="btn btn-warning" v-on:click="disallowSeng">Disallow Seng</button>
     </div>
+    <hr/>
+    deployed time: {{serverStartTime}}
     <hr/>
     <div id="users-table">
         <div class="user-row" v-for="user in users"
@@ -46,7 +49,9 @@
         data: {
             roomId: "global-room",
             users: [],
-            isSengDisallowed: null
+            pingResponse: {},
+            isSengDisallowed: null,
+            serverStartTime: ""
         },
         methods: {
             async resetPoints() {
@@ -107,9 +112,17 @@
                 console.log(await response.json())
 
                 this.fetchCheerRules()
+            },
+            async fetchPing() {
+                const response = await fetch(`/ping`)
+                const data = await response.json()
+                this.pingResponse = data
+                this.serverStartTime = new Intl.DateTimeFormat('en-SG', { dateStyle: 'full', timeStyle: 'long' }).format(new Date(data["server_start_time"]))
+                console.log(data)
             }
         },
         created() {
+            this.fetchPing()
             this.fetchUsers()
             setInterval(() => this.fetchUsers(), 2000)
 
