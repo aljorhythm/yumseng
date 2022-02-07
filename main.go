@@ -103,8 +103,12 @@ func allowSameOriginOrInList(list []string) func(*http.Request) bool {
 	}
 }
 
+var toLog = true
+
 func main() {
-	log.SetOutput(ioutil.Discard)
+	if !toLog {
+		log.SetOutput(ioutil.Discard)
+	}
 
 	router := mux.NewRouter()
 

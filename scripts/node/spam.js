@@ -2,8 +2,9 @@ import axios from 'axios'
 import testToImage from 'text-to-image'
 
 // const host = "https://yumseng-m4pgrqojya-as.a.run.app" //
-// const host = "http://localhost" // "https://yumseng.herokuapp.com"
-const host = "https://yumseng-nnwor.ondigitalocean.app"
+const host = "http://localhost"
+// "https://yumseng.herokuapp.com"
+// const host = "https://yumseng-nnwor.ondigitalocean.app"
 
 const CHEERS_PER_USER = 40000;
 const TIMEOUT_SECONDS = 160;

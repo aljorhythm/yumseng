@@ -119,18 +119,18 @@
 
         <style>
             .yumseng-img img {
-                width: 100px;
+                width: 140px;
                 border-radius: 10px;
             }
         </style>
 
         <div style="display: none">
-            <audio loop volume="0" controls autoplay id="yum-audio">
+            <audio loop preload volume="0" controls autoplay id="yum-audio">
                 <source src="yuuuuuuuuum.mp3" type="audio/mp3"/>
                 Your browser does not support the audio tag.
             </audio>
 
-            <audio volume="0" controls id="seng-audio">
+            <audio preload volume="0" controls id="seng-audio">
                 <source src="seng.mp3" type="audio/mp3"/>
                 Your browser does not support the audio tag.
             </audio>
@@ -203,6 +203,8 @@
                 const targetVolume = intensity
                 yumAudio.volume -= (yumAudio.volume - targetVolume) / 1.8
                 yumAudio.play();
+            } else if (eventName == "LEADERBOARD") {
+
             } else if (eventName == "EVENT_CHEER_ADDED") {
                 const cheer = event["cheer"]
                 const userId = event["cheer"]["user_id"]
@@ -303,7 +305,7 @@
         created() {
             setInterval(() => {
                 this.fetchLeaderboard()
-            }, 200)
+            }, 500)
         },
     })
 </script>
