@@ -8,7 +8,7 @@ const host = "https://yumseng-nnwor.ondigitalocean.app"
 
 const CHEERS_PER_USER = 40000;
 const TIMEOUT_SECONDS = 160;
-const SLEEP_TIME = 700;
+const SLEEP_TIME = 200;
 
 async function joinRoom(userId, roomId) {
     console.log(`user ${userId} joining room ${roomId}`)

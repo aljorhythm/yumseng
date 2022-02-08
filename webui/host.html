@@ -104,6 +104,7 @@
         <div id="container-1">
             <div style="width: 75%" id="beer-img-container"></div>
             <div style="width: 20%" id="leaderboard-container">
+                <div id="intensity-box"></div>
                 <div id="new-top-scorer-box"
                      style="display: none;">
                     <span style="margin: 5px">{{ newTopScorer.user_id }}</span>
@@ -177,6 +178,9 @@
         yumAudio.volume = 0
     })()
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const showIntensity = urlParams.get('show-intensity') == 'true';
+
     let userCache = {}
 
     if (window["WebSocket"]) {
@@ -203,6 +207,9 @@
                 const targetVolume = intensity
                 yumAudio.volume -= (yumAudio.volume - targetVolume) / 1.8
                 yumAudio.play();
+                if(showIntensity) {
+                    $("#intensity-box").html(intensity)
+                }
             } else if (eventName == "LEADERBOARD") {
 
             } else if (eventName == "EVENT_CHEER_ADDED") {
