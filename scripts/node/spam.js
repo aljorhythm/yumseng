@@ -7,7 +7,7 @@ import testToImage from 'text-to-image'
 const host = "https://yumseng-nnwor.ondigitalocean.app"
 const USERS_COUNT = 20
 
-const CHEERS_PER_USER = 40000;
+const CHEERS_PER_USER = 400;
 const TIMEOUT_SECONDS = 160;
 const SLEEP_TIME = 200;
 

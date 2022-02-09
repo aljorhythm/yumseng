@@ -316,7 +316,7 @@
                 await this.fetchUserImages()
             },
             setUserId: async function (event) {
-                this.userId = this.userIdInput
+                this.userId = this.userIdInput.toUpperCase()
                 await this.joinRoom()
                 await this.fetchUserImages()
             },
